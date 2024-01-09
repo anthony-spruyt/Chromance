@@ -164,8 +164,10 @@ void AnimationControllerTask(void *pvParameters)
         {
             animationController.Loop();
         }
-        
-        vTaskDelay(TaskDelay);
+        else
+        {
+            vTaskDelay(TaskDelay);
+        }
     }
 }
 

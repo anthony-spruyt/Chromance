@@ -63,9 +63,9 @@ void AnimationController::Setup()
     this->animations[(uint8_t)AnimationType::CubePulse] = nullptr;//this->animations[(uint8_t)AnimationType::CubePulse] = new CubePulseAnimation((uint8_t)AnimationType::CubePulse);
     this->animations[(uint8_t)AnimationType::StarburstPulse] = nullptr;
     this->animations[(uint8_t)AnimationType::CenterPulse] = nullptr;
-    this->animations[(uint8_t)AnimationType::RainbowLinear] = new RainbowBeatAnimation((uint8_t)AnimationType::RainbowLinear);
-    this->animations[(uint8_t)AnimationType::RainbowMarch] = new RainbowMarchAnimation((uint8_t)AnimationType::RainbowMarch);
-    this->animations[(uint8_t)AnimationType::Pulse] = new PulseAnimation((uint8_t)AnimationType::Pulse);
+    this->animations[(uint8_t)AnimationType::RainbowBeat] = RainbowBeatAnimationEnabled ? new RainbowBeatAnimation((uint8_t)AnimationType::RainbowBeat) : nullptr;
+    this->animations[(uint8_t)AnimationType::RainbowMarch] = RainbowMarchAnimationEnabled ? new RainbowMarchAnimation((uint8_t)AnimationType::RainbowMarch) : nullptr;
+    this->animations[(uint8_t)AnimationType::Pulse] = PulseAnimationEnabled ? new PulseAnimation((uint8_t)AnimationType::Pulse) : nullptr;
     
     this->lastRandomAnimationStarted = millis() + StartupDelay;
     
@@ -277,10 +277,15 @@ void AnimationController::Loop()
                 }
             }
         }
-
-        FastLED.show();
-        FastLED.countFPS();
     }
+    else
+    {
+        FastLED.clear();
+    }
+
+    FastLED.show();
+    FastLED.countFPS();
+    FastLED.delay(TaskDelay);
 }
 
 void AnimationController::Sleep()

@@ -78,7 +78,7 @@ namespace Chromance
     //////////////////////////////////////////
 
     /// @brief The duration in milliseconds when in random animation mode that each animation is played before transitioning to the next randomly selected animation
-    static const unsigned long RandomAnimationDuration = 10 * 1000;
+    static const unsigned long RandomAnimationDuration = 30000;
     static const uint8_t AnimationTransitionSpeed = 5;
 
     //////////////////////////////////////////
@@ -86,18 +86,22 @@ namespace Chromance
     //////////////////////////////////////////
 
     /// @brief The frequency of the wave, in decimal - ANSI: unsigned short _Accum. 8 bits int, 8 bits fraction
-    static const uint16_t RainbowAnimationSpeed = 10U;
+    static const bool RainbowBeatAnimationEnabled = true;
+    static const bool RainbowMarchAnimationEnabled = true;
+    static const uint16_t RainbowAnimationSpeed = 10;
     /// @brief How many hue values to advance for each LED
-    static const uint8_t RainbowAnimationHueDelta = 5U;
+    static const uint8_t RainbowAnimationHueDelta = 5;
 
     //////////////////////////////////////////
     // ANIMATIONS - PULSE
     //////////////////////////////////////////
 
     //// @brief The frequency of the wave, in decimal - ANSI: unsigned short _Accum. 8 bits int, 8 bits fraction
-    static const uint16_t PulseAnimationSpeed = 10U;
-    static const uint8_t PulseAnimationMinBrightness = 10U;
-    static const uint8_t PulseAnimationMaxBrightness = 150U;
+    static const bool PulseAnimationEnabled = false;
+    static const uint16_t PulseAnimationSpeed = 10;
+    static const uint8_t PulseAnimationMinBrightness = 30;
+    static const uint8_t PulseAnimationMaxBrightness = 255;
+
 
     //////////////////////////////////////////
     // TASKS

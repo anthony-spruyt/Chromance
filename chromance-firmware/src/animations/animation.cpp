@@ -55,7 +55,7 @@ void Animation::Transition()
 {
     if (this->status == AnimationStatus::WakingUp)
     {
-        if (this->transitionScale <= 255 - AnimationTransitionSpeed)
+        if (this->transitionScale < 255 - AnimationTransitionSpeed)
         {
             this->transitionScale += AnimationTransitionSpeed;
         }
@@ -72,7 +72,7 @@ void Animation::Transition()
     }
     else if (this->status == AnimationStatus::GoingToSleep)
     {
-        if (this->transitionScale >= AnimationTransitionSpeed)
+        if (this->transitionScale > AnimationTransitionSpeed)
         {
             this->transitionScale -= AnimationTransitionSpeed;
         }
@@ -97,14 +97,6 @@ void Animation::Fade()
     }
     else if (this->transitionScale != 255)
     {
-        for (uint16_t i = 0; i < NumberOfLEDs; i++)
-        {
-            
-            nscale8_LEAVING_R1_DIRTY(this->leds[i].r, this->transitionScale);
-            nscale8_LEAVING_R1_DIRTY(this->leds[i].g, this->transitionScale);
-            nscale8_LEAVING_R1_DIRTY(this->leds[i].b, this->transitionScale);
-        }
-
-        cleanup_R1();
+        nscale8(this->leds, NumberOfLEDs, this->transitionScale);
     }
 }

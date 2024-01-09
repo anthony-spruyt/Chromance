@@ -17,7 +17,7 @@ namespace Chromance
         CubePulse,
         StarburstPulse,
         CenterPulse,
-        RainbowLinear,
+        RainbowBeat,
         RainbowMarch,
         Pulse,
         /// @brief This is not an animation type. It is a hack to get the count of animation types

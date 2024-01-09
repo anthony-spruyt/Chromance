@@ -129,7 +129,7 @@ void MQTTClient::Callback(char* topic, byte* payload, unsigned int length)
         }
         else if (strcmp(animation, "rainbowBeat") == 0)
         {
-            this->playCommandCallback(AnimationType::RainbowLinear);
+            this->playCommandCallback(AnimationType::RainbowBeat);
         }
         else if (strcmp(animation, "rainbowMarch") == 0)
         {
