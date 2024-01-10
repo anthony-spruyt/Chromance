@@ -97,10 +97,22 @@ namespace Chromance
     //////////////////////////////////////////
 
     //// @brief The frequency of the wave, in decimal - ANSI: unsigned short _Accum. 8 bits int, 8 bits fraction
-    static const bool PulseAnimationEnabled = false;
+    static const bool PulseAnimationEnabled = true;
     static const uint16_t PulseAnimationSpeed = 10;
     static const uint8_t PulseAnimationMinBrightness = 30;
     static const uint8_t PulseAnimationMaxBrightness = 255;
+    static const uint8_t PulseAnimationNumberOfColors = 7;
+    static const uint32_t PulseAnimationColors[PulseAnimationNumberOfColors] =
+    {
+        // Hex color codes
+        0x006400, // DarkGreen
+        0x8B0000, // DarkRed
+        0x9400D3, // DarkViolet
+        0x00008B, // DarkBlue
+        0x8B008B, // DarkMagenta
+        0x9400D3, // DarkViolet
+        0x00CED1 // DarkTurquoise
+    };
 
 
     //////////////////////////////////////////

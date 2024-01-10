@@ -32,19 +32,19 @@ void StripTestAnimation::Loop()
 
     if (!this->fillTest1)
     {
-        fill_solid(&(this->leds[0]), NumberOfLEDs, CRGB(255, 0, 255));
+        fill_solid(this->leds, NumberOfLEDs, CRGB(255, 0, 255));
         this->fillTest1 = true;
         this->shouldWaitForFillTestNextFrame = true;
     }
     else if (!this->fillTest2)
     {
-        fill_solid(&(this->leds[0]), NumberOfLEDs, CRGB(0, 255, 255));
+        fill_solid(this->leds, NumberOfLEDs, CRGB(0, 255, 255));
         this->fillTest2 = true;
         this->shouldWaitForFillTestNextFrame = true;
     }
     else if (!this->fillTest2)
     {
-        fill_solid(&(this->leds[0]), NumberOfLEDs, CRGB(255, 255, 0));
+        fill_solid(this->leds, NumberOfLEDs, CRGB(255, 255, 0));
         this->fillTest3 = true;
         this->shouldWaitForFillTestNextFrame = true;
     }
@@ -62,7 +62,7 @@ void StripTestAnimation::Loop()
             return;
         }
 
-        fill_solid(&(this->leds[0]), NumberOfLEDs, CRGB::Black);
+        fill_solid(this->leds, NumberOfLEDs, CRGB::Black);
         
         switch (this->nextPixelColorTest)
         {

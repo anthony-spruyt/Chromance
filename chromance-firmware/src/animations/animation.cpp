@@ -9,7 +9,7 @@ Animation::Animation(uint8_t id, const char* name) :
     status(AnimationStatus::Sleeping),
     fade(false)
 {
-    fill_solid(&(this->leds[0]), NumberOfLEDs, CRGB::Black);
+    fill_solid(this->leds, NumberOfLEDs, CRGB::Black);
 }
 
 void Animation::Sleep(bool fade)
@@ -93,7 +93,7 @@ void Animation::Fade()
 {
     if (this->transitionScale == 0)
     {
-        fill_solid(&(this->leds[0]), NumberOfLEDs, CRGB::Black);
+        fill_solid(this->leds, NumberOfLEDs, CRGB::Black);
     }
     else if (this->transitionScale != 255)
     {

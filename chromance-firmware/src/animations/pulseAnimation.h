@@ -12,8 +12,13 @@ namespace Chromance
             PulseAnimation(uint8_t id);
 
             void Loop();
+            void Wake(bool fade) override;
 
         private:
+
+            void NextColor();
+
+            CRGB color;
     };
 }
 

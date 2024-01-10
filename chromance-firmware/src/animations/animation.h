@@ -21,17 +21,17 @@ namespace Chromance
             Animation(uint8_t id, const char* name);
 
             virtual void Loop() = 0;
-            void Sleep(bool fade);
-            void Wake(bool fade);
+            virtual void Sleep(bool fade);
+            virtual void Wake(bool fade);
             uint8_t GetID();
             const char* GetName();
             CRGB* GetBuffer();
             AnimationStatus GetStatus();
-            void Transition();
+            virtual void Transition();
 
         protected:
 
-            void Fade();
+            virtual void Fade();
 
             uint8_t id;
             CRGB leds[NumberOfLEDs];
