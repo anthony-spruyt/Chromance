@@ -12,6 +12,9 @@ CubePulseAnimation::CubePulseAnimation(uint8_t id, RipplePool* ripplePool, Logge
 void CubePulseAnimation::Start()
 {
     CRGB color = CHSV(random8(), 255U, 255U);
+    float speed = 4.2f;
+    unsigned long lifespan = 2000U;
+    
     uint8_t node = CubeNodes[random(NumberOfCubeNodes)];
 
     while (node == this->lastPulseNode)
@@ -44,8 +47,8 @@ void CubePulseAnimation::Start()
                 node,
                 i,
                 color,
-                5.0f,
-                2000U,
+                speed,
+                lifespan,
                 behavior
             );
         }

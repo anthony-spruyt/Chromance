@@ -370,7 +370,10 @@ void Ripple::Render(CRGB* leds, unsigned long age)
     uint8_t g = uint8_t(min(255, max(0, int(Fmap(float(age), 0.0, float(lifespan), (color >> 16) & 0xFF, 0.0f)) + this->color.g)));
     uint8_t b = uint8_t(min(255, max(0, int(Fmap(float(age), 0.0, float(lifespan), color & 0xFF, 0.0f)) + this->color.b)));
 
-    leds[offset + led].setRGB(r, g, b);
+    if (offset + led < NumberOfLEDs)
+    {
+        leds[offset + led].setRGB(r, g, b);   
+    }
 }
 
 /*void render()

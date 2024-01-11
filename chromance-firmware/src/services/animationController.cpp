@@ -4,12 +4,15 @@
 #include "../animations/rainbowBeatAnimation.h"
 #include "../animations/rainbowMarchAnimation.h"
 #include "../animations/stripTestAnimation.h"
+#include "../animations/starBurstPulseAnimation.h"
+#include "../animations/centerPulseAnimation.h"
+#include "../animations/RandomPulseAnimation.h"
 
 using namespace Chromance;
 
 AnimationController::AnimationController(Logger* logger, Config* config) :
     //currentAnimationType(AnimationType::RandomAnimation),
-    currentAnimationType(AnimationType::CubePulse),
+    currentAnimationType(AnimationType::RandomPulse),
     sleeping(false),
     lastRandomAnimationStarted(0),
     transitionScale(0),
@@ -63,10 +66,10 @@ void AnimationController::Setup()
     this->logger->Debug("Register and initialize animations");
     this->animations[(uint8_t)AnimationType::RandomAnimation] = nullptr;
     this->animations[(uint8_t)AnimationType::StripTest] = new StripTestAnimation((uint8_t)AnimationType::StripTest, this->logger);
-    this->animations[(uint8_t)AnimationType::RandomPulse] = nullptr;
-    this->animations[(uint8_t)AnimationType::CubePulse] = CubePulseAnimationEnabled ? this->animations[(uint8_t)AnimationType::CubePulse] = new CubePulseAnimation((uint8_t)AnimationType::CubePulse, &ripplePool, this->logger) : nullptr;
-    this->animations[(uint8_t)AnimationType::StarburstPulse] = nullptr;
-    this->animations[(uint8_t)AnimationType::CenterPulse] = nullptr;
+    this->animations[(uint8_t)AnimationType::RandomPulse] = RandomPulseAnimationEnabled ? new RandomPulseAnimation((uint8_t)AnimationType::RandomPulse, &ripplePool, this->logger) : nullptr;
+    this->animations[(uint8_t)AnimationType::CubePulse] = CubePulseAnimationEnabled ? new CubePulseAnimation((uint8_t)AnimationType::CubePulse, &ripplePool, this->logger) : nullptr;
+    this->animations[(uint8_t)AnimationType::StarBurstPulse] = StarBurstPulseAnimationEnabled ? new StarBurstPulseAnimation((uint8_t)AnimationType::StarBurstPulse, &ripplePool, this->logger) : nullptr;
+    this->animations[(uint8_t)AnimationType::CenterPulse] = CenterPulseAnimationEnabled ? new CenterPulseAnimation((uint8_t)AnimationType::CenterPulse, &ripplePool, this->logger) : nullptr;
     this->animations[(uint8_t)AnimationType::RainbowBeat] = RainbowBeatAnimationEnabled ? new RainbowBeatAnimation((uint8_t)AnimationType::RainbowBeat, this->logger) : nullptr;
     this->animations[(uint8_t)AnimationType::RainbowMarch] = RainbowMarchAnimationEnabled ? new RainbowMarchAnimation((uint8_t)AnimationType::RainbowMarch, this->logger) : nullptr;
     this->animations[(uint8_t)AnimationType::Pulse] = PulseAnimationEnabled ? new PulseAnimation((uint8_t)AnimationType::Pulse, this->logger) : nullptr;

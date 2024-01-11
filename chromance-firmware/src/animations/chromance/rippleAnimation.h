@@ -17,7 +17,7 @@ namespace Chromance
 
         protected:
 
-            static const uint8_t Decay = 230;
+            static const uint8_t Decay = 240;
             static const unsigned long PulsePeriod = 2000U;
 
             RipplePool* ripplePool;

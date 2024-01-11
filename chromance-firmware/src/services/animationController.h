@@ -16,7 +16,7 @@ namespace Chromance
         StripTest, // DO NOT MOVE- We have to use auto assignment and this needs to be 1
         RandomPulse,
         CubePulse,
-        StarburstPulse,
+        StarBurstPulse,
         CenterPulse,
         RainbowBeat,
         RainbowMarch,

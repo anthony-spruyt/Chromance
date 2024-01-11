@@ -121,7 +121,7 @@ void MQTTClient::Callback(char* topic, byte* payload, unsigned int length)
         }
         else if (strcmp(animation, "starBurstPulse") == 0)
         {
-            this->playCommandCallback(AnimationType::StarburstPulse);
+            this->playCommandCallback(AnimationType::StarBurstPulse);
         }
         else if (strcmp(animation, "centerPulse") == 0)
         {
