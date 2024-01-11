@@ -1,42 +1,53 @@
 #include "cubePulseAnimation.h"
+#include "chromance/map.h"
 
 using namespace Chromance;
 
-CubePulseAnimation::CubePulseAnimation(uint8_t id) :
-    Animation(id, "cubePulse")
+CubePulseAnimation::CubePulseAnimation(uint8_t id, RipplePool* ripplePool, Logger* logger) :
+    RippleAnimation(id, "cubePulse", ripplePool, logger),
+    lastPulseNode(255U)
 {
 }
 
-void CubePulseAnimation::Loop()
+void CubePulseAnimation::Start()
 {
-    // TODO
-    //https://github.com/FastLED/FastLED/blob/master/examples/DemoReel100/DemoReel100.ino
-    //uint8_t hue = 0U;
+    CRGB color = CHSV(random8(), 255U, 255U);
+    uint8_t node = CubeNodes[random(NumberOfCubeNodes)];
 
-    // a colored dot sweeping back and forth, with fading trails
-    //fadeToBlackBy(leds, NumberOfLEDs, 20);
-    //uint16_t pos = beatsin16(13, 0, NumberOfLEDs - 1);
-    //this->leds[pos] += CHSV(0, 255, 192);
+    while (node == this->lastPulseNode)
+    {
+        node = CubeNodes[random(NumberOfCubeNodes)];
+    }
 
-    // random colored speckles that blink in and fade smoothly
-    //fadeToBlackBy(this->leds, NumberOfLEDs, 10);
-    //uint16_t pos = random16(NumberOfLEDs);
-    //this->leds[pos] += CHSV(hue + random8(64), 200, 255);
+    this->lastPulseNode = node;
 
-    // colored stripes pulsing at a defined Beats-Per-Minute (BPM)
-    //uint8_t BeatsPerMinute = 62;
-    //CRGBPalette16 palette = PartyColors_p;
-    //uint8_t beat = beatsin8(BeatsPerMinute, 64, 255);
-    //for (int i = 0; i < NumberOfLEDs; i++)
-    //{
-    //    this->leds[i] = ColorFromPalette(palette, hue + (i * 2), beat - hue + (i * 10));
-    //}
+    RippleBehavior behavior = random(2) ? 
+        RippleBehavior::AlwaysLeft : 
+        RippleBehavior::AlwaysRight;
+    Ripple* ripple;
 
-    // eight colored dots, weaving in and out of sync with each other
-    //fadeToBlackBy(this->leds, NumberOfLEDs, 20);
-    //for (int i = 0; i < 8; i++)
-    //{
-    //    this->leds[beatsin16(i + 7, 0, NumberOfLEDs - 1)] |= CHSV(hue, 200, 255);
-    //    hue += 32;
-    //}
+    for (int i = 0; i < MaxPathsPerNode; i++)
+    {
+        if (NodeConnections[node][i] >= 0)
+        {
+            ripple = this->ripplePool->Claim(this->id);
+
+            if (ripple == nullptr)
+            {
+                this->logger->Warn("The ripple pool is empty");
+                
+                break;
+            }
+
+            ripple->Start
+            (
+                node,
+                i,
+                color,
+                5.0f,
+                2000U,
+                behavior
+            );
+        }
+    }
 }

@@ -2,13 +2,15 @@
 
 using namespace Chromance;
 
-Animation::Animation(uint8_t id, const char* name) :
+Animation::Animation(uint8_t id, const char* name, Logger* logger) :
     id(id),
     name(name),
     transitionScale(0),
     status(AnimationStatus::Sleeping),
     fade(false)
 {
+    this->logger = logger;
+    
     fill_solid(this->leds, NumberOfLEDs, CRGB::Black);
 }
 

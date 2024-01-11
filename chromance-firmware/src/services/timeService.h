@@ -4,10 +4,6 @@
 #include "../globals.h"
 #include <ezTime.h>
 
-#ifdef DEBUG
-// test
-#endif
-
 namespace Chromance
 {
     class TimeService

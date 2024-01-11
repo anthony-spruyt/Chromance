@@ -2,8 +2,8 @@
 
 using namespace Chromance;
 
-StripTestAnimation::StripTestAnimation(uint8_t id) :
-    Animation(id, "stripTest"),
+StripTestAnimation::StripTestAnimation(uint8_t id, Logger* logger) :
+    Animation(id, "stripTest", logger),
     counter(0),
     fillTest1(false),
     fillTest2(false),

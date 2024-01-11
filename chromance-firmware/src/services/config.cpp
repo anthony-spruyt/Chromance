@@ -14,7 +14,6 @@ void Config::Setup()
 {
     preferences.begin(ConfigNamespace, true);
     this->logLevel = (uint8_t)this->preferences.getUShort(LogLevelConfigKey, this->logLevel);
-    preferences.remove(BrightnessConfigKey); // TODO temp line - remove once type has been changed
     this->brightness = (uint8_t)this->preferences.getUShort(BrightnessConfigKey, this->brightness);
     this->speed = this->preferences.getFloat(SpeedConfigKey, this->speed);
     preferences.end();

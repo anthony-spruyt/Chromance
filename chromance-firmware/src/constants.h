@@ -9,47 +9,47 @@ namespace Chromance
     // WiFi
     //////////////////////////////////////////
 
-    /// @brief The connection timeout in seconds before reboot
+    // The connection timeout in seconds before reboot
     static const uint8_t WifiConnectionTimeout = 15;
 
     //////////////////////////////////////////
     // TIME
     //////////////////////////////////////////
 
-    /// @brief The timeout in seconds for syncing internet time
+    // The timeout in seconds for syncing internet time
     static const uint16_t NTPSyncTimeout = 10;
-    /// @brief Local timezone
+    // Local timezone
     static const String TimeZoneLocation = "Australia/Melbourne";
 
     //////////////////////////////////////////
     // OTA
     //////////////////////////////////////////
 
-    /// @brief The OTA hostname - Note the setup function suffixes the chip ID
+    // The OTA hostname - Note the setup function suffixes the chip ID
     static const char* Hostname = "Chromance";
 
     //////////////////////////////////////////
     // MQTT
     //////////////////////////////////////////
 
-    /// @brief The incoming topic
+    // The incoming topic
     static const char* MQTTTopic = "chromance/v1";
-    /// @brief The incoming JSON payload type key
+    // The incoming JSON payload type key
     static const char* MQTTPayloadTypeKey = "type";
-    /// @brief The incoming JSON payload body key
+    // The incoming JSON payload body key
     static const char* MQTTPayloadBodyKey = "body";
 
     //////////////////////////////////////////
     // CONFIG
     //////////////////////////////////////////
 
-    /// @brief The preferences namespace
+    // The preferences namespace
     static const char* ConfigNamespace = "config";
-    /// @brief The preferences log level key
+    // The preferences log level key
     static const char* LogLevelConfigKey = "ll";
-    /// @brief They preferences brightness key
+    // They preferences brightness key
     static const char* BrightnessConfigKey = "l";
-    /// @brief They preferences speed key
+    // They preferences speed key
     static const char* SpeedConfigKey = "v";
 
     //////////////////////////////////////////
@@ -72,39 +72,51 @@ namespace Chromance
     static const uint16_t MaxRefreshRate = 30;
     static const uint8_t StartupBrightness = 1;
     static const unsigned long StartupDelay = 5000;
+    static const uint8_t BlueStripIndex = 0;
+    static const uint8_t GreenStripIndex = 1;
+    static const uint8_t RedStripIndex = 2;
+    static const uint8_t BlackStripIndex = 3;
+    static const uint8_t MaxPathsPerNode = 6;
+    static const uint8_t LEDsPerSegment = 14;
 
     //////////////////////////////////////////
     // ANIMATIONS
     //////////////////////////////////////////
 
-    /// @brief The duration in milliseconds when in random animation mode that each animation is played before transitioning to the next randomly selected animation
+    // The duration in milliseconds when in random animation mode that each animation is played before transitioning to the next randomly selected animation
     static const unsigned long RandomAnimationDuration = 30000;
-    static const uint8_t AnimationTransitionSpeed = 5;
+    static const uint8_t AnimationTransitionSpeed = 2;
 
     //////////////////////////////////////////
     // ANIMATIONS - RAINBOW
     //////////////////////////////////////////
 
-    /// @brief The frequency of the wave, in decimal - ANSI: unsigned short _Accum. 8 bits int, 8 bits fraction
     static const bool RainbowBeatAnimationEnabled = true;
     static const bool RainbowMarchAnimationEnabled = true;
+    /**
+     * The frequency of the wave, in decimal
+     * ANSI: unsigned short _Accum. 8 bits int, 8 bits fraction
+    */
     static const uint16_t RainbowAnimationSpeed = 10;
-    /// @brief How many hue values to advance for each LED
+    // How many hue values to advance for each LED
     static const uint8_t RainbowAnimationHueDelta = 5;
 
     //////////////////////////////////////////
     // ANIMATIONS - PULSE
     //////////////////////////////////////////
 
-    //// @brief The frequency of the wave, in decimal - ANSI: unsigned short _Accum. 8 bits int, 8 bits fraction
     static const bool PulseAnimationEnabled = true;
+    /**
+     * The frequency of the wave, in decimal
+     * ANSI: unsigned short _Accum. 8 bits int, 8 bits fraction
+    */
     static const uint16_t PulseAnimationSpeed = 10;
     static const uint8_t PulseAnimationMinBrightness = 30;
     static const uint8_t PulseAnimationMaxBrightness = 255;
     static const uint8_t PulseAnimationNumberOfColors = 7;
+    // Hex color codes
     static const uint32_t PulseAnimationColors[PulseAnimationNumberOfColors] =
     {
-        // Hex color codes
         0x006400, // DarkGreen
         0x8B0000, // DarkRed
         0x9400D3, // DarkViolet
@@ -114,6 +126,11 @@ namespace Chromance
         0x00CED1 // DarkTurquoise
     };
 
+    //////////////////////////////////////////
+    // ANIMATIONS - CUBE PULSE
+    //////////////////////////////////////////
+
+    static const bool CubePulseAnimationEnabled = true;
 
     //////////////////////////////////////////
     // TASKS
@@ -128,10 +145,10 @@ namespace Chromance
     static const UBaseType_t WiFiServiceTaskPriority = 3;
     static const UBaseType_t OTAServiceTaskPriority = 2;
     static const UBaseType_t MQTTClientTaskPriority = 1;
-    static const uint32_t AnimationControllerTaskStackSize = 15000;
-    static const uint32_t WiFiServiceTaskStackSize = 4000;
-    static const uint32_t OTAServiceTaskStackSize = 4000;
-    static const uint32_t MQTTClientTaskStackSize = 4000;
+    static const uint32_t AnimationControllerTaskStackSize = 5000;
+    static const uint32_t WiFiServiceTaskStackSize = 5000;
+    static const uint32_t OTAServiceTaskStackSize = 5000;
+    static const uint32_t MQTTClientTaskStackSize = 5000;
 }
 
 #endif

@@ -6,6 +6,7 @@
 #include "config.h"
 #include <FastLED.h>
 #include "../animations/animation.h"
+#include "../animations/chromance/ripplePool.h"
 
 namespace Chromance
 {
@@ -20,8 +21,11 @@ namespace Chromance
         RainbowBeat,
         RainbowMarch,
         Pulse,
-        /// @brief This is not an animation type. It is a hack to get the count of animation types
-        NumberOfAnimations // DO NOT MOVE- We have to use auto assignment and this needs to be the last
+        /**
+         * This is not an animation type. It is a hack to get the count of animation types
+         * DO NOT MOVE- We have to use auto assignment and this needs to be the last
+        */
+        NumberOfAnimations
     };
 
     enum class AnimationRequest : uint8_t
@@ -41,12 +45,14 @@ namespace Chromance
 
             void Setup();
             void Loop();
-            /// @brief Puts the LED display to sleep
+            // Puts the LED display to sleep
             void Sleep();
-            /// @brief Wakes the LED display from sleep
+            // Wakes the LED display from sleep
             void Wake();
-            /// @brief Start a new type of animation
-            /// @param animationType The type of animation to start
+            /**
+             * Start a new type of animation
+             * @param animationType The type of animation to start
+            */
             void Play(AnimationType animationType);
 
         private:
@@ -63,6 +69,7 @@ namespace Chromance
             unsigned long lastRandomAnimationStarted;
             uint8_t transitionScale;
             AnimationRequest next;
+            RipplePool ripplePool;
     };
 }
 

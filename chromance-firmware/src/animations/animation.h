@@ -2,6 +2,7 @@
 #define ANIMATION_H_
 
 #include "../globals.h"
+#include "../services/logger.h"
 #include <FastLED.h>
 
 namespace Chromance
@@ -18,7 +19,7 @@ namespace Chromance
     {
         public:
 
-            Animation(uint8_t id, const char* name);
+            Animation(uint8_t id, const char* name, Logger* logger);
 
             virtual void Loop() = 0;
             virtual void Sleep(bool fade);
@@ -34,8 +35,9 @@ namespace Chromance
             virtual void Fade();
 
             uint8_t id;
-            CRGB leds[NumberOfLEDs];
             const char* name;
+            Logger* logger;
+            CRGB leds[NumberOfLEDs];
             uint8_t transitionScale;
             AnimationStatus status;
             bool fade;

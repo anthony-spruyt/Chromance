@@ -36,7 +36,7 @@ namespace Chromance
                 OTHER_COMMAND_CALLBACK_SIGNATURE otherCommandCallback
             );
             void Loop();
-            //void Publish(); //TODO
+            //void Publish(); //TODO with a mutex
 
         private:
 

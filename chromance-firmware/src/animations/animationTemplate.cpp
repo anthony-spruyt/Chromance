@@ -2,8 +2,8 @@
 
 using namespace Chromance;
 
-AnimationTemplate::AnimationTemplate(uint8_t id) :
-    Animation(id, "MyAnimationName")
+AnimationTemplate::AnimationTemplate(uint8_t id, Logger* logger) :
+    Animation(id, "MyAnimationName", logger)
 {
 }
 

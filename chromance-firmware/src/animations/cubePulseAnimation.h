@@ -1,19 +1,20 @@
 #ifndef CUBEPULSE_ANIMATION_H_
 #define CUBEPULSE_ANIMATION_H_
 
-#include "animation.h"
+#include "chromance/rippleAnimation.h"
 
 namespace Chromance
 {
-    class CubePulseAnimation : public Animation
+    class CubePulseAnimation : public RippleAnimation
     {
         public:
 
-            CubePulseAnimation(uint8_t id);
+            CubePulseAnimation(uint8_t id, RipplePool* ripplePool, Logger* logger);
 
-            void Loop();
+            void Start();
 
         private:
+            uint8_t lastPulseNode;
     };
 }
 

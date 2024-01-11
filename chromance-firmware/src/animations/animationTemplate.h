@@ -9,11 +9,9 @@ namespace Chromance
     {
         public:
 
-            AnimationTemplate(uint8_t id);
+            AnimationTemplate(uint8_t id, Logger* logger);
 
             void Loop();
-
-        private:
     };
 }
 

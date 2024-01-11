@@ -1,7 +1,3 @@
-//////////////////////////////////////////
-// INCLUDES
-//////////////////////////////////////////
-
 #include "globals.h"
 #include "services/animationController.h"
 #include "services/config.h"
@@ -13,12 +9,9 @@
 
 using namespace Chromance;
 
-//////////////////////////////////////////
-// FUNCTION DEFINITIONS
-//////////////////////////////////////////
-
 void loop(void);
 void setup(void);
+void MonitorStackSize(uint32_t stackSize, const char* taskName);
 void AnimationControllerTask(void *pvParameters);
 void WiFiServiceTask(void *pvParameters);
 void OTAServiceTask(void *pvParameters);
@@ -32,10 +25,6 @@ void BrightnessCommandHandler(uint8_t brightness);
 void LogLevelCommandHandler(LogLevel logLevel);
 void OtherCommandHandler(char* topic, uint8_t* payload, unsigned int length);
 
-//////////////////////////////////////////
-// VARIABLE DEFINITIONS
-//////////////////////////////////////////
-
 Config config;
 TimeService timeService;
 Logger logger(&timeService, &config);
@@ -47,14 +36,6 @@ TaskHandle_t AnimationControllerTaskHandle;
 TaskHandle_t WiFiServiceTaskHandle;
 TaskHandle_t OTAServiceTaskHandle;
 TaskHandle_t MQTTClientTaskHandle;
-
-//////////////////////////////////////////
-// FUNCTION IMPLEMENTATIONS
-//////////////////////////////////////////
-
-//////////////////////////////////////////
-// SKETCH FUNCTIONS
-//////////////////////////////////////////
 
 void setup()
 {
@@ -70,13 +51,13 @@ void setup()
     {
         xTaskCreatePinnedToCore
         (
-            AnimationControllerTask, // task function
-            "AnimationControllerTask", // task name
-            AnimationControllerTaskStackSize, // task stack size
-            nullptr, // task parameter
-            AnimationControllerTaskPriority, // task priority
-            &AnimationControllerTaskHandle, // task handle to keep track of created task
-            AnimationControllerTaskCore // core affinity, note system tasks are on core 0
+            AnimationControllerTask,
+            "AnimationControllerTask",
+            AnimationControllerTaskStackSize,
+            nullptr,
+            AnimationControllerTaskPriority,
+            &AnimationControllerTaskHandle,
+            AnimationControllerTaskCore
         );
     }
 
@@ -86,17 +67,16 @@ void setup()
     {
         xTaskCreatePinnedToCore
         (
-            WiFiServiceTask, // task function
-            "WiFiServiceTask", // task name
-            WiFiServiceTaskStackSize, // task stack size
-            nullptr, // task parameter
-            WiFiServiceTaskPriority, // task priority
-            &WiFiServiceTaskHandle, // task handle to keep track of created task
-            WiFiServiceTaskCore // core affinity, note system tasks are on core 0
+            WiFiServiceTask,
+            "WiFiServiceTask",
+            WiFiServiceTaskStackSize,
+            nullptr,
+            WiFiServiceTaskPriority,
+            &WiFiServiceTaskHandle,
+            WiFiServiceTaskCore
         );
     }
-
-    // Below services require WiFi connectivity
+    
     timeService.Setup();
 
     otaService.Setup();
@@ -105,13 +85,13 @@ void setup()
     {
         xTaskCreatePinnedToCore
         (
-            OTAServiceTask, // task function
-            "OTAServiceTask", // task name
-            OTAServiceTaskStackSize, // task stack size
-            nullptr, // task parameter
-            OTAServiceTaskPriority, // task priority
-            &OTAServiceTaskHandle, // task handle to keep track of created task
-            OTAServiceTaskCore // core affinity, note system tasks are on core 0
+            OTAServiceTask,
+            "OTAServiceTask",
+            OTAServiceTaskStackSize,
+            nullptr,
+            OTAServiceTaskPriority,
+            &OTAServiceTaskHandle,
+            OTAServiceTaskCore
         );
     }
 
@@ -131,13 +111,13 @@ void setup()
     {
         xTaskCreatePinnedToCore
         (
-            MQTTClientTask, // task function
-            "MQTTClientTask", // task name
-            MQTTClientTaskStackSize, // task stack size
-            nullptr, // task parameter
-            MQTTClientTaskPriority, // task priority
-            &MQTTClientTaskHandle, // task handle to keep track of created task
-            MQTTClientTaskCore // core affinity, note system tasks are on core 0
+            MQTTClientTask,
+            "MQTTClientTask",
+            MQTTClientTaskStackSize,
+            nullptr,
+            MQTTClientTaskPriority,
+            &MQTTClientTaskHandle,
+            MQTTClientTaskCore
         );
     }
 }
@@ -146,9 +126,19 @@ void loop()
 {
 }
 
-//////////////////////////////////////////
-// TASKS
-//////////////////////////////////////////
+void MonitorStackSize(uint32_t stackSize, const char* taskName)
+{
+    float highWaterMark = (float)uxTaskGetStackHighWaterMark(NULL);
+
+    if (highWaterMark / (float)stackSize < 0.2f)
+    {
+        logger.Warn("Task " + String(taskName) + " stack is over 80% utilized. Consider increasing its size");
+    }
+    else if (highWaterMark / (float)stackSize > 0.5f)
+    {
+        logger.Warn("Task " + String(taskName) + " stack is under 50% utilized. Consider reducing its size");
+    }
+}
 
 void AnimationControllerTask(void *pvParameters)
 {
@@ -160,6 +150,8 @@ void AnimationControllerTask(void *pvParameters)
 
     for (;;)
     {
+        MonitorStackSize(AnimationControllerTaskStackSize, "AnimationControllerTask");
+
         if (!otaService.IsUpdating())
         {
             animationController.Loop();
@@ -177,6 +169,8 @@ void WiFiServiceTask(void *pvParameters)
 
     for (;;)
     {
+        MonitorStackSize(WiFiServiceTaskStackSize, "WiFiServiceTask");
+
         wifiService.Loop();
 
         vTaskDelay(TaskDelay);
@@ -189,6 +183,8 @@ void OTAServiceTask(void *pvParameters)
 
     for (;;)
     {
+        MonitorStackSize(OTAServiceTaskStackSize, "OTAServiceTask");
+
         otaService.Loop();
 
         vTaskDelay(TaskDelay);
@@ -201,15 +197,13 @@ void MQTTClientTask(void *pvParameters)
 
     for (;;)
     {
+        MonitorStackSize(MQTTClientTaskStackSize, "MQTTClientTask");
+
         mqttClient.Loop();
 
         vTaskDelay(TaskDelay);
     }
 }
-
-//////////////////////////////////////////
-// COMMAND HANDLERS
-//////////////////////////////////////////
 
 void RebootCommandHandler()
 {
