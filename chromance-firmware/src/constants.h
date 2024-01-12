@@ -10,14 +10,14 @@ namespace Chromance
     //////////////////////////////////////////
 
     // The connection timeout in seconds before reboot
-    static const uint8_t WifiConnectionTimeout = 15;
+    static const uint32_t WifiConnectionTimeout = 15;
 
     //////////////////////////////////////////
     // TIME
     //////////////////////////////////////////
 
     // The timeout in seconds for syncing internet time
-    static const uint16_t NTPSyncTimeout = 10;
+    static const uint32_t NTPSyncTimeout = 10;
     // Local timezone
     static const String TimeZoneLocation = "Australia/Melbourne";
 
@@ -56,28 +56,28 @@ namespace Chromance
     // LEDs
     //////////////////////////////////////////
 
-    static const int16_t BlueStripDataPin = 33;
-    static const int16_t GreenStripDataPin = 27;
-    static const int16_t RedStripDataPin = 2;
-    static const int16_t BlackStripDataPin = 4;
-    static const uint16_t BlueStripOffset = 0;
-    static const uint16_t BlueStripLength = 154;
-    static const uint16_t GreenStripOffset = BlueStripLength;
-    static const uint16_t GreenStripLength = 168;
-    static const uint16_t RedStripOffset = GreenStripLength + BlueStripLength;
-    static const uint16_t RedStripLength = 84;
-    static const uint16_t BlackStripOffset = RedStripLength + GreenStripLength + BlueStripLength;
-    static const uint16_t BlackStripLength = 154;
-    static const uint16_t NumberOfLEDs = BlueStripLength + GreenStripLength + RedStripLength + BlackStripLength;
-    static const uint16_t MaxRefreshRate = 30;
+    static const uint32_t BlueStripDataPin = 33;
+    static const uint32_t GreenStripDataPin = 27;
+    static const uint32_t RedStripDataPin = 2;
+    static const uint32_t BlackStripDataPin = 4;
+    static const uint32_t BlueStripOffset = 0;
+    static const uint32_t BlueStripLength = 154;
+    static const uint32_t GreenStripOffset = BlueStripLength;
+    static const uint32_t GreenStripLength = 168;
+    static const uint32_t RedStripOffset = GreenStripLength + BlueStripLength;
+    static const uint32_t RedStripLength = 84;
+    static const uint32_t BlackStripOffset = RedStripLength + GreenStripLength + BlueStripLength;
+    static const uint32_t BlackStripLength = 154;
+    static const uint32_t NumberOfLEDs = BlueStripLength + GreenStripLength + RedStripLength + BlackStripLength;
+    static const uint32_t MaxRefreshRate = 30;
     static const uint8_t StartupBrightness = 1;
-    static const unsigned long StartupDelay = 5000;
-    static const uint8_t BlueStripIndex = 0;
-    static const uint8_t GreenStripIndex = 1;
-    static const uint8_t RedStripIndex = 2;
-    static const uint8_t BlackStripIndex = 3;
-    static const uint8_t MaxPathsPerNode = 6;
-    static const uint8_t LEDsPerSegment = 14;
+    static const uint64_t StartupDelay = 5000;
+    static const uint32_t BlueStripIndex = 0;
+    static const uint32_t GreenStripIndex = 1;
+    static const uint32_t RedStripIndex = 2;
+    static const uint32_t BlackStripIndex = 3;
+    static const uint32_t MaxPathsPerNode = 6;
+    static const uint32_t LEDsPerSegment = 14;
 
     //////////////////////////////////////////
     // ANIMATIONS
@@ -85,7 +85,7 @@ namespace Chromance
 
     // The duration in milliseconds when in random animation mode that each animation is played before transitioning to the next randomly selected animation
     static const unsigned long RandomAnimationDuration = 30000;
-    static const uint8_t AnimationTransitionSpeed = 2;
+    static const uint8_t AnimationTransitionSpeed = 10;
 
     //////////////////////////////////////////
     // ANIMATIONS - RAINBOW

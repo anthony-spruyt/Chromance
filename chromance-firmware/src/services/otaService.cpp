@@ -35,7 +35,7 @@ void OTAService::Setup()
 
     ArduinoOTA.onProgress
     (
-        [this](unsigned int progress, unsigned int total)
+        [this](uint32_t progress, uint32_t total)
         {
             this->logger->Debug("OTA update progress: " + String((float)progress / ((float)total / 100.0f)));
         }

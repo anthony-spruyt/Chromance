@@ -3,7 +3,7 @@
 
 using namespace Chromance;
 
-StarBurstPulseAnimation::StarBurstPulseAnimation(uint8_t id, RipplePool* ripplePool, Logger* logger) :
+StarBurstPulseAnimation::StarBurstPulseAnimation(int32_t id, RipplePool* ripplePool, Logger* logger) :
     RippleAnimation(id, "starBurstPulse", ripplePool, logger)
 {
 }
@@ -15,12 +15,12 @@ void StarBurstPulseAnimation::Start()
     unsigned long lifespan = 2600U;
     
     RippleBehavior behavior = random(2) ? 
-        RippleBehavior::AlwaysLeft : 
-        RippleBehavior::AlwaysRight;
+        RIPPLE_BEHAVIOR_ALWAYS_LEFT : 
+        RIPPLE_BEHAVIOR_ALWAYS_RIGHT;
     Ripple* ripple;
     
 
-    for (int i = 0; i < MaxPathsPerNode; i++)
+    for (int32_t i = 0; i < MaxPathsPerNode; i++)
     {
         ripple = this->ripplePool->Claim(this->id);
 
@@ -35,7 +35,7 @@ void StarBurstPulseAnimation::Start()
         (
             StarburstNode,
             i,
-            CHSV(baseColor + (0xFFFF / 6) * i, 255, 255),
+            CHSV(baseColor + (0xFFFF / 6) * i, 255U, 255U),
             speed,
             lifespan,
             behavior

@@ -2,11 +2,11 @@
 
 using namespace Chromance;
 
-Animation::Animation(uint8_t id, const char* name, Logger* logger) :
+Animation::Animation(int32_t id, const char* name, Logger* logger) :
     id(id),
     name(name),
     transitionScale(0),
-    status(AnimationStatus::Sleeping),
+    status(ANIMATION_STATUS_SLEEPING),
     fade(false)
 {
     this->logger = logger;
@@ -16,19 +16,19 @@ Animation::Animation(uint8_t id, const char* name, Logger* logger) :
 
 void Animation::Sleep(bool fade)
 {
-    if (this->status == AnimationStatus::Playing || this->status == AnimationStatus::WakingUp)
+    if (this->status == ANIMATION_STATUS_PLAYING || this->status == ANIMATION_STATUS_WAKING_UP)
     {
         this->fade = fade;
-        this->status = AnimationStatus::GoingToSleep;
+        this->status = ANIMATION_STATUS_GOING_TO_SLEEP;
     }
 }
 
 void Animation::Wake(bool fade)
 {
-    if (this->status == AnimationStatus::Sleeping || this->status == AnimationStatus::GoingToSleep)
+    if (this->status == ANIMATION_STATUS_SLEEPING || this->status == ANIMATION_STATUS_GOING_TO_SLEEP)
     {
         this->fade = fade;
-        this->status = AnimationStatus::WakingUp;
+        this->status = ANIMATION_STATUS_WAKING_UP;
     }
 }
 
@@ -55,7 +55,7 @@ AnimationStatus Animation::GetStatus()
 
 void Animation::Transition()
 {
-    if (this->status == AnimationStatus::WakingUp)
+    if (this->status == ANIMATION_STATUS_WAKING_UP)
     {
         if (this->transitionScale < 255 - AnimationTransitionSpeed)
         {
@@ -64,7 +64,7 @@ void Animation::Transition()
         else
         {
             this->transitionScale = 255;
-            this->status = AnimationStatus::Playing;
+            this->status = ANIMATION_STATUS_PLAYING;
         }
 
         if (this->fade)
@@ -72,7 +72,7 @@ void Animation::Transition()
             this->Fade();
         }
     }
-    else if (this->status == AnimationStatus::GoingToSleep)
+    else if (this->status == ANIMATION_STATUS_GOING_TO_SLEEP)
     {
         if (this->transitionScale > AnimationTransitionSpeed)
         {
@@ -81,7 +81,7 @@ void Animation::Transition()
         else
         {
             this->transitionScale = 0;
-            this->status = AnimationStatus::Sleeping;
+            this->status = ANIMATION_STATUS_SLEEPING;
         }
 
         if (this->fade)

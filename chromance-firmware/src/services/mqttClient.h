@@ -14,7 +14,7 @@
 #define PLAY_COMMAND_CALLBACK_SIGNATURE std::function<void(AnimationType)>
 #define BRIGHTNESS_COMMAND_CALLBACK_SIGNATURE std::function<void(uint8_t)>
 #define LOGLEVEL_COMMAND_CALLBACK_SIGNATURE std::function<void(LogLevel)>
-#define OTHER_COMMAND_CALLBACK_SIGNATURE std::function<void(char*, uint8_t*, unsigned int)>
+#define OTHER_COMMAND_CALLBACK_SIGNATURE std::function<void(char*, uint8_t*, uint32_t)>
 
 namespace Chromance
 {
@@ -41,7 +41,7 @@ namespace Chromance
         private:
 
             void Configure();
-            void Callback(char* topic, byte* payload, unsigned int length);
+            void Callback(char* topic, byte* payload, uint32_t length);
             void Connect();
             void Subscribe();
 

@@ -15,31 +15,31 @@ namespace Chromance
         return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
     }
 
-    static const int NumberOfSegments = 40;
-    static const int NumberOfNodes = 25;
+    static const int32_t NumberOfSegments = 40;
+    static const int32_t NumberOfNodes = 25;
     /**
      * Border nodes are on the very edge of the network.
      * Ripples fired here don't look very impressive.
      */ 
-    static const int NumberOfBorderNodes = 10;
-    static const int BorderNodes[NumberOfBorderNodes] = {0, 1, 2, 3, 6, 10, 13, 19, 21, 24};
+    static const int32_t NumberOfBorderNodes = 10;
+    static const int32_t BorderNodes[NumberOfBorderNodes] = {0, 1, 2, 3, 6, 10, 13, 19, 21, 24};
     /**
      * Cube nodes link three equiangular segments
      * Firing ripples that always turn in one direction will draw a cube
     */
-    static const int NumberOfCubeNodes = 8;
-    static const int CubeNodes[NumberOfCubeNodes] = {7, 8, 9, 11, 12, 17, 18, 20};
-    static const int NumberOfFunNodes = 6;
-    static const int FunNodes[] = {4, 5, 14, 15, 16, 22, 23};
+    static const int32_t NumberOfCubeNodes = 8;
+    static const int32_t CubeNodes[NumberOfCubeNodes] = {7, 8, 9, 11, 12, 17, 18, 20};
+    static const int32_t NumberOfFunNodes = 6;
+    static const int32_t FunNodes[] = {4, 5, 14, 15, 16, 22, 23};
     // Firing ripples that always turn in one direction will draw a starburst
-    static const int StarburstNode = 15;
+    static const int32_t StarburstNode = 15;
     /**
      * LED segment numbers
      * Beam 0 is at 12:00 and advance clockwise
      * -1 means nothing connected on that side
      * Index stands for the node ie nodeConnections[7] stands for node 7
      */
-    static const int NodeConnections[NumberOfNodes][6] =
+    static const int32_t NodeConnections[NumberOfNodes][6] =
     {
         {-1, -1, 1, -1, 0, -1},
         {-1, -1, 3, -1, 2, -1},
@@ -76,7 +76,7 @@ namespace Chromance
      * Second: Node closer to floor
      * Node connection list ()
      */
-    static const int SegmentConnections[NumberOfSegments][2] =
+    static const int32_t SegmentConnections[NumberOfSegments][2] =
     {
         {0, 3},
         {0, 4},
@@ -127,7 +127,7 @@ namespace Chromance
      * Second: LED index closer to ceiling
      * Third: LED index closer to floor
      */
-    static const int LEDAssignments[NumberOfSegments][3] =
+    static const int32_t LEDAssignments[NumberOfSegments][3] =
     {
         {RedStripIndex, headof(3), tailof(3)},
         {RedStripIndex, tailof(2), headof(2)},

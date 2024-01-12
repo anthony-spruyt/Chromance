@@ -20,63 +20,63 @@ void Logger::Setup()
 
 void Logger::Trace(String message)
 {
-    if (this->config->GetLogLevel() > (uint8_t)LogLevel::Trace)
+    if (this->config->GetLogLevel() > (uint8_t)LOG_LEVEL_TRACE)
     {
         return;
     }
 
-    this->Log(LogLevel::Trace, message);
+    this->Log(LOG_LEVEL_TRACE, message);
     
 }
 
 void Logger::Debug(String message)
 {
-    if (this->config->GetLogLevel() > (uint8_t)LogLevel::Debug)
+    if (this->config->GetLogLevel() > (uint8_t)LOG_LEVEL_DEBUG)
     {
         return;
     }
 
-    this->Log(LogLevel::Debug, message);
+    this->Log(LOG_LEVEL_DEBUG, message);
 }
 
 void Logger::Info(String message)
 {
-    if (this->config->GetLogLevel() > (uint8_t)LogLevel::Information)
+    if (this->config->GetLogLevel() > (uint8_t)LOG_LEVEL_INFORMATION)
     {
         return;
     }
 
-    this->Log(LogLevel::Information, message);
+    this->Log(LOG_LEVEL_INFORMATION, message);
 }
 
 void Logger::Warn(String message)
 {
-    if (this->config->GetLogLevel() > (uint8_t)LogLevel::Warning)
+    if (this->config->GetLogLevel() > (uint8_t)LOG_LEVEL_WARNING)
     {
         return;
     }
 
-    this->Log(LogLevel::Warning, message);
+    this->Log(LOG_LEVEL_WARNING, message);
 }
 
 void Logger::Error(String message)
 {
-    if (this->config->GetLogLevel() > (uint8_t)LogLevel::Error)
+    if (this->config->GetLogLevel() > (uint8_t)LOG_LEVEL_ERROR)
     {
         return;
     }
 
-    this->Log(LogLevel::Error, message);
+    this->Log(LOG_LEVEL_ERROR, message);
 }
 
 void Logger::Ciritical(String message)
 {
-    if (this->config->GetLogLevel() > (uint8_t)LogLevel::Critical)
+    if (this->config->GetLogLevel() > (uint8_t)LOG_LEVEL_CRITICAL)
     {
         return;
     }
 
-    this->Log(LogLevel::Critical, message);
+    this->Log(LOG_LEVEL_CRITICAL, message);
 }
 
 void Logger::Log(LogLevel logLevel, String message)
@@ -98,17 +98,17 @@ const char* Logger::LogLevelToString(LogLevel logLevel)
 {
     switch (logLevel)
     {
-        case LogLevel::Trace:
+        case LOG_LEVEL_TRACE:
             return "Trace";
-        case LogLevel::Debug:
+        case LOG_LEVEL_DEBUG:
             return "Debug";
-        case LogLevel::Information:
+        case LOG_LEVEL_INFORMATION:
             return "Information";
-        case LogLevel::Warning:
+        case LOG_LEVEL_WARNING:
             return "Warning";
-        case LogLevel::Error:
+        case LOG_LEVEL_ERROR:
             return "Error";
-        case LogLevel::Critical:
+        case LOG_LEVEL_CRITICAL:
             return "Critical";
         default:
             return "Unknown";

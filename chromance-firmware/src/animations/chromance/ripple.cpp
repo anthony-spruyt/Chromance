@@ -8,11 +8,11 @@
 using namespace Chromance;
 
 Ripple::Ripple() :
-    state(RippleState::Dead),
+    state(RIPPLE_STATE_DEAD),
     color(CRGB::Black),
     speed(0.0f),
     lifespan(0U),
-    behavior(RippleBehavior::CouchPotato),
+    behavior(RIPPLE_BEHAVIOR_COUCH_POTATO),
     justStarted(false),
     pressure(0.0f),
     birthday(0U),
@@ -22,7 +22,7 @@ Ripple::Ripple() :
 {
 }
 
-void Ripple::Start(int node, int direction, CRGB color, float speed, unsigned long lifespan, RippleBehavior behavior)
+void Ripple::Start(int32_t node, int32_t direction, CRGB color, float speed, unsigned long lifespan, RippleBehavior behavior)
 {
     this->node = node;
     this->direction = direction;
@@ -33,7 +33,7 @@ void Ripple::Start(int node, int direction, CRGB color, float speed, unsigned lo
 
     this->birthday = millis();
     this->pressure = 0.0f;
-    this->state = RippleState::WithinNode;
+    this->state = RIPPLE_STATE_WITHIN_NODE;
     this->justStarted = true;
 }
 
@@ -41,7 +41,7 @@ void Ripple::Advance(CRGB* leds)
 {
     unsigned long age = millis() - this->birthday;
 
-    if (this->state == RippleState::Dead)
+    if (this->state == RIPPLE_STATE_DEAD)
     {
         return;
     }
@@ -51,7 +51,7 @@ void Ripple::Advance(CRGB* leds)
     
     // TODO: Motion of ripple is severely affected by loop speed. Make it time invariant
 
-    if (this->pressure < 1.0f && (this->state == RippleState::TravelUp || this->state == RippleState::TravelDown))
+    if (this->pressure < 1.0f && (this->state == RIPPLE_STATE_TRAVEL_UP || this->state == RIPPLE_STATE_TRAVEL_DOWN))
     {
         // Ripple is visible but hasn't moved - render it to avoid flickering
         this->Render(leds, age);
@@ -61,7 +61,7 @@ void Ripple::Advance(CRGB* leds)
     {
         switch (this->state)
         {
-            case RippleState::WithinNode:
+            case RIPPLE_STATE_WITHIN_NODE:
             {
                 if (this->justStarted)
                 {
@@ -69,24 +69,24 @@ void Ripple::Advance(CRGB* leds)
                 }
                 else
                 {
-                    int newDirection = -1;
-                    int sharpLeft = (this->direction + 1) % MaxPathsPerNode;
-                    int wideLeft = (this->direction + 2) % MaxPathsPerNode;
-                    int forward = (this->direction + 3) % MaxPathsPerNode;
-                    int wideRight = (this->direction + 4) % MaxPathsPerNode;
-                    int sharpRight = (this->direction + 5) % MaxPathsPerNode;
+                    int32_t newDirection = -1;
+                    int32_t sharpLeft = (this->direction + 1) % MaxPathsPerNode;
+                    int32_t wideLeft = (this->direction + 2) % MaxPathsPerNode;
+                    int32_t forward = (this->direction + 3) % MaxPathsPerNode;
+                    int32_t wideRight = (this->direction + 4) % MaxPathsPerNode;
+                    int32_t sharpRight = (this->direction + 5) % MaxPathsPerNode;
 
-                    if (this->behavior <= RippleBehavior::Angry)
+                    if (this->behavior <= RIPPLE_BEHAVIOR_ANGRY)
                     { 
                         // Semi-random aggressive turn mode
                         // The more aggressive a ripple, the tighter turns it wants to make.
                         // If there aren't any segments it can turn to, we need to adjust its behavior.
-                        int anger = (int)this->behavior;
-                        int forwardConnection = NodeConnections[node][forward];
+                        int32_t anger = this->behavior;
+                        int32_t forwardConnection = NodeConnections[node][forward];
 
                         while (newDirection < 0)
                         {
-                            if (anger == (int)RippleBehavior::CouchPotato)
+                            if (anger == RIPPLE_BEHAVIOR_COUCH_POTATO)
                             {
                                 // We can't go straight ahead - we need to take a rest
                                 // Die now
@@ -95,7 +95,7 @@ void Ripple::Advance(CRGB* leds)
                                 break;
                             }
 
-                            if (anger == (int)RippleBehavior::Lazy)
+                            if (anger == RIPPLE_BEHAVIOR_LAZY)
                             {
                                 if (forwardConnection < 0)
                                 {
@@ -111,7 +111,7 @@ void Ripple::Advance(CRGB* leds)
                                 }
                             }
 
-                            if (anger == (int)RippleBehavior::Weak)
+                            if (anger == RIPPLE_BEHAVIOR_WEAK)
                             {
                                 if (forwardConnection < 0)
                                 {
@@ -124,10 +124,10 @@ void Ripple::Advance(CRGB* leds)
                                 }
                             }
 
-                            if (anger == (int)RippleBehavior::Feisty)
+                            if (anger == RIPPLE_BEHAVIOR_FEISTY)
                             {
-                                int leftConnection = NodeConnections[node][wideLeft];
-                                int rightConnection = NodeConnections[node][wideRight];
+                                int32_t leftConnection = NodeConnections[node][wideLeft];
+                                int32_t rightConnection = NodeConnections[node][wideRight];
 
                                 if (leftConnection >= 0 && rightConnection >= 0)
                                 {
@@ -147,10 +147,10 @@ void Ripple::Advance(CRGB* leds)
                                 }
                             }
 
-                            if (anger == (int)RippleBehavior::Angry)
+                            if (anger == RIPPLE_BEHAVIOR_ANGRY)
                             {
-                                int leftConnection = NodeConnections[node][sharpLeft];
-                                int rightConnection = NodeConnections[node][sharpRight];
+                                int32_t leftConnection = NodeConnections[node][sharpLeft];
+                                int32_t rightConnection = NodeConnections[node][sharpRight];
 
                                 if (leftConnection >= 0 && rightConnection >= 0)
                                 {
@@ -175,11 +175,11 @@ void Ripple::Advance(CRGB* leds)
                             // Good thing we don't have any of those!
                         }
                     }
-                    else if (this->behavior == RippleBehavior::AlwaysRight)
+                    else if (this->behavior == RIPPLE_BEHAVIOR_ALWAYS_RIGHT)
                     {
-                        for (int i = 1; i < MaxPathsPerNode; i++)
+                        for (int32_t i = 1; i < MaxPathsPerNode; i++)
                         {
-                            int possibleDirection = (this->direction + i) % MaxPathsPerNode;
+                            int32_t possibleDirection = (this->direction + i) % MaxPathsPerNode;
 
                             if (NodeConnections[this->node][possibleDirection] >= 0)
                             {
@@ -189,11 +189,11 @@ void Ripple::Advance(CRGB* leds)
                             }
                         }
                     }
-                    else if (this->behavior == RippleBehavior::AlwaysLeft)
+                    else if (this->behavior == RIPPLE_BEHAVIOR_ALWAYS_LEFT)
                     {
-                        for (int i = 5; i >= 1; i--)
+                        for (int32_t i = 5; i >= 1; i--)
                         {
-                            int possibleDirection = (this->direction + i) % MaxPathsPerNode;
+                            int32_t possibleDirection = (this->direction + i) % MaxPathsPerNode;
 
                             if (NodeConnections[this->node][possibleDirection] >= 0)
                             {
@@ -203,11 +203,11 @@ void Ripple::Advance(CRGB* leds)
                             }
                         }
                     }
-                    else if (this->behavior == RippleBehavior::Exploding)
+                    else if (this->behavior == RIPPLE_BEHAVIOR_EXPLODING)
                     {
-                        for (int i = 5; i >= 1; i--)
+                        for (int32_t i = 5; i >= 1; i--)
                         {
-                            int possibleDirection = (this->direction + i) % MaxPathsPerNode;
+                            int32_t possibleDirection = (this->direction + i) % MaxPathsPerNode;
 
                             if (NodeConnections[this->node][possibleDirection] >= 0 && (possibleDirection != node))
                             {
@@ -234,19 +234,19 @@ void Ripple::Advance(CRGB* leds)
                 if (this->direction == 5 || this->direction == 0 || this->direction == 1)
                 {
                     // Top half of the node
-                    this->state = RippleState::TravelUp;
+                    this->state = RIPPLE_STATE_TRAVEL_UP;
                     this->direction = 0;  // Starting at bottom of segment
                 }
                 else
                 {
-                    this->state = RippleState::TravelDown;
+                    this->state = RIPPLE_STATE_TRAVEL_DOWN;
                     this->direction = LEDsPerSegment - 1; // Starting at top of LED-strip
                 }
 
                 break;
             }
 
-            case RippleState::TravelUp:
+            case RIPPLE_STATE_TRAVEL_UP:
             {
                 this->direction++;
 
@@ -254,15 +254,15 @@ void Ripple::Advance(CRGB* leds)
                 {
                     // We've reached the top!
                     // Enter the new node.
-                    int segment = this->node;
+                    int32_t segment = this->node;
 
                     this->node = SegmentConnections[segment][0];
 
-                    for (int i = 0; i < MaxPathsPerNode; i++)
+                    for (int32_t i = 0; i < MaxPathsPerNode; i++)
                     {
                         // Figure out from which direction the ripple is entering the node.
                         // Allows us to exit in an appropriately aggressive direction.
-                        int incomingConnection = NodeConnections[this->node][i];
+                        int32_t incomingConnection = NodeConnections[this->node][i];
 
                         if (incomingConnection == segment)
                         {
@@ -270,13 +270,13 @@ void Ripple::Advance(CRGB* leds)
                         }
                     }
 
-                    this->state = RippleState::WithinNode;
+                    this->state = RIPPLE_STATE_WITHIN_NODE;
                 }
 
                 break;
             }
 
-            case RippleState::TravelDown:
+            case RIPPLE_STATE_TRAVEL_DOWN:
             {
                 this->direction--;
 
@@ -284,15 +284,15 @@ void Ripple::Advance(CRGB* leds)
                 {
                     // We've reached the bottom!
                     // Enter the new node.
-                    int segment = this->node;
+                    int32_t segment = this->node;
 
                     this->node = SegmentConnections[segment][1];
 
-                    for (int i = 0; i < MaxPathsPerNode; i++)
+                    for (int32_t i = 0; i < MaxPathsPerNode; i++)
                     {
                         // Figure out from which direction the ripple is entering the node.
                         // Allows us to exit in an appropriately aggressive direction.
-                        int incomingConnection = NodeConnections[this->node][i];
+                        int32_t incomingConnection = NodeConnections[this->node][i];
 
                         if (incomingConnection == segment)
                         {
@@ -300,7 +300,7 @@ void Ripple::Advance(CRGB* leds)
                         }
                     }
 
-                    this->state = RippleState::WithinNode;
+                    this->state = RIPPLE_STATE_WITHIN_NODE;
                 }
 
                 break;
@@ -312,7 +312,7 @@ void Ripple::Advance(CRGB* leds)
 
         this->pressure -= 1.0f;
 
-        if (this->state == RippleState::TravelUp || this->state == RippleState::TravelDown)
+        if (this->state == RIPPLE_STATE_TRAVEL_UP || this->state == RIPPLE_STATE_TRAVEL_DOWN)
         {
             // Ripple is visible - render it
             this->Render(leds, age);
@@ -322,12 +322,12 @@ void Ripple::Advance(CRGB* leds)
     if (this->lifespan && age >= this->lifespan)
     {
         // We Dead
-        this->state = RippleState::Dead;
+        this->state = RIPPLE_STATE_DEAD;
         this->node = this->direction = this->pressure = age = 0;
     }
 }
 
-void Ripple::Claim(uint8_t animationId)
+void Ripple::Claim(int32_t animationId)
 {
     this->animationId = animationId;
 }
@@ -337,17 +337,17 @@ RippleState Ripple::GetState()
     return this->state;
 }
 
-uint8_t Ripple::GetAnimationId()
+int32_t Ripple::GetAnimationId()
 {
     return this->animationId;
 }
 
 void Ripple::Render(CRGB* leds, unsigned long age)
 {
-    int segment = this->node;
-    int fromBottom = this->direction;    
-    int strip = LEDAssignments[segment][0];
-    int led = round
+    int32_t segment = this->node;
+    int32_t fromBottom = this->direction;    
+    int32_t strip = LEDAssignments[segment][0];
+    int32_t led = round
     (
         Fmap
         (
@@ -358,7 +358,7 @@ void Ripple::Render(CRGB* leds, unsigned long age)
             (float)LEDAssignments[segment][1]
         )
     );
-    uint16_t offset = strip == BlueStripIndex ?
+    uint32_t offset = strip == BlueStripIndex ?
         BlueStripOffset :
             strip == GreenStripIndex ?
                 GreenStripOffset :
@@ -366,55 +366,12 @@ void Ripple::Render(CRGB* leds, unsigned long age)
                         RedStripOffset :
                         BlackStripOffset;
     uint32_t color = (uint32_t)this->color;
-    uint8_t r = uint8_t(min(255, max(0, int(Fmap(float(age), 0.0, float(lifespan), (color >> 8) & 0xFF, 0.0f)) + this->color.r)));
-    uint8_t g = uint8_t(min(255, max(0, int(Fmap(float(age), 0.0, float(lifespan), (color >> 16) & 0xFF, 0.0f)) + this->color.g)));
-    uint8_t b = uint8_t(min(255, max(0, int(Fmap(float(age), 0.0, float(lifespan), color & 0xFF, 0.0f)) + this->color.b)));
+    uint8_t r = uint8_t(min(255, max(0, int32_t(Fmap(float(age), 0.0, float(lifespan), (color >> 8) & 0xFF, 0.0f)) + this->color.r)));
+    uint8_t g = uint8_t(min(255, max(0, int32_t(Fmap(float(age), 0.0, float(lifespan), (color >> 16) & 0xFF, 0.0f)) + this->color.g)));
+    uint8_t b = uint8_t(min(255, max(0, int32_t(Fmap(float(age), 0.0, float(lifespan), color & 0xFF, 0.0f)) + this->color.b)));
 
     if (offset + led < NumberOfLEDs)
     {
         leds[offset + led].setRGB(r, g, b);   
     }
 }
-
-/*void render()
-{
-    uint32_t color = (uint32_t)this->color;
-    uint8_t ledColors[40][14][3];
-    int segment = node;
-    int strip = LEDAssignments[segment][0];
-    int led = LEDAssignments[segment][2] + direction;
-    int red = ledColors[segment][direction][0];
-    int green = ledColors[segment][direction][1];
-    int blue = ledColors[segment][direction][2];
-
-    ledColors[segment][direction][0] = uint8_t(min(255, max(0, int(Fmap(float(age), 0.0, float(lifespan), (color >> 8) & 0xFF, 0.0f)) + red)));
-    ledColors[segment][direction][1] = uint8_t(min(255, max(0, int(Fmap(float(age), 0.0, float(lifespan), (color >> 16) & 0xFF, 0.0f)) + green)));
-    ledColors[segment][direction][2] = uint8_t(min(255, max(0, int(Fmap(float(age), 0.0, float(lifespan), color & 0xFF, 0.0f)) + blue)));
-
-    for (int segment = 0; segment < NumberOfSegments; segment++)
-    {
-        for (int fromBottom = 0; fromBottom < LEDsPerSegment; fromBottom++)
-        {
-            int strip = LEDAssignments[segment][0];
-            int led = round
-            (
-                Fmap
-                (
-                    fromBottom,
-                    0, 
-                    (LEDsPerSegment - 1),
-                    LEDAssignments[segment][2], 
-                    LEDAssignments[segment][1]
-                )
-            );
-            
-            strips[strip].setPixelColor
-            (
-                led,
-                ledColors[segment][fromBottom][0],
-                ledColors[segment][fromBottom][1],
-                ledColors[segment][fromBottom][2]
-            );
-        }
-    }
-}*/

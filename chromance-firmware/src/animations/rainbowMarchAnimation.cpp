@@ -2,7 +2,7 @@
 
 using namespace Chromance;
 
-RainbowMarchAnimation::RainbowMarchAnimation(uint8_t id, Logger* logger) :
+RainbowMarchAnimation::RainbowMarchAnimation(int32_t id, Logger* logger) :
     Animation(id, "rainbowMarch", logger)
 {
 }

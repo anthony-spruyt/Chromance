@@ -10,7 +10,7 @@ namespace Chromance
     {
         public:
 
-            RippleAnimation(uint8_t id, const char* name, RipplePool* ripplePool, Logger* logger);
+            RippleAnimation(int32_t id, const char* name, RipplePool* ripplePool, Logger* logger);
 
             void Loop() override;
             virtual void Start() = 0;

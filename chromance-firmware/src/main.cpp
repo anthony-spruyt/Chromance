@@ -23,7 +23,7 @@ void SpeedCommandHandler(float speed);
 void PlayCommandHandler(AnimationType animation);
 void BrightnessCommandHandler(uint8_t brightness);
 void LogLevelCommandHandler(LogLevel logLevel);
-void OtherCommandHandler(char* topic, uint8_t* payload, unsigned int length);
+void OtherCommandHandler(char* topic, uint8_t* payload, uint32_t length);
 
 Config config;
 TimeService timeService;
@@ -97,10 +97,10 @@ void setup()
 
     mqttClient.Setup
     (
-        RebootCommandHandler, 
-        WakeCommandHandler, 
+        RebootCommandHandler,
+        WakeCommandHandler,
         SleepCommandHandler,
-        SpeedCommandHandler, 
+        SpeedCommandHandler,
         PlayCommandHandler,
         BrightnessCommandHandler,
         LogLevelCommandHandler,
@@ -243,7 +243,7 @@ void LogLevelCommandHandler(LogLevel logLevel)
     config.SetLogLevel((uint8_t)logLevel);
 }
 
-void OtherCommandHandler(char* topic, uint8_t* payload, unsigned int length)
+void OtherCommandHandler(char* topic, uint8_t* payload, uint32_t length)
 {
     logger.Info("Command not supported");
 }

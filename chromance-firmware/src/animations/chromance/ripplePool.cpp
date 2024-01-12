@@ -6,11 +6,11 @@ RipplePool::RipplePool()
 {
 }
 
-Ripple* RipplePool::Claim(uint8_t animationId)
+Ripple* RipplePool::Claim(int32_t animationId)
 {
-    for (int i = 0; i < RipplePool::NumberOfRipples; i++)
+    for (int32_t i = 0; i < RipplePool::NumberOfRipples; i++)
     {
-        if (this->ripples[i].GetState() == RippleState::Dead)
+        if (this->ripples[i].GetState() == RIPPLE_STATE_DEAD)
         {
             this->ripples[i].Claim(animationId);
 
@@ -21,7 +21,7 @@ Ripple* RipplePool::Claim(uint8_t animationId)
     return nullptr;
 }
 
-Ripple* RipplePool::Get(uint8_t index)
+Ripple* RipplePool::Get(uint32_t index)
 {
     if (index >= NumberOfRipples)
     {

@@ -9,7 +9,7 @@ namespace Chromance
     {
         public:
 
-            RainbowMarchAnimation(uint8_t id, Logger* logger);
+            RainbowMarchAnimation(int32_t id, Logger* logger);
 
             void Loop();
     };

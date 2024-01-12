@@ -9,12 +9,12 @@ namespace Chromance
     {
         public:
 
-            CubePulseAnimation(uint8_t id, RipplePool* ripplePool, Logger* logger);
+            CubePulseAnimation(int32_t id, RipplePool* ripplePool, Logger* logger);
 
             void Start();
 
         private:
-            uint8_t lastPulseNode;
+            int32_t lastPulseNode;
     };
 }
 

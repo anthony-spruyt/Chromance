@@ -11,31 +11,31 @@
 
 namespace Chromance
 {
-    enum class RippleState
+    enum RippleState
     {
         // Ripple is to be deleted and should not lit up
-        Dead,
+        RIPPLE_STATE_DEAD,
         // Ripple isn't drawn as it passes through a node to keep the speed consistent
-        WithinNode,
+        RIPPLE_STATE_WITHIN_NODE,
         // Ripple is moving upwards
-        TravelUp,
+        RIPPLE_STATE_TRAVEL_UP,
         // Ripple is moving downwards
-        TravelDown
+        RIPPLE_STATE_TRAVEL_DOWN
     };
 
-    enum class RippleBehavior
+    enum RippleBehavior
     {
         // Stop at next node
-        CouchPotato,
+        RIPPLE_BEHAVIOR_COUCH_POTATO,
         // Only go straight
-        Lazy,
+        RIPPLE_BEHAVIOR_LAZY,
         // Go straight if possible
-        Weak,
-        Feisty,
-        Angry,
-        AlwaysRight,
-        AlwaysLeft,
-        Exploding
+        RIPPLE_BEHAVIOR_WEAK,
+        RIPPLE_BEHAVIOR_FEISTY,
+        RIPPLE_BEHAVIOR_ANGRY,
+        RIPPLE_BEHAVIOR_ALWAYS_RIGHT,
+        RIPPLE_BEHAVIOR_ALWAYS_LEFT,
+        RIPPLE_BEHAVIOR_EXPLODING
     };
 
     class Ripple
@@ -44,11 +44,11 @@ namespace Chromance
 
             Ripple();
 
-            void Start(int node, int direction, CRGB color, float speed, unsigned long lifespan, RippleBehavior behavior);
+            void Start(int32_t node, int32_t direction, CRGB color, float speed, unsigned long lifespan, RippleBehavior behavior);
             void Advance(CRGB* leds);
-            void Claim(uint8_t animationId);
+            void Claim(int32_t animationId);
             RippleState GetState();
-            uint8_t GetAnimationId();
+            int32_t GetAnimationId();
         
         private:
 
@@ -57,9 +57,9 @@ namespace Chromance
             RippleState state;
             CRGB color;
             // The node if within a node otherwise the segment if travelling
-            int node;
+            int32_t node;
             // The direction if within a node otherwise the LED postition from the bottom if travelling
-            int direction;
+            int32_t direction;
             // Each loop the ripples move this many LED's
             float speed;
             // The ripple stops after this many milliseconds
@@ -71,7 +71,7 @@ namespace Chromance
             // Used to track age of ripple
             unsigned long birthday;
             // The ID of the animation that has claimed this ripple
-            uint8_t animationId;
+            int32_t animationId;
         };
 }
 

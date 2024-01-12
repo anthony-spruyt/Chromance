@@ -2,7 +2,7 @@
 
 using namespace Chromance;
 
-RainbowBeatAnimation::RainbowBeatAnimation(uint8_t id, Logger* logger) :
+RainbowBeatAnimation::RainbowBeatAnimation(int32_t id, Logger* logger) :
     Animation(id, "rainbowBeat", logger)
 {
 }

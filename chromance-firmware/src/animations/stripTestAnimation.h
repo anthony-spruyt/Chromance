@@ -9,7 +9,7 @@ namespace Chromance
     {
         public:
 
-            StripTestAnimation(uint8_t id, Logger* logger);
+            StripTestAnimation(int32_t id, Logger* logger);
 
             void Loop();
 
@@ -19,13 +19,13 @@ namespace Chromance
             static const unsigned long FillTestMillis = 5000;
 
             unsigned long lastFrame;
-            uint16_t counter;
+            uint32_t counter;
             bool fillTest1;
             bool fillTest2;
             bool fillTest3;
             bool shouldWaitForFillTestNextFrame;
             bool shouldWaitForPixelTestNextFrame;
-            uint8_t nextPixelColorTest;
+            uint32_t nextPixelColorTest;
     };
 }
 

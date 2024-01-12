@@ -36,7 +36,7 @@ void MQTTClient::Setup
     this->Connect();
 }
 
-void MQTTClient::Callback(char* topic, byte* payload, unsigned int length)
+void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
 {
     this->logger->Debug("MQTT message arrived in topic: " + String(topic));
     
@@ -105,39 +105,39 @@ void MQTTClient::Callback(char* topic, byte* payload, unsigned int length)
         
         if (strcmp(animation, "stripTest") == 0)
         {
-            this->playCommandCallback(AnimationType::StripTest);
+            this->playCommandCallback(ANIMATION_TYPE_STRIP_TEST);
         }
         else if (strcmp(animation, "randomAnimation") == 0)
         {
-            this->playCommandCallback(AnimationType::RandomAnimation);
+            this->playCommandCallback(ANIMATION_TYPE_RANDOM_ANIMATION);
         }
         else if (strcmp(animation, "randomPulse") == 0)
         {
-            this->playCommandCallback(AnimationType::RandomPulse);
+            this->playCommandCallback(ANIMATION_TYPE_RANDOM_PULSE);
         }
         else if (strcmp(animation, "cubePulse") == 0)
         {
-            this->playCommandCallback(AnimationType::CubePulse);
+            this->playCommandCallback(ANIMATION_TYPE_CUBE_PULSE);
         }
         else if (strcmp(animation, "starBurstPulse") == 0)
         {
-            this->playCommandCallback(AnimationType::StarBurstPulse);
+            this->playCommandCallback(ANIMATION_TYPE_STAR_BURST_PULSE);
         }
         else if (strcmp(animation, "centerPulse") == 0)
         {
-            this->playCommandCallback(AnimationType::CenterPulse);
+            this->playCommandCallback(ANIMATION_TYPE_CENTER_PULSE);
         }
         else if (strcmp(animation, "rainbowBeat") == 0)
         {
-            this->playCommandCallback(AnimationType::RainbowBeat);
+            this->playCommandCallback(ANIMATION_TYPE_RAINBOW_BEAT);
         }
         else if (strcmp(animation, "rainbowMarch") == 0)
         {
-            this->playCommandCallback(AnimationType::RainbowMarch);
+            this->playCommandCallback(ANIMATION_TYPE_RAINBOW_MARCH);
         }
         else if (strcmp(animation, "pulse") == 0)
         {
-            this->playCommandCallback(AnimationType::Pulse);
+            this->playCommandCallback(ANIMATION_TYPE_PULSE);
         }
 
         return;
@@ -150,31 +150,31 @@ void MQTTClient::Callback(char* topic, byte* payload, unsigned int length)
         
         if (strcmp(logLevel, "trace") == 0)
         {
-            this->logLevelCommandCallback(LogLevel::Trace);
+            this->logLevelCommandCallback(LOG_LEVEL_TRACE);
         }
         else if (strcmp(logLevel, "debug") == 0)
         {
-            this->logLevelCommandCallback(LogLevel::Debug);
+            this->logLevelCommandCallback(LOG_LEVEL_DEBUG);
         }
         else if (strcmp(logLevel, "info") == 0)
         {
-            this->logLevelCommandCallback(LogLevel::Information);
+            this->logLevelCommandCallback(LOG_LEVEL_INFORMATION);
         }
         else if (strcmp(logLevel, "warn") == 0)
         {
-            this->logLevelCommandCallback(LogLevel::Warning);
+            this->logLevelCommandCallback(LOG_LEVEL_WARNING);
         }
         else if (strcmp(logLevel, "error") == 0)
         {
-            this->logLevelCommandCallback(LogLevel::Error);
+            this->logLevelCommandCallback(LOG_LEVEL_ERROR);
         }
         else if (strcmp(logLevel, "crit") == 0)
         {
-            this->logLevelCommandCallback(LogLevel::Critical);
+            this->logLevelCommandCallback(LOG_LEVEL_CRITICAL);
         }
         else if (strcmp(logLevel, "none") == 0)
         {
-            this->logLevelCommandCallback(LogLevel::None);
+            this->logLevelCommandCallback(LOG_LEVEL_NONE);
         }
 
         return;
@@ -207,7 +207,7 @@ void MQTTClient::Configure()
     this->mqttClient.setServer(MQTTBroker, MQTTPort);
     this->mqttClient.setCallback
     (
-        [this](char* topic, byte* payload, unsigned int length)
+        [this](char* topic, byte* payload, uint32_t length)
         {
             this->Callback(topic, payload, length);
         }

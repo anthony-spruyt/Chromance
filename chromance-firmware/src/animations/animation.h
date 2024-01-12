@@ -7,19 +7,19 @@
 
 namespace Chromance
 {
-    enum class AnimationStatus : uint8_t
+    enum AnimationStatus
     {
-        Playing,
-        Sleeping,
-        WakingUp,
-        GoingToSleep
+        ANIMATION_STATUS_PLAYING,
+        ANIMATION_STATUS_SLEEPING,
+        ANIMATION_STATUS_WAKING_UP,
+        ANIMATION_STATUS_GOING_TO_SLEEP
     };
 
     class Animation
     {
         public:
 
-            Animation(uint8_t id, const char* name, Logger* logger);
+            Animation(int32_t id, const char* name, Logger* logger);
 
             virtual void Loop() = 0;
             virtual void Sleep(bool fade);
@@ -34,7 +34,7 @@ namespace Chromance
 
             virtual void Fade();
 
-            uint8_t id;
+            int32_t id;
             const char* name;
             Logger* logger;
             CRGB leds[NumberOfLEDs];

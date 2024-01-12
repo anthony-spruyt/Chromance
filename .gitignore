@@ -4,3 +4,4 @@ chromance-firmware/platformioSecrets.ini
 chromance-firmware/.pio
 chromance-firmware/.vscode
 chromance-firmware/src/secrets.h
+*.code-workspace

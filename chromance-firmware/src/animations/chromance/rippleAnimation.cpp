@@ -4,7 +4,7 @@ using namespace Chromance;
 
 
 
-RippleAnimation::RippleAnimation(uint8_t id, const char* name, RipplePool* ripplePool, Logger* logger) :
+RippleAnimation::RippleAnimation(int32_t id, const char* name, RipplePool* ripplePool, Logger* logger) :
     Animation(id, name, logger)
 {
     this->ripplePool = ripplePool;
@@ -18,7 +18,7 @@ void RippleAnimation::Loop()
     // Advance this animations claimed ripples
     Ripple* ripple;
 
-    for (int i = 0; i < RipplePool::NumberOfRipples; i++)
+    for (int32_t i = 0; i < RipplePool::NumberOfRipples; i++)
     {
         ripple = ripplePool->Get(i);
         

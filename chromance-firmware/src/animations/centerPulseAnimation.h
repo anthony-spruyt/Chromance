@@ -9,7 +9,7 @@ namespace Chromance
     {
         public:
 
-            CenterPulseAnimation(uint8_t id, RipplePool* ripplePool, Logger* logger);
+            CenterPulseAnimation(int32_t id, RipplePool* ripplePool, Logger* logger);
 
             void Start();
     };

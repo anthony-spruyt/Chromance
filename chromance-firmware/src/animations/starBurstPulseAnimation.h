@@ -9,7 +9,7 @@ namespace Chromance
     {
         public:
 
-            StarBurstPulseAnimation(uint8_t id, RipplePool* ripplePool, Logger* logger);
+            StarBurstPulseAnimation(int32_t id, RipplePool* ripplePool, Logger* logger);
 
             void Start();
     };

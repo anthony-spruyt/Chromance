@@ -2,7 +2,7 @@
 
 using namespace Chromance;
 
-StripTestAnimation::StripTestAnimation(uint8_t id, Logger* logger) :
+StripTestAnimation::StripTestAnimation(int32_t id, Logger* logger) :
     Animation(id, "stripTest", logger),
     counter(0),
     fillTest1(false),
@@ -32,19 +32,19 @@ void StripTestAnimation::Loop()
 
     if (!this->fillTest1)
     {
-        fill_solid(this->leds, NumberOfLEDs, CRGB(255, 0, 255));
+        fill_solid(this->leds, NumberOfLEDs, CRGB(255U, 0U, 255U));
         this->fillTest1 = true;
         this->shouldWaitForFillTestNextFrame = true;
     }
     else if (!this->fillTest2)
     {
-        fill_solid(this->leds, NumberOfLEDs, CRGB(0, 255, 255));
+        fill_solid(this->leds, NumberOfLEDs, CRGB(0U, 255U, 255U));
         this->fillTest2 = true;
         this->shouldWaitForFillTestNextFrame = true;
     }
     else if (!this->fillTest2)
     {
-        fill_solid(this->leds, NumberOfLEDs, CRGB(255, 255, 0));
+        fill_solid(this->leds, NumberOfLEDs, CRGB(255U, 255U, 0U));
         this->fillTest3 = true;
         this->shouldWaitForFillTestNextFrame = true;
     }

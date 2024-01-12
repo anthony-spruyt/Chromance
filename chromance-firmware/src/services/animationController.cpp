@@ -11,12 +11,11 @@
 using namespace Chromance;
 
 AnimationController::AnimationController(Logger* logger, Config* config) :
-    //currentAnimationType(AnimationType::RandomAnimation),
-    currentAnimationType(AnimationType::RandomPulse),
+    currentAnimationType(ANIMATION_TYPE_RANDOM_ANIMATION),
     sleeping(false),
     lastRandomAnimationStarted(0),
     transitionScale(0),
-    next(AnimationRequest::None),
+    next(ANIMATION_REQUEST_NONE),
     ripplePool()
 {
     this->logger = logger;
@@ -28,7 +27,7 @@ AnimationController::~AnimationController()
 {
     Animation* animation = nullptr;
 
-    for (int i = 1; i < (int)AnimationType::NumberOfAnimations; i++)
+    for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
     {
         animation = this->animations[i];
 
@@ -64,36 +63,36 @@ void AnimationController::Setup()
     FastLED.show();
 
     this->logger->Debug("Register and initialize animations");
-    this->animations[(uint8_t)AnimationType::RandomAnimation] = nullptr;
-    this->animations[(uint8_t)AnimationType::StripTest] = new StripTestAnimation((uint8_t)AnimationType::StripTest, this->logger);
-    this->animations[(uint8_t)AnimationType::RandomPulse] = RandomPulseAnimationEnabled ? new RandomPulseAnimation((uint8_t)AnimationType::RandomPulse, &ripplePool, this->logger) : nullptr;
-    this->animations[(uint8_t)AnimationType::CubePulse] = CubePulseAnimationEnabled ? new CubePulseAnimation((uint8_t)AnimationType::CubePulse, &ripplePool, this->logger) : nullptr;
-    this->animations[(uint8_t)AnimationType::StarBurstPulse] = StarBurstPulseAnimationEnabled ? new StarBurstPulseAnimation((uint8_t)AnimationType::StarBurstPulse, &ripplePool, this->logger) : nullptr;
-    this->animations[(uint8_t)AnimationType::CenterPulse] = CenterPulseAnimationEnabled ? new CenterPulseAnimation((uint8_t)AnimationType::CenterPulse, &ripplePool, this->logger) : nullptr;
-    this->animations[(uint8_t)AnimationType::RainbowBeat] = RainbowBeatAnimationEnabled ? new RainbowBeatAnimation((uint8_t)AnimationType::RainbowBeat, this->logger) : nullptr;
-    this->animations[(uint8_t)AnimationType::RainbowMarch] = RainbowMarchAnimationEnabled ? new RainbowMarchAnimation((uint8_t)AnimationType::RainbowMarch, this->logger) : nullptr;
-    this->animations[(uint8_t)AnimationType::Pulse] = PulseAnimationEnabled ? new PulseAnimation((uint8_t)AnimationType::Pulse, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_RANDOM_ANIMATION] = nullptr;
+    this->animations[ANIMATION_TYPE_STRIP_TEST] = new StripTestAnimation(ANIMATION_TYPE_STRIP_TEST, this->logger);
+    this->animations[ANIMATION_TYPE_RANDOM_PULSE] = RandomPulseAnimationEnabled ? new RandomPulseAnimation(ANIMATION_TYPE_RANDOM_PULSE, &ripplePool, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_CUBE_PULSE] = CubePulseAnimationEnabled ? new CubePulseAnimation(ANIMATION_TYPE_CUBE_PULSE, &ripplePool, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_STAR_BURST_PULSE] = StarBurstPulseAnimationEnabled ? new StarBurstPulseAnimation(ANIMATION_TYPE_STAR_BURST_PULSE, &ripplePool, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_CENTER_PULSE] = CenterPulseAnimationEnabled ? new CenterPulseAnimation(ANIMATION_TYPE_CENTER_PULSE, &ripplePool, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_RAINBOW_BEAT] = RainbowBeatAnimationEnabled ? new RainbowBeatAnimation(ANIMATION_TYPE_RAINBOW_BEAT, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_RAINBOW_MARCH] = RainbowMarchAnimationEnabled ? new RainbowMarchAnimation(ANIMATION_TYPE_RAINBOW_MARCH, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_PULSE] = PulseAnimationEnabled ? new PulseAnimation(ANIMATION_TYPE_PULSE, this->logger) : nullptr;
     
     this->lastRandomAnimationStarted = millis() + StartupDelay;
     
     // The constructor sets this to random currently but in future this can be from config
-    if (this->currentAnimationType == AnimationType::RandomAnimation)
+    if (this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION)
     {
-        Animation* nextAnimation = this->animations[(uint8_t)this->RandomAnimation()];
+        Animation* nextAnimation = this->animations[this->RandomAnimation()];
 
         this->logger->Debug("Random animation selected: " + String(nextAnimation->GetName()));
 
         nextAnimation->Wake(true);
     }
-    else if (this->animations[(uint8_t)currentAnimationType] != nullptr)
+    else if (this->animations[this->currentAnimationType] != nullptr)
     {
-         if (this->currentAnimationType == AnimationType::StripTest)
+         if (this->currentAnimationType == ANIMATION_TYPE_STRIP_TEST)
         {
-            this->animations[(uint8_t)currentAnimationType]->Wake(false);
+            this->animations[this->currentAnimationType]->Wake(false);
         }
         else
         {
-            this->animations[(uint8_t)currentAnimationType]->Wake(true);
+            this->animations[this->currentAnimationType]->Wake(true);
         }
     }
 }
@@ -103,18 +102,18 @@ void AnimationController::Loop()
     unsigned long now = millis();
     uint8_t configBrightness = this->config->GetBrightness();
     Animation* animation;
-    uint8_t activeAnimationsCount = 0;
-    Animation* activeAnimations[(uint8_t)AnimationType::NumberOfAnimations - 1];
+    uint32_t activeAnimationsCount = 0;
+    Animation* activeAnimations[ANIMATION_TYPE_NUMBER_OF_ANIMATIONS - 1];
 
     if (xSemaphoreTake(this->semaphore, 0U) == pdTRUE)
     {
-        if (this->next == AnimationRequest::Play)
+        if (this->next == ANIMATION_REQUEST_PLAY)
         {
-            this->next = AnimationRequest::None;
+            this->next = ANIMATION_REQUEST_NONE;
             this->sleeping = false;
             this->transitionScale = 0;
 
-            for (int i = 1; i < (int)AnimationType::NumberOfAnimations; i++)
+            for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
             {
                 if (this->animations[i] != nullptr)
                 {
@@ -122,9 +121,9 @@ void AnimationController::Loop()
                 }
             }
 
-            if (this->currentAnimationType == AnimationType::RandomAnimation)
+            if (this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION)
             {
-                Animation* nextAnimation = this->animations[(uint8_t)this->RandomAnimation()];
+                Animation* nextAnimation = this->animations[this->RandomAnimation()];
 
                 this->logger->Debug("Random animation selected: " + String(nextAnimation->GetName()));
 
@@ -132,15 +131,15 @@ void AnimationController::Loop()
             }
             else
             {
-                this->animations[(uint8_t)this->currentAnimationType]->Wake(false);
+                this->animations[this->currentAnimationType]->Wake(false);
             }
         }
-        else if (this->next == AnimationRequest::Sleep)
+        else if (this->next == ANIMATION_REQUEST_SLEEP)
         {
-            this->next = AnimationRequest::None;
+            this->next = ANIMATION_REQUEST_NONE;
             this->sleeping = true;
 
-            for (int i = 1; i < (int)AnimationType::NumberOfAnimations; i++)
+            for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
             {
                 if (this->animations[i] != nullptr)
                 {
@@ -148,19 +147,19 @@ void AnimationController::Loop()
                 }
             }
         }
-        else if (this->next == AnimationRequest::Wake)
+        else if (this->next == ANIMATION_REQUEST_WAKE)
         {
-            this->next = AnimationRequest::None;
+            this->next = ANIMATION_REQUEST_NONE;
             this->sleeping = false;
             this->lastRandomAnimationStarted = now;
 
-            if (this->currentAnimationType == AnimationType::RandomAnimation)
+            if (this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION)
             {
-                this->animations[(uint8_t)this->RandomAnimation()]->Wake(true);
+                this->animations[this->RandomAnimation()]->Wake(true);
             }
             else
             {
-                this->animations[(uint8_t)this->currentAnimationType]->Wake(true);
+                this->animations[this->currentAnimationType]->Wake(true);
             }
         }
 
@@ -173,17 +172,17 @@ void AnimationController::Loop()
         if
         (
             !this->sleeping &&
-            this->currentAnimationType == AnimationType::RandomAnimation &&
+            this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION &&
             now - this->lastRandomAnimationStarted > RandomAnimationDuration
         )
         {
             this->lastRandomAnimationStarted = now;
             
-            animation = this->animations[(uint8_t)this->RandomAnimation()];
+            animation = this->animations[this->RandomAnimation()];
             
             this->logger->Debug("Next random animation selected: " + String(animation->GetName()));
 
-            for (int i = 1; i < (int)AnimationType::NumberOfAnimations; i++)
+            for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
             {
                 if (this->animations[i] != nullptr && i != animation->GetID())
                 {
@@ -198,7 +197,7 @@ void AnimationController::Loop()
         xSemaphoreGive(this->semaphore);
     }
 
-    for (int i = 1; i < (int)AnimationType::NumberOfAnimations; i++)
+    for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
     {
         animation = this->animations[i];
 
@@ -209,13 +208,13 @@ void AnimationController::Loop()
         
         switch (animation->GetStatus())
         {
-            case AnimationStatus::Playing:
+            case ANIMATION_STATUS_PLAYING:
                 animation->Loop();
                 activeAnimations[activeAnimationsCount] = animation;
                 activeAnimationsCount++;
                 break;
-            case AnimationStatus::WakingUp:
-            case AnimationStatus::GoingToSleep:
+            case ANIMATION_STATUS_WAKING_UP:
+            case ANIMATION_STATUS_GOING_TO_SLEEP:
                 animation->Loop();
                 animation->Transition();
                 activeAnimations[activeAnimationsCount] = animation;
@@ -237,7 +236,7 @@ void AnimationController::Loop()
         {
             CRGB* currentAnimationBuffer = activeAnimations[0]->GetBuffer();
 
-            for (int i = 0; i < NumberOfLEDs; i++)
+            for (int32_t i = 0; i < NumberOfLEDs; i++)
             {
                 this->leds[i] = currentAnimationBuffer[i];
             }
@@ -248,10 +247,10 @@ void AnimationController::Loop()
             CRGB* wakingUpAnimationBuffer;
             Animation* goingToSleepAnimation;
             CRGB* goingToSleepAnimationBuffer;
-            uint8_t wakingUpIndex;
-            uint8_t goingToSleepIndex;
+            uint32_t wakingUpIndex;
+            uint32_t goingToSleepIndex;
 
-            if (activeAnimations[0]->GetStatus() == AnimationStatus::WakingUp || activeAnimations[0]->GetStatus() == AnimationStatus::Playing)
+            if (activeAnimations[0]->GetStatus() == ANIMATION_STATUS_WAKING_UP || activeAnimations[0]->GetStatus() == ANIMATION_STATUS_PLAYING)
             {
                 wakingUpIndex = 0;
                 goingToSleepIndex = 1;
@@ -267,18 +266,18 @@ void AnimationController::Loop()
             goingToSleepAnimation = activeAnimations[goingToSleepIndex];
             goingToSleepAnimationBuffer = activeAnimations[goingToSleepIndex]->GetBuffer();
 
-            if (this->transitionScale <= 255 - AnimationTransitionSpeed)
+            if (this->transitionScale <= 255U - AnimationTransitionSpeed)
             {
                 this->transitionScale += AnimationTransitionSpeed;
 
-                for (int i = 0; i < NumberOfLEDs; i++)
+                for (int32_t i = 0; i < NumberOfLEDs; i++)
                 {
                     this->leds[i] = blend(goingToSleepAnimationBuffer[i], wakingUpAnimationBuffer[i], this->transitionScale);
                 }
             }
             else
             {
-                for (int i = 0; i < NumberOfLEDs; i++)
+                for (int32_t i = 0; i < NumberOfLEDs; i++)
                 {
                     this->leds[i] = wakingUpAnimationBuffer[i];
                 }
@@ -301,7 +300,7 @@ void AnimationController::Sleep()
 
     if (xSemaphoreTake(this->semaphore, portMAX_DELAY) == pdTRUE)
     {
-        this->next = AnimationRequest::Sleep;
+        this->next = ANIMATION_REQUEST_SLEEP;
 
         xSemaphoreGive(this->semaphore);
     }
@@ -313,7 +312,7 @@ void AnimationController::Wake()
 
     if (xSemaphoreTake(this->semaphore, portMAX_DELAY) == pdTRUE)
     {
-        this->next = AnimationRequest::Wake;
+        this->next = ANIMATION_REQUEST_WAKE;
 
         xSemaphoreGive(this->semaphore);
     }
@@ -323,17 +322,17 @@ void AnimationController::Play(AnimationType animationType)
 {
     if
     (
-        animationType == AnimationType::NumberOfAnimations
+        animationType == ANIMATION_TYPE_NUMBER_OF_ANIMATIONS
     )
     {
         return;
     }
 
-    this->logger->Debug("Play animation: " + String((uint8_t)animationType));
+    this->logger->Debug("Play animation: " + String(animationType));
 
     if (xSemaphoreTake(this->semaphore, portMAX_DELAY) == pdTRUE)
     {
-        this->next = AnimationRequest::Play;
+        this->next = ANIMATION_REQUEST_PLAY;
         this->currentAnimationType = animationType;
 
         xSemaphoreGive(this->semaphore);
@@ -342,11 +341,11 @@ void AnimationController::Play(AnimationType animationType)
 
 AnimationType AnimationController::RandomAnimation()
 {
-    uint8_t exclude = 255;
+    int32_t exclude = -1;
 
-    for (int i = 1; i < (int)AnimationType::NumberOfAnimations; i++)
+    for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
     {
-        if (this->animations[i] != nullptr && this->animations[i]->GetStatus() == AnimationStatus::Playing)
+        if (this->animations[i] != nullptr && this->animations[i]->GetStatus() == ANIMATION_STATUS_PLAYING)
         {
             exclude = i;
             
@@ -354,21 +353,18 @@ AnimationType AnimationController::RandomAnimation()
         }
     }
 
-    uint8_t next;
-    uint8_t count = 0;
-    const uint16_t offset = 2;
+    int32_t next;
+    const int32_t offset = 2;
 
-    while (count < 255)
+    for (int32_t i = 0; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
     {
-        next = (uint8_t)random16((uint16_t)AnimationType::NumberOfAnimations - offset) + offset;
+        next = random(ANIMATION_TYPE_NUMBER_OF_ANIMATIONS - offset) + offset;
 
         if (next != exclude && this->animations[next] != nullptr)
         {
             return (AnimationType)next;
         }
-
-        count++;
     }
 
-    return AnimationType::RainbowMarch;
+    return ANIMATION_TYPE_CUBE_PULSE;
 }

@@ -9,7 +9,7 @@ namespace Chromance
     {
         public:
 
-            PulseAnimation(uint8_t id, Logger* logger);
+            PulseAnimation(int32_t id, Logger* logger);
 
             void Loop();
             void Wake(bool fade) override;

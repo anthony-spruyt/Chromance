@@ -3,7 +3,7 @@
 
 using namespace Chromance;
 
-CenterPulseAnimation::CenterPulseAnimation(uint8_t id, RipplePool* ripplePool, Logger* logger) :
+CenterPulseAnimation::CenterPulseAnimation(int32_t id, RipplePool* ripplePool, Logger* logger) :
     RippleAnimation(id, "centerPulse", ripplePool, logger)
 {
 }
@@ -14,10 +14,10 @@ void CenterPulseAnimation::Start()
     float speed = random(500, 800) / 1000.0f;
     unsigned long lifespan = 5000U;
     
-    RippleBehavior behavior = RippleBehavior::Feisty;
+    RippleBehavior behavior = RIPPLE_BEHAVIOR_FEISTY;
     Ripple* ripple;
 
-    for (int i = 0; i < MaxPathsPerNode; i++)
+    for (int32_t i = 0; i < MaxPathsPerNode; i++)
     {
         ripple = this->ripplePool->Claim(this->id);
 

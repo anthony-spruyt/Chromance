@@ -2,7 +2,7 @@
 
 using namespace Chromance;
 
-AnimationTemplate::AnimationTemplate(uint8_t id, Logger* logger) :
+AnimationTemplate::AnimationTemplate(int32_t id, Logger* logger) :
     Animation(id, "MyAnimationName", logger)
 {
 }

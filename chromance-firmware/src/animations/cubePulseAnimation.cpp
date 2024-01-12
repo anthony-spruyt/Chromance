@@ -3,7 +3,7 @@
 
 using namespace Chromance;
 
-CubePulseAnimation::CubePulseAnimation(uint8_t id, RipplePool* ripplePool, Logger* logger) :
+CubePulseAnimation::CubePulseAnimation(int32_t id, RipplePool* ripplePool, Logger* logger) :
     RippleAnimation(id, "cubePulse", ripplePool, logger),
     lastPulseNode(255U)
 {
@@ -25,11 +25,11 @@ void CubePulseAnimation::Start()
     this->lastPulseNode = node;
 
     RippleBehavior behavior = random(2) ? 
-        RippleBehavior::AlwaysLeft : 
-        RippleBehavior::AlwaysRight;
+        RIPPLE_BEHAVIOR_ALWAYS_LEFT : 
+        RIPPLE_BEHAVIOR_ALWAYS_RIGHT;
     Ripple* ripple;
 
-    for (int i = 0; i < MaxPathsPerNode; i++)
+    for (int32_t i = 0; i < MaxPathsPerNode; i++)
     {
         if (NodeConnections[node][i] >= 0)
         {
