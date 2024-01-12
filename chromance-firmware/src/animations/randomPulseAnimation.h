@@ -1,7 +1,7 @@
 #ifndef RANDOMPULSE_ANIMATION_H_
 #define RANDOMPULSE_ANIMATION_H_
 
-#include "chromance/rippleAnimation.h"
+#include "ripples/rippleAnimation.h"
 
 namespace Chromance
 {

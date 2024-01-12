@@ -1,5 +1,5 @@
 #include "randomPulseAnimation.h"
-#include "chromance/map.h"
+#include "ripples/map.h"
 
 using namespace Chromance;
 

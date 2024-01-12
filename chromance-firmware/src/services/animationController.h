@@ -6,7 +6,7 @@
 #include "config.h"
 #include <FastLED.h>
 #include "../animations/animation.h"
-#include "../animations/chromance/ripplePool.h"
+#include "../animations/ripples/ripplePool.h"
 
 namespace Chromance
 {

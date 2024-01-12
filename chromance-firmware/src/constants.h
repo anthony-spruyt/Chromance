@@ -163,10 +163,10 @@ namespace Chromance
     static const UBaseType_t WiFiServiceTaskPriority = 3;
     static const UBaseType_t OTAServiceTaskPriority = 2;
     static const UBaseType_t MQTTClientTaskPriority = 1;
-    static const uint32_t AnimationControllerTaskStackSize = 5000;
-    static const uint32_t WiFiServiceTaskStackSize = 5000;
-    static const uint32_t OTAServiceTaskStackSize = 5000;
-    static const uint32_t MQTTClientTaskStackSize = 5000;
+    static const uint32_t AnimationControllerTaskStackSize = 8000;
+    static const uint32_t WiFiServiceTaskStackSize = 4000;
+    static const uint32_t OTAServiceTaskStackSize = 4000;
+    static const uint32_t MQTTClientTaskStackSize = 4000;
 }
 
 #endif
