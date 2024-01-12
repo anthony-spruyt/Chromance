@@ -33,7 +33,7 @@ void StarBurstPulseAnimation::Start()
 
         ripple->Start
         (
-            StarburstNode,
+            StarBurstNode,
             i,
             CHSV(baseColor + (0xFFFF / 6) * i, 255U, 255U),
             speed,

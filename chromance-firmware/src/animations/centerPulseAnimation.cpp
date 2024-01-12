@@ -30,7 +30,7 @@ void CenterPulseAnimation::Start()
 
         ripple->Start
         (
-            StarburstNode,
+            StarBurstNode,
             i,
             color,
             speed,

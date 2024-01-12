@@ -32,7 +32,7 @@ namespace Chromance
     static const int32_t NumberOfFunNodes = 6;
     static const int32_t FunNodes[] = {4, 5, 14, 15, 16, 22, 23};
     // Firing ripples that always turn in one direction will draw a starburst
-    static const int32_t StarburstNode = 15;
+    static const int32_t StarBurstNode = 15;
     /**
      * LED segment numbers
      * Beam 0 is at 12:00 and advance clockwise
