@@ -10,7 +10,7 @@
 #define REBOOT_COMMAND_CALLBACK_SIGNATURE std::function<void()>
 #define WAKE_COMMAND_CALLBACK_SIGNATURE std::function<void()>
 #define SLEEP_COMMAND_CALLBACK_SIGNATURE std::function<void()>
-#define SPEED_COMMAND_CALLBACK_SIGNATURE std::function<void(float)>
+#define SPEED_COMMAND_CALLBACK_SIGNATURE std::function<void(uint8_t)>
 #define PLAY_COMMAND_CALLBACK_SIGNATURE std::function<void(AnimationType)>
 #define BRIGHTNESS_COMMAND_CALLBACK_SIGNATURE std::function<void(uint8_t)>
 #define LOGLEVEL_COMMAND_CALLBACK_SIGNATURE std::function<void(LogLevel)>
@@ -18,6 +18,15 @@
 
 namespace Chromance
 {
+    struct ChromanceState
+    {
+        AnimationType animationType;
+        AnimationStatus animationStatus;
+        uint8_t brightness;
+        uint8_t speed;
+        LogLevel logLevel;
+    };
+
     class MQTTClient
     {
         public:
@@ -36,7 +45,9 @@ namespace Chromance
                 OTHER_COMMAND_CALLBACK_SIGNATURE otherCommandCallback
             );
             void Loop();
-            //void Publish(); //TODO with a mutex
+            void PublishState(ChromanceState state);
+            void PublishFPS(uint32_t fps);
+            
 
         private:
 
@@ -44,6 +55,7 @@ namespace Chromance
             void Callback(char* topic, byte* payload, uint32_t length);
             void Connect();
             void Subscribe();
+            void Publish();
 
             Logger* logger;
             AnimationController* animationController;

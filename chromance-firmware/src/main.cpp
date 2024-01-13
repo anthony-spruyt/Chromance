@@ -150,8 +150,9 @@ void AnimationControllerTask(void *pvParameters)
 
     for (;;)
     {
+#ifdef MONITOR_TASK_STACK_SIZES
         MonitorStackSize(AnimationControllerTaskStackSize, "AnimationControllerTask");
-
+#endif
         if (!otaService.IsUpdating())
         {
             animationController.Loop();
@@ -169,8 +170,9 @@ void WiFiServiceTask(void *pvParameters)
 
     for (;;)
     {
+#ifdef MONITOR_TASK_STACK_SIZES
         MonitorStackSize(WiFiServiceTaskStackSize, "WiFiServiceTask");
-
+#endif
         wifiService.Loop();
 
         vTaskDelay(TaskDelay);
@@ -183,8 +185,9 @@ void OTAServiceTask(void *pvParameters)
 
     for (;;)
     {
+#ifdef MONITOR_TASK_STACK_SIZES
         MonitorStackSize(OTAServiceTaskStackSize, "OTAServiceTask");
-
+#endif
         otaService.Loop();
 
         vTaskDelay(TaskDelay);
@@ -197,8 +200,9 @@ void MQTTClientTask(void *pvParameters)
 
     for (;;)
     {
+#ifdef MONITOR_TASK_STACK_SIZES
         MonitorStackSize(MQTTClientTaskStackSize, "MQTTClientTask");
-
+#endif
         mqttClient.Loop();
 
         vTaskDelay(TaskDelay);

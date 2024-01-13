@@ -201,6 +201,16 @@ void MQTTClient::Loop()
     }
 }
 
+void MQTTClient::PublishState(ChromanceState state)
+{
+    //TODO
+}
+
+void MQTTClient::PublishFPS(uint32_t fps)
+{
+    //TODO
+}
+
 void MQTTClient::Configure()
 {
     this->logger->Info("Configure MQTT");

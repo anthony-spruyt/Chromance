@@ -15,7 +15,7 @@ Ripple::Ripple() :
     behavior(RIPPLE_BEHAVIOR_COUCH_POTATO),
     justStarted(false),
     pressure(0.0f),
-    birthday(0U),
+    startedAt(0U),
     node(0),
     direction(0)
 
@@ -31,7 +31,7 @@ void Ripple::Start(int32_t node, int32_t direction, CRGB color, float speed, uns
     this->lifespan = lifespan;
     this->behavior = behavior;
 
-    this->birthday = millis();
+    this->startedAt = millis();
     this->pressure = 0.0f;
     this->state = RIPPLE_STATE_WITHIN_NODE;
     this->justStarted = true;
@@ -39,7 +39,7 @@ void Ripple::Start(int32_t node, int32_t direction, CRGB color, float speed, uns
 
 void Ripple::Advance(CRGB* leds)
 {
-    unsigned long age = millis() - this->birthday;
+    unsigned long age = millis() - this->startedAt;
 
     if (this->state == RIPPLE_STATE_DEAD)
     {
@@ -334,12 +334,29 @@ void Ripple::Claim(int32_t animationId)
 
 RippleState Ripple::GetState()
 {
+    unsigned long now = millis();
+
+    // I have a suspicion that ripples arent being killed properly over time and then the pool runs out of ripples. Possibly due to transitions?
+    if (this->state != RIPPLE_STATE_DEAD)
+    {
+        if (now - this->startedAt > RandomAnimationDuration)
+        {
+            this->state = RIPPLE_STATE_DEAD;
+            this->node = this->direction = this->pressure = 0;
+        }
+    }
+
     return this->state;
 }
 
 int32_t Ripple::GetAnimationId()
 {
     return this->animationId;
+}
+
+unsigned long Ripple::GetStartedAt()
+{
+    return this->startedAt;
 }
 
 void Ripple::Render(CRGB* leds, unsigned long age)

@@ -11,8 +11,8 @@ StarBurstPulseAnimation::StarBurstPulseAnimation(int32_t id, RipplePool* rippleP
 void StarBurstPulseAnimation::Start()
 {
     uint32_t baseColor = random(0xFFFF);
-    float speed = 2.4f;
-    unsigned long lifespan = 2600U;
+    float speed = 2.1f;
+    unsigned long lifespan = 3000U;
     
     RippleBehavior behavior = random(2) ? 
         RIPPLE_BEHAVIOR_ALWAYS_LEFT : 

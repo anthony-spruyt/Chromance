@@ -49,6 +49,7 @@ namespace Chromance
             void Claim(int32_t animationId);
             RippleState GetState();
             int32_t GetAnimationId();
+            unsigned long GetStartedAt();
         
         private:
 
@@ -69,7 +70,7 @@ namespace Chromance
             // The ripple will move When pressure reaches 1
             float pressure;
             // Used to track age of ripple
-            unsigned long birthday;
+            unsigned long startedAt;
             // The ID of the animation that has claimed this ripple
             int32_t animationId;
         };

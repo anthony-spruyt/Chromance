@@ -12,7 +12,7 @@ namespace Chromance
 {
     static float Fmap(float x, float inMin, float inMax, float outMin, float outMax)
     {
-        return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+        return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin; // TODO need to get rid of this division since ESP32 does software float div which is shit slow
     }
 
     static const int32_t NumberOfSegments = 40;

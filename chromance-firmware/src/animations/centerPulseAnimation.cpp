@@ -11,8 +11,8 @@ CenterPulseAnimation::CenterPulseAnimation(int32_t id, RipplePool* ripplePool, L
 void CenterPulseAnimation::Start()
 {
     CRGB color = CHSV(random8(), 255U, 255U);
-    float speed = random(500, 800) / 1000.0f;
-    unsigned long lifespan = 5000U;
+    float speed = random(100) / 100.0f * 0.8f + 2.0f;
+    unsigned long lifespan = 3000U;
     
     RippleBehavior behavior = RIPPLE_BEHAVIOR_FEISTY;
     Ripple* ripple;

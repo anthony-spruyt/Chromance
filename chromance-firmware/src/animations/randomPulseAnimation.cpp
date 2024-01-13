@@ -12,8 +12,8 @@ RandomPulseAnimation::RandomPulseAnimation(int32_t id, RipplePool* ripplePool, L
 void RandomPulseAnimation::Start()
 {
     CRGB color = CHSV(random8(), 255U, 255U);
-    float speed = random(100) / 100.0f * 0.2f + 2.0f;
-    unsigned long lifespan = 3000U;
+    float speed = random(100) / 100.0f * 0.8f + 1.8f;
+    unsigned long lifespan = 3500U;
 
     int32_t node = FunNodes[random(NumberOfFunNodes)];
 
