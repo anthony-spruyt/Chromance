@@ -6,6 +6,12 @@
 namespace Chromance
 {
     //////////////////////////////////////////
+    // COMMON STRINGS
+    //////////////////////////////////////////
+    static const String ChromanceNameCapitalized = "Chromance";
+    static const String ChromanceNameLowercase = "chromance";
+
+    //////////////////////////////////////////
     // WiFi
     //////////////////////////////////////////
 
@@ -22,22 +28,19 @@ namespace Chromance
     static const String TimeZoneLocation = "Australia/Melbourne";
 
     //////////////////////////////////////////
-    // OTA
-    //////////////////////////////////////////
-
-    // The OTA hostname - Note the setup function suffixes the chip ID
-    static const char* Hostname = "Chromance";
-
-    //////////////////////////////////////////
     // MQTT
     //////////////////////////////////////////
 
-    // The incoming topic
-    static const char* MQTTTopic = "chromance/v1";
-    // The incoming JSON payload type key
-    static const char* MQTTPayloadTypeKey = "type";
-    // The incoming JSON payload body key
-    static const char* MQTTPayloadBodyKey = "body";
+    static const uint16_t MQTTKeepAlive = 60;
+    static const String MQTTBaseTopic = "chromance/v1";
+    static const String MQTTCommandRoute = "~/command";
+    static const String MQTTCommandTopic = "chromance/v1/command";
+    static const String MQTTStateRoute = "~/state";
+    static const String MQTTStateTopic = "chromance/v1/state";
+    static const String HomeAssistantStatusTopic = "homeassistant/status";
+    static const int32_t PublishJSONBufferSize = 1024;
+    static const bool ChromanceStateUpdatesEnabled = true;
+    static const unsigned long ChromanceStateUpdateFrequency = 5000U;
 
     //////////////////////////////////////////
     // CONFIG
@@ -49,8 +52,6 @@ namespace Chromance
     static const char* LogLevelConfigKey = "ll";
     // They preferences brightness key
     static const char* BrightnessConfigKey = "l";
-    // They preferences speed key
-    static const char* SpeedConfigKey = "v";
 
     //////////////////////////////////////////
     // LEDs

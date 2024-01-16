@@ -3,18 +3,10 @@
 
 #include "../globals.h"
 #include <WiFi.h>
+#include <ArduinoJson.h>
 #include <PubSubClient.h>
 #include "logger.h"
 #include "animationController.h"
-
-#define REBOOT_COMMAND_CALLBACK_SIGNATURE std::function<void()>
-#define WAKE_COMMAND_CALLBACK_SIGNATURE std::function<void()>
-#define SLEEP_COMMAND_CALLBACK_SIGNATURE std::function<void()>
-#define SPEED_COMMAND_CALLBACK_SIGNATURE std::function<void(uint8_t)>
-#define PLAY_COMMAND_CALLBACK_SIGNATURE std::function<void(AnimationType)>
-#define BRIGHTNESS_COMMAND_CALLBACK_SIGNATURE std::function<void(uint8_t)>
-#define LOGLEVEL_COMMAND_CALLBACK_SIGNATURE std::function<void(LogLevel)>
-#define OTHER_COMMAND_CALLBACK_SIGNATURE std::function<void(char*, uint8_t*, uint32_t)>
 
 namespace Chromance
 {
@@ -23,8 +15,13 @@ namespace Chromance
         AnimationType animationType;
         AnimationStatus animationStatus;
         uint8_t brightness;
-        uint8_t speed;
-        LogLevel logLevel;
+        uint32_t fps;
+    };
+
+    struct PublishRequest
+    {
+        unsigned long publishedAt;
+        ChromanceState state;
     };
 
     class MQTTClient
@@ -32,44 +29,37 @@ namespace Chromance
         public:
 
             MQTTClient(Logger* logger, AnimationController* animationController);
+            ~MQTTClient();
 
-            void Setup
-            (
-                REBOOT_COMMAND_CALLBACK_SIGNATURE rebootCommandCallback,
-                WAKE_COMMAND_CALLBACK_SIGNATURE wakeCommandCallback,
-                SLEEP_COMMAND_CALLBACK_SIGNATURE sleepCommandCallback,
-                SPEED_COMMAND_CALLBACK_SIGNATURE speedCommandCallback,
-                PLAY_COMMAND_CALLBACK_SIGNATURE playCommandCallback,
-                BRIGHTNESS_COMMAND_CALLBACK_SIGNATURE brightnessCommandCallback,
-                LOGLEVEL_COMMAND_CALLBACK_SIGNATURE logLevelCommandCallback,
-                OTHER_COMMAND_CALLBACK_SIGNATURE otherCommandCallback
-            );
+            void Setup();
             void Loop();
-            void PublishState(ChromanceState state);
-            void PublishFPS(uint32_t fps);
-            
+            bool Publish(ChromanceState state);
 
         private:
+
+            static const int32_t PublishQueueSize = 5;
 
             void Configure();
             void Callback(char* topic, byte* payload, uint32_t length);
             void Connect();
             void Subscribe();
-            void Publish();
+            void PublishState(ChromanceState state);
+            void PublishDeviceDiscovery();
+            void PublishFPSSensorDiscovery(String deviceID);
+            void PublishLightDiscovery(String deviceID);
+            void PublishDocument(JsonDocument doc, const char* topic);
+            String GetDeviceID();
+            String GetDiscoveryTopic(String entityType, String deviceID, String uniqueID);
 
             Logger* logger;
             AnimationController* animationController;
-            REBOOT_COMMAND_CALLBACK_SIGNATURE rebootCommandCallback;
-            WAKE_COMMAND_CALLBACK_SIGNATURE wakeCommandCallback;
-            SLEEP_COMMAND_CALLBACK_SIGNATURE sleepCommandCallback;
-            SPEED_COMMAND_CALLBACK_SIGNATURE speedCommandCallback;
-            PLAY_COMMAND_CALLBACK_SIGNATURE playCommandCallback;
-            BRIGHTNESS_COMMAND_CALLBACK_SIGNATURE brightnessCommandCallback;
-            LOGLEVEL_COMMAND_CALLBACK_SIGNATURE logLevelCommandCallback;
-            OTHER_COMMAND_CALLBACK_SIGNATURE otherCommandCallback;
+            SemaphoreHandle_t semaphore;
+            PublishRequest publishQueue[PublishQueueSize];
+            char publishJSONBuffer[PublishJSONBufferSize];
             WiFiClient espClient;
             PubSubClient mqttClient;
             unsigned long lastReconnectAttempt;
+            bool homeAssistantDiscoverySent;
     };
 }
 

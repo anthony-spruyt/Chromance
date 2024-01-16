@@ -16,14 +16,6 @@ void AnimationControllerTask(void *pvParameters);
 void WiFiServiceTask(void *pvParameters);
 void OTAServiceTask(void *pvParameters);
 void MQTTClientTask(void *pvParameters);
-void RebootCommandHandler();
-void WakeCommandHandler();
-void SleepCommandHandler();
-void SpeedCommandHandler(float speed);
-void PlayCommandHandler(AnimationType animation);
-void BrightnessCommandHandler(uint8_t brightness);
-void LogLevelCommandHandler(LogLevel logLevel);
-void OtherCommandHandler(char* topic, uint8_t* payload, uint32_t length);
 
 Config config;
 TimeService timeService;
@@ -36,6 +28,8 @@ TaskHandle_t AnimationControllerTaskHandle;
 TaskHandle_t WiFiServiceTaskHandle;
 TaskHandle_t OTAServiceTaskHandle;
 TaskHandle_t MQTTClientTaskHandle;
+ChromanceState currentChromanceState;
+unsigned long lastChromanceStateUpdate = 0U;
 
 void setup()
 {
@@ -95,17 +89,7 @@ void setup()
         );
     }
 
-    mqttClient.Setup
-    (
-        RebootCommandHandler,
-        WakeCommandHandler,
-        SleepCommandHandler,
-        SpeedCommandHandler,
-        PlayCommandHandler,
-        BrightnessCommandHandler,
-        LogLevelCommandHandler,
-        OtherCommandHandler
-    );
+    mqttClient.Setup();
 
     if (MQTTClientTaskHandle == nullptr)
     {
@@ -205,49 +189,25 @@ void MQTTClientTask(void *pvParameters)
 #endif
         mqttClient.Loop();
 
+        // TODO move to state monitor service
+        unsigned long now = millis();
+
+        if
+        (
+            ChromanceStateUpdatesEnabled && 
+            now - lastChromanceStateUpdate > ChromanceStateUpdateFrequency
+        )
+        {
+            lastChromanceStateUpdate = now;
+
+            currentChromanceState.animationStatus = animationController.GetAnimationStatus();
+            currentChromanceState.animationType = animationController.GetAnimationType();
+            currentChromanceState.brightness = animationController.GetBrightness();
+            currentChromanceState.fps = animationController.GetFPS();
+
+            mqttClient.Publish(currentChromanceState);
+        }
+
         vTaskDelay(TaskDelay);
     }
-}
-
-void RebootCommandHandler()
-{
-    delay(1000);
-    ESP.restart();
-}
-
-void WakeCommandHandler()
-{
-    animationController.Wake();
-}
-
-void SleepCommandHandler()
-{
-    animationController.Sleep();
-}
-
-void SpeedCommandHandler(float speed)
-{
-    config.SetSpeed(speed);
-    logger.Info("Animation speed set to: " + String(speed, 2));
-}
-
-void BrightnessCommandHandler(u8_t brightness)
-{
-    config.SetBrightness(brightness);
-    logger.Info("LED brightness set to: " + String(brightness));
-}
-
-void PlayCommandHandler(AnimationType animation)
-{
-    animationController.Play(animation);
-}
-
-void LogLevelCommandHandler(LogLevel logLevel)
-{
-    config.SetLogLevel((uint8_t)logLevel);
-}
-
-void OtherCommandHandler(char* topic, uint8_t* payload, uint32_t length)
-{
-    logger.Info("Command not supported");
 }

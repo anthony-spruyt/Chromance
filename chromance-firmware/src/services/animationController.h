@@ -54,10 +54,19 @@ namespace Chromance
              * @param animationType The type of animation to start
             */
             void Play(AnimationType animationType);
+            AnimationType GetAnimationType();
+            AnimationStatus GetAnimationStatus();
+            uint8_t GetBrightness();
+            void SetBrightness(uint8_t value);
+            uint32_t GetFPS();
 
         private:
 
-            AnimationType RandomAnimation();
+            void HandleBrightness();
+            void HandleAnimationRequest();
+            void HandleRandomAnimation();
+            void Render();
+            AnimationType NextAnimation();
 
             Logger* logger;
             Config* config;

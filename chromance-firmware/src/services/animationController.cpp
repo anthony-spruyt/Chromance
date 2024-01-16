@@ -78,7 +78,7 @@ void AnimationController::Setup()
     // The constructor sets this to random currently but in future this can be from config
     if (this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION)
     {
-        Animation* nextAnimation = this->animations[this->RandomAnimation()];
+        Animation* nextAnimation = this->animations[this->NextAnimation()];
 
         this->logger->Debug("Random animation selected: " + String(nextAnimation->GetName()));
 
@@ -99,103 +99,195 @@ void AnimationController::Setup()
 
 void AnimationController::Loop()
 {
-    unsigned long now = millis();
-    uint8_t configBrightness = this->config->GetBrightness();
-    Animation* animation;
-    uint32_t activeAnimationsCount = 0;
-    Animation* activeAnimations[ANIMATION_TYPE_NUMBER_OF_ANIMATIONS - 1];
-
     if (xSemaphoreTake(this->semaphore, 0U) == pdTRUE)
     {
-        if (this->next == ANIMATION_REQUEST_PLAY)
-        {
-            this->next = ANIMATION_REQUEST_NONE;
-            this->sleeping = false;
-            this->transitionScale = 0;
+        this->HandleBrightness();
+        this->HandleAnimationRequest();
+        this->HandleRandomAnimation();
+        
+        xSemaphoreGive(this->semaphore);
+    }
 
-            for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
-            {
-                if (this->animations[i] != nullptr)
-                {
-                    this->animations[i]->Sleep(false);
-                }
-            }
+    this->Render();
 
-            if (this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION)
-            {
-                Animation* nextAnimation = this->animations[this->RandomAnimation()];
+    FastLED.delay(TaskDelay);
+}
 
-                this->logger->Debug("Random animation selected: " + String(nextAnimation->GetName()));
+void AnimationController::Sleep()
+{
+    this->logger->Debug("LED controller going to sleep");
 
-                nextAnimation->Wake(false);
-            }
-            else
-            {
-                this->animations[this->currentAnimationType]->Wake(false);
-            }
-        }
-        else if (this->next == ANIMATION_REQUEST_SLEEP)
-        {
-            this->next = ANIMATION_REQUEST_NONE;
-            this->sleeping = true;
-
-            for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
-            {
-                if (this->animations[i] != nullptr)
-                {
-                    this->animations[i]->Sleep(true);
-                }
-            }
-        }
-        else if (this->next == ANIMATION_REQUEST_WAKE)
-        {
-            this->next = ANIMATION_REQUEST_NONE;
-            this->sleeping = false;
-            this->lastRandomAnimationStarted = now;
-
-            if (this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION)
-            {
-                this->animations[this->RandomAnimation()]->Wake(true);
-            }
-            else
-            {
-                this->animations[this->currentAnimationType]->Wake(true);
-            }
-        }
-
-        if (FastLED.getBrightness() != configBrightness)
-        {
-            this->logger->Debug("Apply brightness change: " + String((float)configBrightness / 255.0f * 100.0f, 0) + "%");
-            FastLED.setBrightness(configBrightness);
-        }
-
-        if
-        (
-            !this->sleeping &&
-            this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION &&
-            now - this->lastRandomAnimationStarted > RandomAnimationDuration
-        )
-        {
-            this->lastRandomAnimationStarted = now;
-            
-            animation = this->animations[this->RandomAnimation()];
-            
-            this->logger->Debug("Next random animation selected: " + String(animation->GetName()));
-
-            for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
-            {
-                if (this->animations[i] != nullptr && i != animation->GetID())
-                {
-                    this->animations[i]->Sleep(false);
-                }
-            }
-
-            animation->Wake(false);
-            this->transitionScale = 0;
-        }
+    if (xSemaphoreTake(this->semaphore, portMAX_DELAY) == pdTRUE)
+    {
+        this->next = ANIMATION_REQUEST_SLEEP;
 
         xSemaphoreGive(this->semaphore);
     }
+}
+
+void AnimationController::Wake()
+{
+    this->logger->Debug("LED controller waking up");
+
+    if (xSemaphoreTake(this->semaphore, portMAX_DELAY) == pdTRUE)
+    {
+        this->next = ANIMATION_REQUEST_WAKE;
+
+        xSemaphoreGive(this->semaphore);
+    }
+}
+
+void AnimationController::Play(AnimationType animationType)
+{
+    if
+    (
+        animationType == ANIMATION_TYPE_NUMBER_OF_ANIMATIONS
+    )
+    {
+        return;
+    }
+
+    this->logger->Debug("Play animation: " + String(animationType));
+
+    if (xSemaphoreTake(this->semaphore, portMAX_DELAY) == pdTRUE)
+    {
+        this->next = ANIMATION_REQUEST_PLAY;
+        this->currentAnimationType = animationType;
+
+        xSemaphoreGive(this->semaphore);
+    }
+}
+
+AnimationType AnimationController::GetAnimationType()
+{
+    return this->currentAnimationType;
+}
+
+AnimationStatus AnimationController::GetAnimationStatus()
+{
+    return this->sleeping ? ANIMATION_STATUS_SLEEPING : ANIMATION_STATUS_PLAYING;
+}
+
+uint8_t AnimationController::GetBrightness()
+{
+    return this->config->GetBrightness();
+}
+
+void AnimationController::SetBrightness(uint8_t value)
+{
+    this->config->SetBrightness(value);
+}
+
+uint32_t AnimationController::GetFPS()
+{
+    return FastLED.getFPS();
+}
+
+void AnimationController::HandleBrightness()
+{
+    uint8_t configBrightness = this->config->GetBrightness();
+        
+    if (FastLED.getBrightness() != configBrightness)
+    {
+        this->logger->Debug("Apply brightness change: " + String((float)configBrightness / 255.0f * 100.0f, 0) + "%");
+        FastLED.setBrightness(configBrightness);
+    }
+}
+
+void AnimationController::HandleAnimationRequest()
+{
+    if (this->next == ANIMATION_REQUEST_PLAY)
+    {
+        this->next = ANIMATION_REQUEST_NONE;
+        this->sleeping = false;
+        this->transitionScale = 0;
+
+        for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
+        {
+            if (this->animations[i] != nullptr)
+            {
+                this->animations[i]->Sleep(false);
+            }
+        }
+
+        if (this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION)
+        {
+            Animation* nextAnimation = this->animations[this->NextAnimation()];
+
+            this->logger->Debug("Random animation selected: " + String(nextAnimation->GetName()));
+
+            nextAnimation->Wake(false);
+        }
+        else
+        {
+            this->animations[this->currentAnimationType]->Wake(false);
+        }
+    }
+    else if (this->next == ANIMATION_REQUEST_SLEEP)
+    {
+        this->next = ANIMATION_REQUEST_NONE;
+        this->sleeping = true;
+
+        for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
+        {
+            if (this->animations[i] != nullptr)
+            {
+                this->animations[i]->Sleep(true);
+            }
+        }
+    }
+    else if (this->next == ANIMATION_REQUEST_WAKE)
+    {
+        this->next = ANIMATION_REQUEST_NONE;
+        this->sleeping = false;
+        this->lastRandomAnimationStarted = millis();
+
+        if (this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION)
+        {
+            this->animations[this->NextAnimation()]->Wake(true);
+        }
+        else
+        {
+            this->animations[this->currentAnimationType]->Wake(true);
+        }
+    }
+}
+
+void AnimationController::HandleRandomAnimation()
+{
+    unsigned long now = millis();
+
+    if
+    (
+        !this->sleeping &&
+        this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION &&
+        now - this->lastRandomAnimationStarted > RandomAnimationDuration
+    )
+    {
+        this->lastRandomAnimationStarted = now;
+        
+        Animation* animation = this->animations[this->NextAnimation()];
+        
+        this->logger->Debug("Next random animation selected: " + String(animation->GetName()));
+
+        for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
+        {
+            if (this->animations[i] != nullptr && i != animation->GetID())
+            {
+                this->animations[i]->Sleep(false);
+            }
+        }
+
+        animation->Wake(false);
+        this->transitionScale = 0;
+    }
+}
+
+void AnimationController::Render()
+{
+    Animation* animation;
+    uint32_t activeAnimationsCount = 0;
+    Animation* activeAnimations[ANIMATION_TYPE_NUMBER_OF_ANIMATIONS - 1];
 
     for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
     {
@@ -291,55 +383,9 @@ void AnimationController::Loop()
 
     FastLED.show();
     FastLED.countFPS();
-    FastLED.delay(TaskDelay);
 }
 
-void AnimationController::Sleep()
-{
-    this->logger->Debug("LED controller going to sleep");
-
-    if (xSemaphoreTake(this->semaphore, portMAX_DELAY) == pdTRUE)
-    {
-        this->next = ANIMATION_REQUEST_SLEEP;
-
-        xSemaphoreGive(this->semaphore);
-    }
-}
-
-void AnimationController::Wake()
-{
-    this->logger->Debug("LED controller waking up");
-
-    if (xSemaphoreTake(this->semaphore, portMAX_DELAY) == pdTRUE)
-    {
-        this->next = ANIMATION_REQUEST_WAKE;
-
-        xSemaphoreGive(this->semaphore);
-    }
-}
-
-void AnimationController::Play(AnimationType animationType)
-{
-    if
-    (
-        animationType == ANIMATION_TYPE_NUMBER_OF_ANIMATIONS
-    )
-    {
-        return;
-    }
-
-    this->logger->Debug("Play animation: " + String(animationType));
-
-    if (xSemaphoreTake(this->semaphore, portMAX_DELAY) == pdTRUE)
-    {
-        this->next = ANIMATION_REQUEST_PLAY;
-        this->currentAnimationType = animationType;
-
-        xSemaphoreGive(this->semaphore);
-    }
-}
-
-AnimationType AnimationController::RandomAnimation()
+AnimationType AnimationController::NextAnimation()
 {
     int32_t exclude = -1;
 

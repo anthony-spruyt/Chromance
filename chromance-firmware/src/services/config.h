@@ -34,23 +34,12 @@ namespace Chromance
              * @return The current global brightness scaling [0,255]
             */
             uint8_t GetBrightness();
-            /**
-             * Set the animation speed modifier
-             * @param value The new animation speed (0.0,3.4028235E+38]
-            */
-            void SetSpeed(float value);
-            /**
-             * Get the animation speed modifier
-             * @return The current animation speed (0.0,3.4028235E+38]
-            */
-            float GetSpeed();
         
         private:
 
             Preferences preferences;
             uint8_t logLevel;
             uint8_t brightness;
-            float speed;
     };
 }
 
