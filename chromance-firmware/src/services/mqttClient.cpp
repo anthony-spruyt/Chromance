@@ -101,10 +101,20 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
         
         if (!doc["brightness"].isNull())
         {
-            int8_t brightness = doc["brightness"];
+            int32_t brightness = doc["brightness"];
 
             if (chromanceState.brightness != brightness)
             {
+                if (brightness > 255)
+                {
+                    brightness = 255;
+                }
+
+                if (brightness < 0)
+                {
+                    brightness = 0;
+                }
+
                 this->animationController->SetBrightness(brightness);
                 chromanceState.brightness = brightness;
                 publishState = true;
