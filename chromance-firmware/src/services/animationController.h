@@ -21,6 +21,7 @@ namespace Chromance
         ANIMATION_TYPE_RAINBOW_BEAT,
         ANIMATION_TYPE_RAINBOW_MARCH,
         ANIMATION_TYPE_PULSE,
+        ANIMATION_TYPE_AROUND_THE_WORLD,
         /**
          * This is not an animation type. It is a hack to get the count of animation types
          * DO NOT MOVE- We have to use auto assignment and this needs to be the last

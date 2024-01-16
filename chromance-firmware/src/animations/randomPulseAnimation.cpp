@@ -4,7 +4,7 @@
 using namespace Chromance;
 
 RandomPulseAnimation::RandomPulseAnimation(int32_t id, RipplePool* ripplePool, Logger* logger) :
-    RippleAnimation(id, "randomPulse", ripplePool, logger),
+    RippleAnimation(id, "Random Pulse", ripplePool, logger),
     lastPulseNode(255U)
 {
 }
@@ -13,7 +13,7 @@ void RandomPulseAnimation::Start()
 {
     CRGB color = CHSV(random8(), 255U, 255U);
     float speed = random(100) / 100.0f * 0.8f + 1.8f;
-    unsigned long lifespan = 3500U;
+    unsigned long lifespan = 3500UL;
 
     int32_t node = FunNodes[random(NumberOfFunNodes)];
 

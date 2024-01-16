@@ -4,7 +4,7 @@
 using namespace Chromance;
 
 CubePulseAnimation::CubePulseAnimation(int32_t id, RipplePool* ripplePool, Logger* logger) :
-    RippleAnimation(id, "cubePulse", ripplePool, logger),
+    RippleAnimation(id, "Cube Pulse", ripplePool, logger),
     lastPulseNode(255U)
 {
 }
@@ -13,7 +13,7 @@ void CubePulseAnimation::Start()
 {
     CRGB color = CHSV(random8(), 255U, 255U);
     float speed = 4.2f;
-    unsigned long lifespan = 2000U;
+    unsigned long lifespan = 2000UL;
     
     uint8_t node = CubeNodes[random(NumberOfCubeNodes)];
 

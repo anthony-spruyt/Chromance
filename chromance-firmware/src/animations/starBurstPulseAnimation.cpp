@@ -4,7 +4,7 @@
 using namespace Chromance;
 
 StarBurstPulseAnimation::StarBurstPulseAnimation(int32_t id, RipplePool* ripplePool, Logger* logger) :
-    RippleAnimation(id, "starBurstPulse", ripplePool, logger)
+    RippleAnimation(id, "Star Burst Pulse", ripplePool, logger)
 {
 }
 
@@ -12,7 +12,7 @@ void StarBurstPulseAnimation::Start()
 {
     uint32_t baseColor = random(0xFFFF);
     float speed = 2.1f;
-    unsigned long lifespan = 3000U;
+    unsigned long lifespan = 3000UL;
     
     RippleBehavior behavior = random(2) ? 
         RIPPLE_BEHAVIOR_ALWAYS_LEFT : 

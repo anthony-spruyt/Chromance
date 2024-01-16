@@ -3,7 +3,7 @@
 using namespace Chromance;
 
 StripTestAnimation::StripTestAnimation(int32_t id, Logger* logger) :
-    Animation(id, "stripTest", logger),
+    Animation(id, "Strip Test", logger),
     counter(0),
     fillTest1(false),
     fillTest2(false),

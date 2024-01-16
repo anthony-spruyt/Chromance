@@ -174,6 +174,18 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
                 chromanceState.animationType = ANIMATION_TYPE_STAR_BURST_PULSE;
                 publishState = true;
             }
+            else if (strcmp(effect, "Strip Test") == 0 && currentAnimationType != ANIMATION_TYPE_STRIP_TEST)
+            {
+                this->animationController->Play(ANIMATION_TYPE_STRIP_TEST);
+                chromanceState.animationType = ANIMATION_TYPE_STRIP_TEST;
+                publishState = true;
+            }
+            else if (strcmp(effect, "Around the World") == 0 && currentAnimationType != ANIMATION_TYPE_AROUND_THE_WORLD)
+            {
+                this->animationController->Play(ANIMATION_TYPE_AROUND_THE_WORLD);
+                chromanceState.animationType = ANIMATION_TYPE_AROUND_THE_WORLD;
+                publishState = true;
+            }
         }
 
         if (publishState)
@@ -361,6 +373,14 @@ void MQTTClient::PublishState(ChromanceState state)
     {
         doc["effect"] = "Star Burst Pulse";
     }
+    else if (state.animationType == ANIMATION_TYPE_STRIP_TEST)
+    {
+        doc["effect"] = "Strip Test";
+    }
+    else if (state.animationType == ANIMATION_TYPE_AROUND_THE_WORLD)
+    {
+        doc["effect"] = "Around the World";
+    }
     
     doc.shrinkToFit();
 
@@ -449,6 +469,8 @@ void MQTTClient::PublishLightDiscovery(String deviceID)
     effects.add("Random");
     effects.add("Random Pulse");
     effects.add("Star Burst Pulse");
+    effects.add("Strip Test");
+    effects.add("Around the World");
     
     this->PublishDocument(doc, topic.c_str());
 }

@@ -10,15 +10,22 @@ namespace Chromance
     {
         public:
 
-            RippleAnimation(int32_t id, const char* name, RipplePool* ripplePool, Logger* logger);
+            RippleAnimation
+            (
+                int32_t id,
+                const char* name,
+                RipplePool* ripplePool,
+                Logger* logger,
+                unsigned long pulsePeriod = 2000UL
+            );
 
             void Loop() override;
             virtual void Start() = 0;
 
         protected:
 
-            static const uint8_t Decay = 240;
-            static const unsigned long PulsePeriod = 2000U;
+            static const uint8_t Decay = 240U;
+            unsigned long pulsePeriod;
 
             RipplePool* ripplePool;
             unsigned long lastPulse;

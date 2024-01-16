@@ -3,7 +3,7 @@
 using namespace Chromance;
 
 PulseAnimation::PulseAnimation(int32_t id, Logger* logger) :
-    Animation(id, "pulse", logger),
+    Animation(id, "Pulse", logger),
     color(PulseAnimationColors[0])
 {
 }

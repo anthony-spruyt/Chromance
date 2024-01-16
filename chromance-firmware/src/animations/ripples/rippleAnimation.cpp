@@ -4,10 +4,18 @@ using namespace Chromance;
 
 
 
-RippleAnimation::RippleAnimation(int32_t id, const char* name, RipplePool* ripplePool, Logger* logger) :
+RippleAnimation::RippleAnimation
+(
+    int32_t id,
+    const char* name,
+    RipplePool* ripplePool,
+    Logger* logger,
+    unsigned long pulsePeriod
+) :
     Animation(id, name, logger)
 {
     this->ripplePool = ripplePool;
+    this->pulsePeriod = pulsePeriod;
 }
 
 void RippleAnimation::Loop()
@@ -31,7 +39,7 @@ void RippleAnimation::Loop()
     // Determine if we need to fire off a new ripple
     unsigned long now = millis();
 
-    if (now - this->lastPulse >= PulsePeriod)
+    if (now - this->lastPulse >= this->pulsePeriod)
     {
         this->Start();
         this->lastPulse = now;
