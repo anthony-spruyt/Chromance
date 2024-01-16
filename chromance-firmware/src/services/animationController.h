@@ -75,7 +75,6 @@ namespace Chromance
             Animation* animations[ANIMATION_TYPE_NUMBER_OF_ANIMATIONS];
             AnimationType currentAnimationType;
             SemaphoreHandle_t semaphore;
-            bool sleeping;
             unsigned long lastRandomAnimationStarted;
             uint8_t transitionScale;
             AnimationRequest next;

@@ -14,7 +14,6 @@ using namespace Chromance;
 AnimationController::AnimationController(Logger* logger, Config* config) :
     currentAnimationType(ANIMATION_TYPE_RANDOM_ANIMATION),
     //currentAnimationType(ANIMATION_TYPE_AROUND_THE_WORLD),
-    sleeping(false),
     lastRandomAnimationStarted(0),
     transitionScale(0),
     next(ANIMATION_REQUEST_NONE),
@@ -85,17 +84,23 @@ void AnimationController::Setup()
 
         this->logger->Debug("Random animation selected: " + String(nextAnimation->GetName()));
 
-        nextAnimation->Wake(true);
+        if (!config->GetSleeping())
+        {
+            nextAnimation->Wake(true);
+        }
     }
     else if (this->animations[this->currentAnimationType] != nullptr)
     {
-         if (this->currentAnimationType == ANIMATION_TYPE_STRIP_TEST)
+        if (!config->GetSleeping())
         {
-            this->animations[this->currentAnimationType]->Wake(false);
-        }
-        else
-        {
-            this->animations[this->currentAnimationType]->Wake(true);
+            if (this->currentAnimationType == ANIMATION_TYPE_STRIP_TEST)
+            {
+                this->animations[this->currentAnimationType]->Wake(false);
+            }
+            else
+            {
+                this->animations[this->currentAnimationType]->Wake(true);
+            }
         }
     }
 }
@@ -168,7 +173,7 @@ AnimationType AnimationController::GetAnimationType()
 
 AnimationStatus AnimationController::GetAnimationStatus()
 {
-    return this->sleeping ? ANIMATION_STATUS_SLEEPING : ANIMATION_STATUS_PLAYING;
+    return this->config->GetSleeping() ? ANIMATION_STATUS_SLEEPING : ANIMATION_STATUS_PLAYING;
 }
 
 uint8_t AnimationController::GetBrightness()
@@ -202,7 +207,7 @@ void AnimationController::HandleAnimationRequest()
     if (this->next == ANIMATION_REQUEST_PLAY)
     {
         this->next = ANIMATION_REQUEST_NONE;
-        this->sleeping = false;
+        this->config->SetSleeping(false);
         this->transitionScale = 0;
 
         for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
@@ -229,7 +234,7 @@ void AnimationController::HandleAnimationRequest()
     else if (this->next == ANIMATION_REQUEST_SLEEP)
     {
         this->next = ANIMATION_REQUEST_NONE;
-        this->sleeping = true;
+        this->config->SetSleeping(true);
 
         for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
         {
@@ -242,7 +247,7 @@ void AnimationController::HandleAnimationRequest()
     else if (this->next == ANIMATION_REQUEST_WAKE)
     {
         this->next = ANIMATION_REQUEST_NONE;
-        this->sleeping = false;
+        this->config->SetSleeping(false);
         this->lastRandomAnimationStarted = millis();
 
         if (this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION)
@@ -262,7 +267,7 @@ void AnimationController::HandleRandomAnimation()
 
     if
     (
-        !this->sleeping &&
+        !config->GetSleeping() &&
         this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION &&
         now - this->lastRandomAnimationStarted > RandomAnimationDuration
     )

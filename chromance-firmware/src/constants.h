@@ -52,6 +52,7 @@ namespace Chromance
     static const char* LogLevelConfigKey = "ll";
     // They preferences brightness key
     static const char* BrightnessConfigKey = "l";
+    static const char* SleepingConfigKey = "s";
 
     //////////////////////////////////////////
     // LEDs
