@@ -13,7 +13,6 @@ using namespace Chromance;
 
 AnimationController::AnimationController(Logger* logger, Config* config) :
     currentAnimationType(ANIMATION_TYPE_RANDOM_ANIMATION),
-    //currentAnimationType(ANIMATION_TYPE_AROUND_THE_WORLD),
     lastRandomAnimationStarted(0),
     transitionScale(0),
     next(ANIMATION_REQUEST_NONE),
@@ -73,7 +72,7 @@ void AnimationController::Setup()
     this->animations[ANIMATION_TYPE_RAINBOW_BEAT] = RainbowBeatAnimationEnabled ? new RainbowBeatAnimation(ANIMATION_TYPE_RAINBOW_BEAT, this->logger) : nullptr;
     this->animations[ANIMATION_TYPE_RAINBOW_MARCH] = RainbowMarchAnimationEnabled ? new RainbowMarchAnimation(ANIMATION_TYPE_RAINBOW_MARCH, this->logger) : nullptr;
     this->animations[ANIMATION_TYPE_PULSE] = PulseAnimationEnabled ? new PulseAnimation(ANIMATION_TYPE_PULSE, this->logger) : nullptr;
-    this->animations[ANIMATION_TYPE_AROUND_THE_WORLD] = true ? new AroundTheWorldAnimation(ANIMATION_TYPE_AROUND_THE_WORLD, &ripplePool, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_AROUND_THE_WORLD] = AroundTheWorldAnimationEnabled ? new AroundTheWorldAnimation(ANIMATION_TYPE_AROUND_THE_WORLD, &ripplePool, this->logger) : nullptr;
     
     this->lastRandomAnimationStarted = millis() + StartupDelay;
     

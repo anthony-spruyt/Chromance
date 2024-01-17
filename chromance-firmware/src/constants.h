@@ -71,7 +71,7 @@ namespace Chromance
     static const uint32_t BlackStripOffset = RedStripLength + GreenStripLength + BlueStripLength;
     static const uint32_t BlackStripLength = 154;
     static const uint32_t NumberOfLEDs = BlueStripLength + GreenStripLength + RedStripLength + BlackStripLength;
-    static const uint32_t MaxRefreshRate = 30;
+    static const uint32_t MaxRefreshRate = 120;
     static const uint8_t StartupBrightness = 1;
     static const uint64_t StartupDelay = 5000;
     static const uint32_t BlueStripIndex = 0;
@@ -151,6 +151,12 @@ namespace Chromance
     //////////////////////////////////////////
 
     static const bool RandomPulseAnimationEnabled = true;
+
+    //////////////////////////////////////////
+    // ANIMATIONS - AROUND THE WORLD
+    //////////////////////////////////////////
+
+    static const bool AroundTheWorldAnimationEnabled = true;
 
     //////////////////////////////////////////
     // TASKS
