@@ -23,16 +23,9 @@ namespace Chromance
      */ 
     static const int32_t NumberOfBorderNodes = 10;
     static const int32_t BorderNodes[NumberOfBorderNodes] = {0, 1, 2, 3, 6, 10, 13, 19, 21, 24};
-    /**
-     * Cube nodes link three equiangular segments
-     * Firing ripples that always turn in one direction will draw a cube
-    */
-    static const int32_t NumberOfCubeNodes = 8;
-    static const int32_t CubeNodes[NumberOfCubeNodes] = {7, 8, 9, 11, 12, 17, 18, 20};
-    static const int32_t NumberOfFunNodes = 6;
-    static const int32_t FunNodes[] = {4, 5, 14, 15, 16, 22, 23};
-    // Firing ripples that always turn in one direction will draw a starburst
-    static const int32_t StarBurstNode = 15;
+    
+    static const int32_t CenterNode = 15;
+    
     /**
      * LED segment numbers
      * Beam 0 is at 12:00 and advance clockwise

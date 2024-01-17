@@ -9,7 +9,7 @@ using namespace Chromance;
 
 Ripple::Ripple() :
     state(RIPPLE_STATE_DEAD),
-    color(CRGB::Black),
+    color(0U, 0U, 0U),
     speed(0.0f),
     lifespan(0U),
     behavior(RIPPLE_BEHAVIOR_COUCH_POTATO),
@@ -22,7 +22,7 @@ Ripple::Ripple() :
 {
 }
 
-void Ripple::Start(int32_t node, int32_t direction, CRGB color, float speed, unsigned long lifespan, RippleBehavior behavior)
+void Ripple::Start(int32_t node, int32_t direction, CHSV color, float speed, unsigned long lifespan, RippleBehavior behavior)
 {
     this->node = node;
     this->direction = direction;
@@ -382,13 +382,22 @@ void Ripple::Render(CRGB* leds, unsigned long age)
                     strip == RedStripIndex ?
                         RedStripOffset :
                         BlackStripOffset;
-    uint32_t color = (uint32_t)this->color;
-    uint8_t r = uint8_t(min(255, max(0, int32_t(Fmap(float(age), 0.0, float(lifespan), (color >> 8) & 0xFF, 0.0f)) + this->color.r)));
-    uint8_t g = uint8_t(min(255, max(0, int32_t(Fmap(float(age), 0.0, float(lifespan), (color >> 16) & 0xFF, 0.0f)) + this->color.g)));
-    uint8_t b = uint8_t(min(255, max(0, int32_t(Fmap(float(age), 0.0, float(lifespan), color & 0xFF, 0.0f)) + this->color.b)));
+    float p = (float)age / (float)lifespan;
+    uint8_t scale = p > 0.99f ? 0 : UINT8_MAX - (uint8_t)(p * UINT8_MAX);
+    uint8_t minS = 150U;
+    uint8_t sScale = scale > minS ? scale : minS;
+    CRGB agedColor = CHSV(this->color.hue, sScale, 255U);
+    uint16_t index = offset + led;
 
-    if (offset + led < NumberOfLEDs)
+    if
+    (
+        index < NumberOfLEDs &&
+        (
+            leds[index] == CRGB::Black ||
+            agedColor.getLuma() > leds[index].getLuma()
+        )
+    )
     {
-        leds[offset + led].setRGB(r, g, b);   
+        leds[index] = agedColor;
     }
 }

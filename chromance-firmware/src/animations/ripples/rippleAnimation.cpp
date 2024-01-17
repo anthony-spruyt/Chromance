@@ -10,18 +10,20 @@ RippleAnimation::RippleAnimation
     const char* name,
     RipplePool* ripplePool,
     Logger* logger,
-    unsigned long pulsePeriod
+    unsigned long pulsePeriod,
+    uint8_t decay
 ) :
-    Animation(id, name, logger)
+    Animation(id, name, logger),
+    pulsePeriod(pulsePeriod),
+    decay(decay)
 {
     this->ripplePool = ripplePool;
-    this->pulsePeriod = pulsePeriod;
 }
 
 void RippleAnimation::Loop()
 {
     // Fade all dots to create trails
-    nscale8(this->leds, NumberOfLEDs, RippleAnimation::Decay);
+    nscale8(this->leds, NumberOfLEDs, this->decay);
 
     // Advance this animations claimed ripples
     Ripple* ripple;

@@ -4,22 +4,22 @@
 using namespace Chromance;
 
 RandomPulseAnimation::RandomPulseAnimation(int32_t id, RipplePool* ripplePool, Logger* logger) :
-    RippleAnimation(id, "Random Pulse", ripplePool, logger),
-    lastPulseNode(255U)
+    RippleAnimation(id, "Random Pulse", ripplePool, logger, 3000UL, 225U),
+    speed(1.0f),
+    lifespan(3500UL),
+    lastPulseNode(INT32_MAX)
 {
 }
 
 void RandomPulseAnimation::Start()
 {
-    CRGB color = CHSV(random8(), 255U, 255U);
-    float speed = random(100) / 100.0f * 0.8f + 1.8f;
-    unsigned long lifespan = 3500UL;
+    this->speed = random(100) / 100.0f * 0.5f + 1.0f;
 
-    int32_t node = FunNodes[random(NumberOfFunNodes)];
+    int32_t node = this->randomPulseNodes[random(RandomPulseAnimation::NumberOfRandomPulseNodes)];
 
     while (node == this->lastPulseNode)
     {
-        node = CubeNodes[random(NumberOfCubeNodes)];
+        node = randomPulseNodes[random(NumberOfRandomPulseNodes)];
     }
 
     this->lastPulseNode = node;
@@ -42,9 +42,9 @@ void RandomPulseAnimation::Start()
         (
             node,
             i,
-            color,
-            speed,
-            lifespan,
+            CHSV(random8(), 255U, 255U),
+            this->speed,
+            this->lifespan,
             behavior
         );
     }    

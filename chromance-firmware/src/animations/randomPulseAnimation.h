@@ -14,6 +14,12 @@ namespace Chromance
             void Start();
 
         private:
+
+            static const int32_t NumberOfRandomPulseNodes = 9;
+            
+            int32_t randomPulseNodes[NumberOfRandomPulseNodes] = {7, 8, 9, 11, 12, 15, 17, 18, 20};
+            float speed;
+            unsigned long lifespan;
             int32_t lastPulseNode;
     };
 }

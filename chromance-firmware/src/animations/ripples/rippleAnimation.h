@@ -16,7 +16,8 @@ namespace Chromance
                 const char* name,
                 RipplePool* ripplePool,
                 Logger* logger,
-                unsigned long pulsePeriod = 2000UL
+                unsigned long pulsePeriod = 2000UL,
+                uint8_t decay = 247U
             );
 
             void Loop() override;
@@ -24,10 +25,9 @@ namespace Chromance
 
         protected:
 
-            static const uint8_t Decay = 240U;
-            unsigned long pulsePeriod;
-
             RipplePool* ripplePool;
+            unsigned long pulsePeriod;
+            uint8_t decay;
             unsigned long lastPulse;
     };
 }

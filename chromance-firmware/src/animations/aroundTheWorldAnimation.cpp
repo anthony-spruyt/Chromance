@@ -4,8 +4,9 @@
 using namespace Chromance;
 
 AroundTheWorldAnimation::AroundTheWorldAnimation(int32_t id, RipplePool* ripplePool, Logger* logger) :
-    RippleAnimation(id, "Around the World", ripplePool, logger, 3000UL)
+    RippleAnimation(id, "Around the World", ripplePool, logger)
 {
+    this->pulsePeriod = 3000UL;
 }
 
 void AroundTheWorldAnimation::Start()

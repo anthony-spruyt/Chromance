@@ -44,7 +44,7 @@ namespace Chromance
 
             Ripple();
 
-            void Start(int32_t node, int32_t direction, CRGB color, float speed, unsigned long lifespan, RippleBehavior behavior);
+            void Start(int32_t node, int32_t direction, CHSV color, float speed, unsigned long lifespan, RippleBehavior behavior);
             void Advance(CRGB* leds);
             void Claim(int32_t animationId);
             RippleState GetState();
@@ -56,7 +56,7 @@ namespace Chromance
             void Render(CRGB* leds, unsigned long age);
 
             RippleState state;
-            CRGB color;
+            CHSV color;
             // The node if within a node otherwise the segment if travelling
             int32_t node;
             // The direction if within a node otherwise the LED postition from the bottom if travelling

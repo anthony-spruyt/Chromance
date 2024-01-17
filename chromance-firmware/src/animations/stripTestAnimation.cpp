@@ -4,14 +4,14 @@ using namespace Chromance;
 
 StripTestAnimation::StripTestAnimation(int32_t id, Logger* logger) :
     Animation(id, "Strip Test", logger),
-    counter(0),
+    counter(0U),
     fillTest1(false),
     fillTest2(false),
     fillTest3(false),
     shouldWaitForFillTestNextFrame(false),
     shouldWaitForPixelTestNextFrame(false),
-    lastFrame(0),
-    nextPixelColorTest(0)
+    lastFrame(0UL),
+    nextPixelColorTest(0U)
 {
 }
 
@@ -66,17 +66,17 @@ void StripTestAnimation::Loop()
         
         switch (this->nextPixelColorTest)
         {
-            case 0:
+            case 0U:
                 leds[this->counter] = CRGB::Red;
                 this->nextPixelColorTest++;
                 this->shouldWaitForPixelTestNextFrame = true;
                 break;
-            case 1:
+            case 1U:
                 leds[this->counter] = CRGB::Green;
                 this->nextPixelColorTest++;
                 this->shouldWaitForPixelTestNextFrame = true;
                 break;
-            case 2:
+            case 2U:
                 leds[this->counter] = CRGB::Blue;
                 this->nextPixelColorTest = 0;
                 this->counter++;

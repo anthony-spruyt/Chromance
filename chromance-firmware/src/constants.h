@@ -16,14 +16,14 @@ namespace Chromance
     //////////////////////////////////////////
 
     // The connection timeout in seconds before reboot
-    static const uint32_t WifiConnectionTimeout = 15;
+    static const uint32_t WifiConnectionTimeout = 15U;
 
     //////////////////////////////////////////
     // TIME
     //////////////////////////////////////////
 
     // The timeout in seconds for syncing internet time
-    static const uint32_t NTPSyncTimeout = 10;
+    static const uint32_t NTPSyncTimeout = 10U;
     // Local timezone
     static const String TimeZoneLocation = "Australia/Melbourne";
 
@@ -31,7 +31,7 @@ namespace Chromance
     // MQTT
     //////////////////////////////////////////
 
-    static const uint16_t MQTTKeepAlive = 60;
+    static const uint16_t MQTTKeepAlive = 60U;
     static const String MQTTBaseTopic = "chromance/v1";
     static const String MQTTCommandRoute = "~/command";
     static const String MQTTCommandTopic = "chromance/v1/command";
@@ -40,7 +40,7 @@ namespace Chromance
     static const String HomeAssistantStatusTopic = "homeassistant/status";
     static const int32_t PublishJSONBufferSize = 1024;
     static const bool ChromanceStateUpdatesEnabled = true;
-    static const unsigned long ChromanceStateUpdateFrequency = 5000U;
+    static const unsigned long ChromanceStateUpdateFrequency = 5000UL;
 
     //////////////////////////////////////////
     // CONFIG
@@ -58,36 +58,36 @@ namespace Chromance
     // LEDs
     //////////////////////////////////////////
 
-    static const uint32_t BlueStripDataPin = 33;
-    static const uint32_t GreenStripDataPin = 27;
-    static const uint32_t RedStripDataPin = 2;
-    static const uint32_t BlackStripDataPin = 4;
-    static const uint32_t BlueStripOffset = 0;
-    static const uint32_t BlueStripLength = 154;
+    static const uint32_t BlueStripDataPin = 33U;
+    static const uint32_t GreenStripDataPin = 27U;
+    static const uint32_t RedStripDataPin = 2U;
+    static const uint32_t BlackStripDataPin = 4U;
+    static const uint32_t BlueStripOffset = 0U;
+    static const uint32_t BlueStripLength = 154U;
     static const uint32_t GreenStripOffset = BlueStripLength;
-    static const uint32_t GreenStripLength = 168;
+    static const uint32_t GreenStripLength = 168U;
     static const uint32_t RedStripOffset = GreenStripLength + BlueStripLength;
-    static const uint32_t RedStripLength = 84;
+    static const uint32_t RedStripLength = 84U;
     static const uint32_t BlackStripOffset = RedStripLength + GreenStripLength + BlueStripLength;
-    static const uint32_t BlackStripLength = 154;
+    static const uint32_t BlackStripLength = 154U;
     static const uint32_t NumberOfLEDs = BlueStripLength + GreenStripLength + RedStripLength + BlackStripLength;
-    static const uint32_t MaxRefreshRate = 120;
-    static const uint8_t StartupBrightness = 1;
-    static const uint64_t StartupDelay = 5000;
-    static const uint32_t BlueStripIndex = 0;
-    static const uint32_t GreenStripIndex = 1;
-    static const uint32_t RedStripIndex = 2;
-    static const uint32_t BlackStripIndex = 3;
-    static const uint32_t MaxPathsPerNode = 6;
-    static const uint32_t LEDsPerSegment = 14;
+    static const uint32_t MaxRefreshRate = 120U;
+    static const uint8_t StartupBrightness = 1U;
+    static const uint32_t StartupDelay = 5000U;
+    static const uint32_t BlueStripIndex = 0U;
+    static const uint32_t GreenStripIndex = 1U;
+    static const uint32_t RedStripIndex = 2U;
+    static const uint32_t BlackStripIndex = 3U;
+    static const uint32_t MaxPathsPerNode = 6U;
+    static const uint32_t LEDsPerSegment = 14U;
 
     //////////////////////////////////////////
     // ANIMATIONS
     //////////////////////////////////////////
 
     // The duration in milliseconds when in random animation mode that each animation is played before transitioning to the next randomly selected animation
-    static const unsigned long RandomAnimationDuration = 30000;
-    static const uint8_t AnimationTransitionSpeed = 20;
+    static const unsigned long RandomAnimationDuration = 30000UL;
+    static const uint8_t AnimationTransitionSpeed = 10U;
 
     //////////////////////////////////////////
     // ANIMATIONS - RAINBOW
@@ -99,9 +99,9 @@ namespace Chromance
      * The frequency of the wave, in decimal
      * ANSI: unsigned short _Accum. 8 bits int, 8 bits fraction
     */
-    static const uint16_t RainbowAnimationSpeed = 10;
+    static const uint16_t RainbowAnimationSpeed = 10U;
     // How many hue values to advance for each LED
-    static const uint8_t RainbowAnimationHueDelta = 5;
+    static const uint8_t RainbowAnimationHueDelta = 5U;
 
     //////////////////////////////////////////
     // ANIMATIONS - PULSE
@@ -112,10 +112,10 @@ namespace Chromance
      * The frequency of the wave, in decimal
      * ANSI: unsigned short _Accum. 8 bits int, 8 bits fraction
     */
-    static const uint16_t PulseAnimationSpeed = 10;
-    static const uint8_t PulseAnimationMinBrightness = 30;
-    static const uint8_t PulseAnimationMaxBrightness = 255;
-    static const uint8_t PulseAnimationNumberOfColors = 7;
+    static const uint16_t PulseAnimationSpeed = 10U;
+    static const uint8_t PulseAnimationMinBrightness = 30U;
+    static const uint8_t PulseAnimationMaxBrightness = 255U;
+    static const uint8_t PulseAnimationNumberOfColors = 7U;
     // Hex color codes
     static const uint32_t PulseAnimationColors[PulseAnimationNumberOfColors] =
     {
@@ -167,14 +167,14 @@ namespace Chromance
     static const BaseType_t WiFiServiceTaskCore = 0;
     static const BaseType_t OTAServiceTaskCore = 0;
     static const BaseType_t MQTTClientTaskCore = 0;
-    static const UBaseType_t AnimationControllerTaskPriority = 1;
-    static const UBaseType_t WiFiServiceTaskPriority = 3;
-    static const UBaseType_t OTAServiceTaskPriority = 2;
-    static const UBaseType_t MQTTClientTaskPriority = 1;
-    static const uint32_t AnimationControllerTaskStackSize = 8000;
-    static const uint32_t WiFiServiceTaskStackSize = 4000;
-    static const uint32_t OTAServiceTaskStackSize = 4000;
-    static const uint32_t MQTTClientTaskStackSize = 4000;
+    static const UBaseType_t AnimationControllerTaskPriority = 1U;
+    static const UBaseType_t WiFiServiceTaskPriority = 3U;
+    static const UBaseType_t OTAServiceTaskPriority = 2U;
+    static const UBaseType_t MQTTClientTaskPriority = 1U;
+    static const uint32_t AnimationControllerTaskStackSize = 8000U;
+    static const uint32_t WiFiServiceTaskStackSize = 4000U;
+    static const uint32_t OTAServiceTaskStackSize = 4000U;
+    static const uint32_t MQTTClientTaskStackSize = 4000U;
 }
 
 #endif
