@@ -4,15 +4,17 @@
 using namespace Chromance;
 
 CenterPulseAnimation::CenterPulseAnimation(int32_t id, RipplePool* ripplePool, Logger* logger) :
-    RippleAnimation(id, "Center Pulse", ripplePool, logger, 2800UL, 240U)
+    RippleAnimation(id, "Center Pulse", ripplePool, logger, 2800UL, 240U),
+    speed(1.0f),
+    lifespan(3000UL)
 {
 }
 
 void CenterPulseAnimation::Start()
 {
     CHSV color = CHSV(random8(), 255U, 255U);
-    float speed = random(100) / 100.0f * 0.3f + 1.0f;
-    unsigned long lifespan = 3000UL;
+    
+    this->speed = random(100) / 100.0f * 0.3f + 1.0f;
     
     RippleBehavior behavior = RIPPLE_BEHAVIOR_FEISTY;
     Ripple* ripple;
@@ -33,8 +35,8 @@ void CenterPulseAnimation::Start()
             CenterNode,
             i,
             color,
-            speed,
-            lifespan,
+            this->speed,
+            this->lifespan,
             behavior
         );
     }    

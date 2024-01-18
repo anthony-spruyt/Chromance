@@ -25,6 +25,7 @@ namespace Chromance
     static const int32_t BorderNodes[NumberOfBorderNodes] = {0, 1, 2, 3, 6, 10, 13, 19, 21, 24};
     
     static const int32_t CenterNode = 15;
+    static const int32_t BottomNode = 24;
     
     /**
      * LED segment numbers

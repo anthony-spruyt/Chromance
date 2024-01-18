@@ -87,7 +87,7 @@ namespace Chromance
 
     // The duration in milliseconds when in random animation mode that each animation is played before transitioning to the next randomly selected animation
     static const unsigned long RandomAnimationDuration = 30000UL;
-    static const uint8_t AnimationTransitionSpeed = 10U;
+    static const uint8_t AnimationTransitionSpeed = 5U;
 
     //////////////////////////////////////////
     // ANIMATIONS - RAINBOW

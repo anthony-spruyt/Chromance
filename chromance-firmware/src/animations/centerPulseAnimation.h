@@ -12,6 +12,11 @@ namespace Chromance
             CenterPulseAnimation(int32_t id, RipplePool* ripplePool, Logger* logger);
 
             void Start();
+
+        private:
+
+            float speed;
+            unsigned long lifespan;
     };
 }
 

@@ -4,16 +4,17 @@
 using namespace Chromance;
 
 AroundTheWorldAnimation::AroundTheWorldAnimation(int32_t id, RipplePool* ripplePool, Logger* logger) :
-    RippleAnimation(id, "Around the World", ripplePool, logger)
+    RippleAnimation(id, "Around the World", ripplePool, logger, 3000UL),
+    speed(1.0f),
+    lifespan(5000UL)
 {
     this->pulsePeriod = 3000UL;
 }
 
 void AroundTheWorldAnimation::Start()
 {
-    uint32_t baseColor = random(0xFFFF);
-    float speed = random(100) / 100.0f * 6.0f + 2.0f;
-    unsigned long lifespan = random(100) / 100.0f * 15000U + 5000U;
+    this->speed = random(100) / 100.0f * 6.0f + 2.0f;
+    this->lifespan = random(100) / 100.0f * 15000U + 5000U;
     
     RippleBehavior behavior = RIPPLE_BEHAVIOR_ALWAYS_LEFT;
     Ripple* ripple;
@@ -28,11 +29,11 @@ void AroundTheWorldAnimation::Start()
 
     ripple->Start
     (
-        24,
+        BottomNode,
         1,
-        CHSV(baseColor, 255U, 255U),
-        speed,
-        lifespan,
+        CHSV(random8(), 255U, 255U),
+        this->speed,
+        this->lifespan,
         behavior
     );  
 }
