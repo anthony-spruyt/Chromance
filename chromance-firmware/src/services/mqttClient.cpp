@@ -396,6 +396,10 @@ void MQTTClient::PublishDeviceDiscovery()
     String deviceID = this->GetDeviceID();
 
     this->PublishFPSSensorDiscovery(deviceID);
+    this->PublishAnimationSpeedDiscoveries(deviceID);
+    this->PublishRippleLifespanDiscoveries(deviceID);
+    this->PublishRipplePulsePeriodDiscoveries(deviceID);
+    this->PublishRippleDecayDiscoveries(deviceID);
     this->PublishLightDiscovery(deviceID);
 }
 
@@ -430,6 +434,27 @@ void MQTTClient::PublishFPSSensorDiscovery(String deviceID)
     
     this->PublishDocument(doc, topic.c_str());
 }
+
+void PublishAnimationSpeedDiscoveries(String deviceID)
+{
+
+}
+
+void PublishRippleLifespanDiscoveries(String deviceID)
+{
+
+}
+
+void PublishRipplePulsePeriodDiscoveries(String deviceID)
+{
+
+}
+
+void PublishRippleDecayDiscoveries(String deviceID)
+{
+
+}
+
 
 void MQTTClient::PublishLightDiscovery(String deviceID)
 {

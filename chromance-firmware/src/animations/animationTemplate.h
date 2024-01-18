@@ -9,7 +9,7 @@ namespace Chromance
     {
         public:
 
-            AnimationTemplate(int32_t id, Logger* logger);
+            AnimationTemplate(int32_t id, Config* config, Logger* logger);
 
             void Loop();
     };

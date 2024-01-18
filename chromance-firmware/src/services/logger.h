@@ -7,17 +7,6 @@
 
 namespace Chromance
 {
-    enum LogLevel
-    {
-        LOG_LEVEL_TRACE = 0,
-        LOG_LEVEL_DEBUG = 1,
-        LOG_LEVEL_INFORMATION = 2,
-        LOG_LEVEL_WARNING = 3,
-        LOG_LEVEL_ERROR = 4,
-        LOG_LEVEL_CRITICAL = 5,
-        LOG_LEVEL_NONE = 6
-    };
-
     class Logger
     {
         public:

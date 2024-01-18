@@ -10,20 +10,6 @@
 
 namespace Chromance
 {
-    struct ChromanceState
-    {
-        AnimationType animationType;
-        AnimationStatus animationStatus;
-        uint8_t brightness;
-        uint32_t fps;
-    };
-
-    struct PublishRequest
-    {
-        unsigned long publishedAt;
-        ChromanceState state;
-    };
-
     class MQTTClient
     {
         public:
@@ -46,6 +32,10 @@ namespace Chromance
             void PublishState(ChromanceState state);
             void PublishDeviceDiscovery();
             void PublishFPSSensorDiscovery(String deviceID);
+            void PublishAnimationSpeedDiscoveries(String deviceID);
+            void PublishRippleLifespanDiscoveries(String deviceID);
+            void PublishRipplePulsePeriodDiscoveries(String deviceID);
+            void PublishRippleDecayDiscoveries(String deviceID);
             void PublishLightDiscovery(String deviceID);
             void PublishDocument(JsonDocument doc, const char* topic);
             String GetDeviceID();

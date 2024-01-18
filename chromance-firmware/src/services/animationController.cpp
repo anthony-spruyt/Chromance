@@ -64,15 +64,15 @@ void AnimationController::Setup()
 
     this->logger->Debug("Register and initialize animations");
     this->animations[ANIMATION_TYPE_RANDOM_ANIMATION] = nullptr;
-    this->animations[ANIMATION_TYPE_STRIP_TEST] = new StripTestAnimation(ANIMATION_TYPE_STRIP_TEST, this->logger);
-    this->animations[ANIMATION_TYPE_RANDOM_PULSE] = RandomPulseAnimationEnabled ? new RandomPulseAnimation(ANIMATION_TYPE_RANDOM_PULSE, &ripplePool, this->logger) : nullptr;
-    this->animations[ANIMATION_TYPE_CUBE_PULSE] = CubePulseAnimationEnabled ? new CubePulseAnimation(ANIMATION_TYPE_CUBE_PULSE, &ripplePool, this->logger) : nullptr;
-    this->animations[ANIMATION_TYPE_STAR_BURST_PULSE] = StarBurstPulseAnimationEnabled ? new StarBurstPulseAnimation(ANIMATION_TYPE_STAR_BURST_PULSE, &ripplePool, this->logger) : nullptr;
-    this->animations[ANIMATION_TYPE_CENTER_PULSE] = CenterPulseAnimationEnabled ? new CenterPulseAnimation(ANIMATION_TYPE_CENTER_PULSE, &ripplePool, this->logger) : nullptr;
-    this->animations[ANIMATION_TYPE_RAINBOW_BEAT] = RainbowBeatAnimationEnabled ? new RainbowBeatAnimation(ANIMATION_TYPE_RAINBOW_BEAT, this->logger) : nullptr;
-    this->animations[ANIMATION_TYPE_RAINBOW_MARCH] = RainbowMarchAnimationEnabled ? new RainbowMarchAnimation(ANIMATION_TYPE_RAINBOW_MARCH, this->logger) : nullptr;
-    this->animations[ANIMATION_TYPE_PULSE] = PulseAnimationEnabled ? new PulseAnimation(ANIMATION_TYPE_PULSE, this->logger) : nullptr;
-    this->animations[ANIMATION_TYPE_AROUND_THE_WORLD] = AroundTheWorldAnimationEnabled ? new AroundTheWorldAnimation(ANIMATION_TYPE_AROUND_THE_WORLD, &ripplePool, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_STRIP_TEST] = new StripTestAnimation(ANIMATION_TYPE_STRIP_TEST, this->config, this->logger);
+    this->animations[ANIMATION_TYPE_RANDOM_PULSE] = RandomPulseAnimationEnabled ? new RandomPulseAnimation(ANIMATION_TYPE_RANDOM_PULSE, &ripplePool, this->config, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_CUBE_PULSE] = CubePulseAnimationEnabled ? new CubePulseAnimation(ANIMATION_TYPE_CUBE_PULSE, &ripplePool, this->config, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_STAR_BURST_PULSE] = StarBurstPulseAnimationEnabled ? new StarBurstPulseAnimation(ANIMATION_TYPE_STAR_BURST_PULSE, &ripplePool, this->config, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_CENTER_PULSE] = CenterPulseAnimationEnabled ? new CenterPulseAnimation(ANIMATION_TYPE_CENTER_PULSE, &ripplePool, this->config, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_RAINBOW_BEAT] = RainbowBeatAnimationEnabled ? new RainbowBeatAnimation(ANIMATION_TYPE_RAINBOW_BEAT, this->config, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_RAINBOW_MARCH] = RainbowMarchAnimationEnabled ? new RainbowMarchAnimation(ANIMATION_TYPE_RAINBOW_MARCH, this->config, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_PULSE] = PulseAnimationEnabled ? new PulseAnimation(ANIMATION_TYPE_PULSE, this->config, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_AROUND_THE_WORLD] = AroundTheWorldAnimationEnabled ? new AroundTheWorldAnimation(ANIMATION_TYPE_AROUND_THE_WORLD, &ripplePool, this->config, this->logger) : nullptr;
     
     this->lastRandomAnimationStarted = millis() + StartupDelay;
     

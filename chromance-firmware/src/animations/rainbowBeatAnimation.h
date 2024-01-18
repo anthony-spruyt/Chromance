@@ -9,7 +9,7 @@ namespace Chromance
     {
         public:
 
-            RainbowBeatAnimation(int32_t id, Logger* logger);
+            RainbowBeatAnimation(int32_t id, Config* config, Logger* logger);
 
             void Loop();
     };

@@ -10,33 +10,6 @@
 
 namespace Chromance
 {
-    enum AnimationType
-    {
-        ANIMATION_TYPE_RANDOM_ANIMATION, // DO NOT MOVE- We have to use auto assignment and this needs to be 0
-        ANIMATION_TYPE_STRIP_TEST, // DO NOT MOVE- We have to use auto assignment and this needs to be 1
-        ANIMATION_TYPE_RANDOM_PULSE,
-        ANIMATION_TYPE_CUBE_PULSE,
-        ANIMATION_TYPE_STAR_BURST_PULSE,
-        ANIMATION_TYPE_CENTER_PULSE,
-        ANIMATION_TYPE_RAINBOW_BEAT,
-        ANIMATION_TYPE_RAINBOW_MARCH,
-        ANIMATION_TYPE_PULSE,
-        ANIMATION_TYPE_AROUND_THE_WORLD,
-        /**
-         * This is not an animation type. It is a hack to get the count of animation types
-         * DO NOT MOVE- We have to use auto assignment and this needs to be the last
-        */
-        ANIMATION_TYPE_NUMBER_OF_ANIMATIONS
-    };
-
-    enum AnimationRequest
-    {
-        ANIMATION_REQUEST_NONE,
-        ANIMATION_REQUEST_PLAY,
-        ANIMATION_REQUEST_SLEEP,
-        ANIMATION_REQUEST_WAKE
-    };
-
     class AnimationController
     {
         public:

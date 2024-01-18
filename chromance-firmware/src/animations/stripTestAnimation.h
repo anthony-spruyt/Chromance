@@ -9,7 +9,7 @@ namespace Chromance
     {
         public:
 
-            StripTestAnimation(int32_t id, Logger* logger);
+            StripTestAnimation(int32_t id, Config* config, Logger* logger);
 
             void Loop();
 

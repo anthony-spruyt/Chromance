@@ -41,6 +41,7 @@ namespace Chromance
     static const int32_t PublishJSONBufferSize = 1024;
     static const bool ChromanceStateUpdatesEnabled = true;
     static const unsigned long ChromanceStateUpdateFrequency = 5000UL;
+    static const unsigned long ChromanceSleepingStateUpdateFrequency = 60000UL;
 
     //////////////////////////////////////////
     // CONFIG
@@ -53,6 +54,10 @@ namespace Chromance
     // They preferences brightness key
     static const char* BrightnessConfigKey = "l";
     static const char* SleepingConfigKey = "s";
+    static const char* AnimationSpeedConfigKeyPrefix = "as";
+    static const char* RippleLifespanConfigKeyPrefix = "rl";
+    static const char* RipplePulsePeriodConfigKeyPrefix = "rp";
+    static const char* RippleDecayConfigKeyPrefix = "rd";
 
     //////////////////////////////////////////
     // LEDs

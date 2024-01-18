@@ -3,10 +3,8 @@
 
 using namespace Chromance;
 
-StarBurstPulseAnimation::StarBurstPulseAnimation(int32_t id, RipplePool* ripplePool, Logger* logger) :
-    RippleAnimation(id, "Star Burst Pulse", ripplePool, logger, 3000UL, 249U),
-    speed(1.35f),
-    lifespan(3000UL)
+StarBurstPulseAnimation::StarBurstPulseAnimation(int32_t id, RipplePool* ripplePool, Config* config, Logger* logger) :
+    RippleAnimation(id, "Star Burst Pulse", ripplePool, config, logger)
 {
 }
 
@@ -34,8 +32,8 @@ void StarBurstPulseAnimation::Start()
             CenterNode,
             i,
             CHSV(baseColor + (0xFFFF / 6) * i, 255U, 255U),
-            this->speed,
-            this->lifespan,
+            this->GetSpeed(),
+            this->GetLifespan(),
             behavior
         );
     }    

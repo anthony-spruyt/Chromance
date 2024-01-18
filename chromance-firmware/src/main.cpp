@@ -182,6 +182,8 @@ void MQTTClientTask(void *pvParameters)
 {
     logger.Debug("MQTTClientTask running on core: " + String(xPortGetCoreID()));
 
+    AnimationStatus animationStatus;
+
     for (;;)
     {
 #ifdef MONITOR_TASK_STACK_SIZES
@@ -191,11 +193,15 @@ void MQTTClientTask(void *pvParameters)
 
         // TODO move to state monitor service
         unsigned long now = millis();
+        animationStatus = animationController.GetAnimationStatus();
 
         if
         (
-            ChromanceStateUpdatesEnabled && 
-            now - lastChromanceStateUpdate > ChromanceStateUpdateFrequency
+            ChromanceStateUpdatesEnabled &&
+            (
+                animationStatus == ANIMATION_STATUS_SLEEPING && now - lastChromanceStateUpdate > ChromanceSleepingStateUpdateFrequency ||
+                animationStatus != ANIMATION_STATUS_SLEEPING && now - lastChromanceStateUpdate > ChromanceStateUpdateFrequency
+            )
         )
         {
             lastChromanceStateUpdate = now;

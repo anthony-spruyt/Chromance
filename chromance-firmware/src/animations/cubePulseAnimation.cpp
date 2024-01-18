@@ -3,10 +3,8 @@
 
 using namespace Chromance;
 
-CubePulseAnimation::CubePulseAnimation(int32_t id, RipplePool* ripplePool, Logger* logger) :
-    RippleAnimation(id, "Cube Pulse", ripplePool, logger, 2000UL, 249U),
-    speed(2.45f),
-    lifespan(1500UL),
+CubePulseAnimation::CubePulseAnimation(int32_t id, RipplePool* ripplePool, Config* config, Logger* logger) :
+    RippleAnimation(id, "Cube Pulse", ripplePool, config, logger),
     lastPulseNode(INT32_MAX)
 {
 }
@@ -46,8 +44,8 @@ void CubePulseAnimation::Start()
                 node,
                 i,
                 color,
-                this->speed,
-                this->lifespan,
+                this->GetSpeed(),
+                this->GetLifespan(),
                 behavior
             );
         }

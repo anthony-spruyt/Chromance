@@ -2,8 +2,8 @@
 
 using namespace Chromance;
 
-RainbowBeatAnimation::RainbowBeatAnimation(int32_t id, Logger* logger) :
-    Animation(id, "Rainbow Beat", logger)
+RainbowBeatAnimation::RainbowBeatAnimation(int32_t id, Config* config, Logger* logger) :
+    Animation(id, "Rainbow Beat", config, logger)
 {
 }
 

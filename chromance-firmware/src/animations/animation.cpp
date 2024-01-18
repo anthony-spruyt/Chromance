@@ -2,13 +2,14 @@
 
 using namespace Chromance;
 
-Animation::Animation(int32_t id, const char* name, Logger* logger) :
+Animation::Animation(int32_t id, const char* name, Config* config, Logger* logger) :
     id(id),
     name(name),
     transitionScale(0),
     status(ANIMATION_STATUS_SLEEPING),
     fade(false)
 {
+    this->config = config;
     this->logger = logger;
     
     fill_solid(this->leds, NumberOfLEDs, CRGB::Black);
@@ -35,6 +36,11 @@ void Animation::Wake(bool fade)
 uint8_t Animation::GetID()
 {
     return this->id;
+}
+
+AnimationType Animation::GetAnimationType()
+{
+    return (AnimationType)this->id;
 }
 
 const char* Animation::GetName()
@@ -101,4 +107,9 @@ void Animation::Fade()
     {
         nscale8(this->leds, NumberOfLEDs, this->transitionScale);
     }
+}
+
+float Animation::GetSpeed()
+{
+    return this->config->GetAnimationSpeed(this->GetAnimationType());
 }

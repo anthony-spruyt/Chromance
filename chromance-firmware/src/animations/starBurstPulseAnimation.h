@@ -9,14 +9,9 @@ namespace Chromance
     {
         public:
 
-            StarBurstPulseAnimation(int32_t id, RipplePool* ripplePool, Logger* logger);
+            StarBurstPulseAnimation(int32_t id, RipplePool* ripplePool, Config* config, Logger* logger);
 
             void Start();
-
-        private:
-
-            float speed;
-            unsigned long lifespan;
     };
 }
 
