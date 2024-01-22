@@ -219,7 +219,7 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
                 }
             }
 
-            ripplePulsePeriodKey = this->config->GetRipplePulsePeriod(animationType);
+            ripplePulsePeriodKey = this->config->GetRipplePulsePeriodKey(animationType);
 
             if (!doc[ripplePulsePeriodKey].isNull())
             {
