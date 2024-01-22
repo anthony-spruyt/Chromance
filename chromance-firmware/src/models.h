@@ -57,6 +57,7 @@ namespace Chromance
         AnimationStatus animationStatus;
         uint8_t brightness;
         uint32_t fps;
+        const char* effect;
     };
 
     struct PublishRequest

@@ -29,13 +29,13 @@ namespace Chromance
             void SetRippleLifespan(AnimationType animationType, unsigned long value);
             void SetRipplePulsePeriod(AnimationType animationType, unsigned long value);
             void SetRippleDecay(AnimationType animationType, uint8_t value);
-        
-        private:
 
             String GetAnimationSpeedKey(AnimationType animationType);
             String GetRippleLifespanKey(AnimationType animationType);
             String GetRipplePulsePeriodKey(AnimationType animationType);
             String GetRippleDecayKey(AnimationType animationType);
+        
+        private:
 
             Preferences preferences;
             uint8_t logLevel;
@@ -45,6 +45,7 @@ namespace Chromance
             unsigned long rippleLifespan[ANIMATION_TYPE_NUMBER_OF_ANIMATIONS];
             unsigned long ripplePulsePeriod[ANIMATION_TYPE_NUMBER_OF_ANIMATIONS];
             uint8_t rippleDecay[ANIMATION_TYPE_NUMBER_OF_ANIMATIONS];
+
     };
 }
 

@@ -42,27 +42,20 @@ AnimationController::~AnimationController()
 
 void AnimationController::Setup()
 {
-    this->logger->Info("Configure LED controller");
-
     random16_set_seed(esp_random());
 
-    this->logger->Debug("Add strips to FastLED");
     FastLED.addLeds<NEOPIXEL, BlueStripDataPin>(this->leds, BlueStripOffset, BlueStripLength);
     FastLED.addLeds<NEOPIXEL, GreenStripDataPin>(this->leds, GreenStripOffset, GreenStripLength);
     FastLED.addLeds<NEOPIXEL, RedStripDataPin>(this->leds, RedStripOffset, RedStripLength);
     FastLED.addLeds<NEOPIXEL, BlackStripDataPin>(this->leds, BlackStripOffset, BlackStripLength);
 
-    this->logger->Debug("Set max refreshrate: " + String(MaxRefreshRate) + "Hz");
     FastLED.setMaxRefreshRate(MaxRefreshRate);
-    this->logger->Debug("Set startup brightness: " + String((float)StartupBrightness / 255.0f * 100.0f, 0) + "%");
     FastLED.setBrightness(StartupBrightness);
-    this->logger->Debug("Set color correction: " + String(TypicalLEDStrip));
     FastLED.setCorrection(TypicalLEDStrip);
 
     FastLED.clear();
     FastLED.show();
 
-    this->logger->Debug("Register and initialize animations");
     this->animations[ANIMATION_TYPE_RANDOM_ANIMATION] = nullptr;
     this->animations[ANIMATION_TYPE_STRIP_TEST] = new StripTestAnimation(ANIMATION_TYPE_STRIP_TEST, this->config, this->logger);
     this->animations[ANIMATION_TYPE_RANDOM_PULSE] = RandomPulseAnimationEnabled ? new RandomPulseAnimation(ANIMATION_TYPE_RANDOM_PULSE, &ripplePool, this->config, this->logger) : nullptr;
@@ -80,8 +73,6 @@ void AnimationController::Setup()
     if (this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION)
     {
         Animation* nextAnimation = this->animations[this->NextAnimation()];
-
-        this->logger->Debug("Random animation selected: " + String(nextAnimation->GetName()));
 
         if (!config->GetSleeping())
         {
@@ -122,8 +113,6 @@ void AnimationController::Loop()
 
 void AnimationController::Sleep()
 {
-    this->logger->Debug("LED controller going to sleep");
-
     if (xSemaphoreTake(this->semaphore, portMAX_DELAY) == pdTRUE)
     {
         this->next = ANIMATION_REQUEST_SLEEP;
@@ -134,8 +123,6 @@ void AnimationController::Sleep()
 
 void AnimationController::Wake()
 {
-    this->logger->Debug("LED controller waking up");
-
     if (xSemaphoreTake(this->semaphore, portMAX_DELAY) == pdTRUE)
     {
         this->next = ANIMATION_REQUEST_WAKE;
@@ -153,8 +140,6 @@ void AnimationController::Play(AnimationType animationType)
     {
         return;
     }
-
-    this->logger->Debug("Play animation: " + String(animationType));
 
     if (xSemaphoreTake(this->semaphore, portMAX_DELAY) == pdTRUE)
     {
@@ -190,13 +175,17 @@ uint32_t AnimationController::GetFPS()
     return FastLED.getFPS();
 }
 
+Animation* AnimationController::GetAnimation(AnimationType animationType)
+{
+    return this->animations[animationType];
+}
+
 void AnimationController::HandleBrightness()
 {
     uint8_t configBrightness = this->config->GetBrightness();
         
     if (FastLED.getBrightness() != configBrightness)
     {
-        this->logger->Debug("Apply brightness change: " + String((float)configBrightness / 255.0f * 100.0f, 0) + "%");
         FastLED.setBrightness(configBrightness);
     }
 }
@@ -220,8 +209,6 @@ void AnimationController::HandleAnimationRequest()
         if (this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION)
         {
             Animation* nextAnimation = this->animations[this->NextAnimation()];
-
-            this->logger->Debug("Random animation selected: " + String(nextAnimation->GetName()));
 
             nextAnimation->Wake(false);
         }
@@ -275,8 +262,6 @@ void AnimationController::HandleRandomAnimation()
         
         Animation* animation = this->animations[this->NextAnimation()];
         
-        this->logger->Debug("Next random animation selected: " + String(animation->GetName()));
-
         for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
         {
             if (this->animations[i] != nullptr && i != animation->GetID())
@@ -326,11 +311,6 @@ void AnimationController::Render()
 
     if (activeAnimationsCount > 0)
     {
-        if (activeAnimationsCount > 2)
-        {
-            this->logger->Warn("More than 2 concurrent animations is not supported");
-        }
-
         if (activeAnimationsCount == 1)
         {
             CRGB* currentAnimationBuffer = activeAnimations[0]->GetBuffer();

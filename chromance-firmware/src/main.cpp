@@ -21,14 +21,13 @@ Config config;
 TimeService timeService;
 Logger logger(&timeService, &config);
 AnimationController animationController(&logger, &config);
-MQTTClient mqttClient(&logger, &animationController);
+MQTTClient mqttClient(&logger, &config, &animationController);
 OTAService otaService(&logger);
 WiFiService wifiService(&logger);
 TaskHandle_t AnimationControllerTaskHandle;
 TaskHandle_t WiFiServiceTaskHandle;
 TaskHandle_t OTAServiceTaskHandle;
 TaskHandle_t MQTTClientTaskHandle;
-ChromanceState currentChromanceState;
 unsigned long lastChromanceStateUpdate = 0U;
 
 void setup()
@@ -116,21 +115,17 @@ void MonitorStackSize(uint32_t stackSize, const char* taskName)
 
     if (highWaterMark / (float)stackSize < 0.2f)
     {
-        logger.Warn("Task " + String(taskName) + " stack is over 80% utilized. Consider increasing its size");
+        logger.Warn(String("Task ") + String(taskName) + String(" stack is over 80% utilized. Consider increasing its size"));
     }
     else if (highWaterMark / (float)stackSize > 0.5f)
     {
-        logger.Warn("Task " + String(taskName) + " stack is under 50% utilized. Consider reducing its size");
+        logger.Warn(String("Task ") + String(taskName) + String(" stack is under 50% utilized. Consider reducing its size"));
     }
 }
 
 void AnimationControllerTask(void *pvParameters)
 {
-    logger.Debug("AnimationControllerTask running on core: " + String(xPortGetCoreID()));
-
     delay(StartupDelay);
-
-    logger.Debug("LED controller is now running");
 
     for (;;)
     {
@@ -150,8 +145,6 @@ void AnimationControllerTask(void *pvParameters)
 
 void WiFiServiceTask(void *pvParameters)
 {
-    logger.Debug("WiFiServiceTask running on core: " + String(xPortGetCoreID()));
-
     for (;;)
     {
 #ifdef MONITOR_TASK_STACK_SIZES
@@ -165,8 +158,6 @@ void WiFiServiceTask(void *pvParameters)
 
 void OTAServiceTask(void *pvParameters)
 {
-    logger.Debug("OTAServiceTask running on core: " + String(xPortGetCoreID()));
-
     for (;;)
     {
 #ifdef MONITOR_TASK_STACK_SIZES
@@ -180,8 +171,6 @@ void OTAServiceTask(void *pvParameters)
 
 void MQTTClientTask(void *pvParameters)
 {
-    logger.Debug("MQTTClientTask running on core: " + String(xPortGetCoreID()));
-
     AnimationStatus animationStatus;
 
     for (;;)
@@ -206,12 +195,7 @@ void MQTTClientTask(void *pvParameters)
         {
             lastChromanceStateUpdate = now;
 
-            currentChromanceState.animationStatus = animationController.GetAnimationStatus();
-            currentChromanceState.animationType = animationController.GetAnimationType();
-            currentChromanceState.brightness = animationController.GetBrightness();
-            currentChromanceState.fps = animationController.GetFPS();
-
-            mqttClient.Publish(currentChromanceState);
+            mqttClient.Publish();
         }
 
         vTaskDelay(TaskDelay);

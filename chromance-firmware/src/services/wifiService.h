@@ -19,11 +19,7 @@ namespace Chromance
         private:
 
             void Configure();
-            void RegisterEventHandlers();
             void Connect();
-            void WiFiConnected(WiFiEvent_t event, WiFiEventInfo_t info);
-            void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info);
-            void WiFiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info);
 
             Logger* logger;
     };

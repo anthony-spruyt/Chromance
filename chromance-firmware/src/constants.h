@@ -8,8 +8,8 @@ namespace Chromance
     //////////////////////////////////////////
     // COMMON STRINGS
     //////////////////////////////////////////
-    static const String ChromanceNameCapitalized = "Chromance";
-    static const String ChromanceNameLowercase = "chromance";
+    static const char* ChromanceNameCapitalized = "Chromance";
+    static const char* ChromanceNameLowercase = "chromance";
 
     //////////////////////////////////////////
     // WiFi
@@ -25,23 +25,23 @@ namespace Chromance
     // The timeout in seconds for syncing internet time
     static const uint32_t NTPSyncTimeout = 10U;
     // Local timezone
-    static const String TimeZoneLocation = "Australia/Melbourne";
+    static const char* TimeZoneLocation = "Australia/Melbourne";
 
     //////////////////////////////////////////
     // MQTT
     //////////////////////////////////////////
 
     static const uint16_t MQTTKeepAlive = 60U;
-    static const String MQTTBaseTopic = "chromance/v1";
-    static const String MQTTCommandRoute = "~/command";
-    static const String MQTTCommandTopic = "chromance/v1/command";
-    static const String MQTTStateRoute = "~/state";
-    static const String MQTTStateTopic = "chromance/v1/state";
-    static const String HomeAssistantStatusTopic = "homeassistant/status";
-    static const int32_t PublishJSONBufferSize = 1024;
+    static const char* MQTTBaseTopic = "chromance/v1";
+    static const char* MQTTCommandRoute = "~/command";
+    static const char* MQTTCommandTopic = "chromance/v1/command";
+    static const char* MQTTStateRoute = "~/state";
+    static const char* MQTTStateTopic = "chromance/v1/state";
+    static const char* HomeAssistantStatusTopic = "homeassistant/status";
+    static const int32_t PublishJsonBufferSize = 2048;
     static const bool ChromanceStateUpdatesEnabled = true;
     static const unsigned long ChromanceStateUpdateFrequency = 5000UL;
-    static const unsigned long ChromanceSleepingStateUpdateFrequency = 60000UL;
+    static const unsigned long ChromanceSleepingStateUpdateFrequency = 15000UL;
 
     //////////////////////////////////////////
     // CONFIG

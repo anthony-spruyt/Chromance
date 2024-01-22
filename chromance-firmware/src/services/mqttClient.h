@@ -14,12 +14,12 @@ namespace Chromance
     {
         public:
 
-            MQTTClient(Logger* logger, AnimationController* animationController);
+            MQTTClient(Logger* logger, Config* config, AnimationController* animationController);
             ~MQTTClient();
 
             void Setup();
             void Loop();
-            bool Publish(ChromanceState state);
+            bool Publish();
 
         private:
 
@@ -29,27 +29,34 @@ namespace Chromance
             void Callback(char* topic, byte* payload, uint32_t length);
             void Connect();
             void Subscribe();
+            bool Publish(ChromanceState state);
             void PublishState(ChromanceState state);
             void PublishDeviceDiscovery();
-            void PublishFPSSensorDiscovery(String deviceID);
-            void PublishAnimationSpeedDiscoveries(String deviceID);
-            void PublishRippleLifespanDiscoveries(String deviceID);
-            void PublishRipplePulsePeriodDiscoveries(String deviceID);
-            void PublishRippleDecayDiscoveries(String deviceID);
-            void PublishLightDiscovery(String deviceID);
+            void PublishFPSSensorDiscovery();
+            void PublishAnimationSpeedDiscoveries();
+            void PublishRippleLifespanDiscoveries();
+            void PublishRipplePulsePeriodDiscoveries();
+            void PublishRippleDecayDiscoveries();
+            void PublishAnimationSpeedDiscovery(AnimationType animationType);
+            void PublishRippleLifespanDiscovery(AnimationType animationType);
+            void PublishRipplePulsePeriodDiscovery(AnimationType animationType);
+            void PublishRippleDecayDiscovery(AnimationType animationType);
+            void PublishLightDiscovery();
             void PublishDocument(JsonDocument doc, const char* topic);
-            String GetDeviceID();
-            String GetDiscoveryTopic(String entityType, String deviceID, String uniqueID);
+            String GetDiscoveryTopic(const char* entityType, String uniqueID);
+            ChromanceState GetChromanceState();
 
             Logger* logger;
+            Config* config;
             AnimationController* animationController;
             SemaphoreHandle_t semaphore;
             PublishRequest publishQueue[PublishQueueSize];
-            char publishJSONBuffer[PublishJSONBufferSize];
+            char publishJsonBuffer[PublishJsonBufferSize];
             WiFiClient espClient;
             PubSubClient mqttClient;
             unsigned long lastReconnectAttempt;
             bool homeAssistantDiscoverySent;
+            String deviceID;
     };
 }
 

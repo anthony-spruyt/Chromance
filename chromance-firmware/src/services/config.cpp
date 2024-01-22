@@ -29,17 +29,17 @@ void Config::Setup()
     String pulsePeriodKey;
     String decayKey;
     
-    for (int32_t i = 2; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
+    for (int32_t i = 0; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
     {
         speedKey = this->GetAnimationSpeedKey((AnimationType)i);
         lifespanKey = this->GetRippleLifespanKey((AnimationType)i);
         pulsePeriodKey = this->GetRipplePulsePeriodKey((AnimationType)i);
         decayKey = this->GetRippleDecayKey((AnimationType)i);
 
-        this->animationSpeed[i] = this->preferences.getBool(speedKey.c_str(), this->animationSpeed[i]);
-        this->rippleLifespan[i] = this->preferences.getBool(lifespanKey.c_str(), this->rippleLifespan[i]);
-        this->ripplePulsePeriod[i] = this->preferences.getBool(pulsePeriodKey.c_str(), this->ripplePulsePeriod[i]);
-        this->rippleDecay[i] = this->preferences.getBool(decayKey.c_str(), this->rippleDecay[i]);
+        this->animationSpeed[i] = this->preferences.getFloat(speedKey.c_str(), this->animationSpeed[i]);
+        this->rippleLifespan[i] = this->preferences.getULong(lifespanKey.c_str(), this->rippleLifespan[i]);
+        this->ripplePulsePeriod[i] = this->preferences.getULong(pulsePeriodKey.c_str(), this->ripplePulsePeriod[i]);
+        this->rippleDecay[i] = (uint8_t)this->preferences.getUShort(decayKey.c_str(), this->rippleDecay[i]);
     }
     
     preferences.end();
@@ -145,26 +145,46 @@ void Config::SetRippleDecay(AnimationType animationType, uint8_t value)
 
     this->rippleDecay[animationType] = value;
     preferences.begin(ConfigNamespace, false);
-    this->preferences.putUInt(key.c_str(), value);
+    this->preferences.putUShort(key.c_str(), value);
     preferences.end();
 }
 
 String Config::GetAnimationSpeedKey(AnimationType animationType)
 {
-    return AnimationSpeedConfigKeyPrefix + animationType;
+    String key;
+    key.reserve(3);
+    key += String(AnimationSpeedConfigKeyPrefix);
+    key += String(animationType);
+
+    return key;
 }
 
 String Config::GetRippleLifespanKey(AnimationType animationType)
 {
-    return RippleLifespanConfigKeyPrefix + animationType;
+    String key;
+    key.reserve(3);
+    key += String(RippleLifespanConfigKeyPrefix);
+    key += String(animationType);
+
+    return key;
 }
 
 String Config::GetRipplePulsePeriodKey(AnimationType animationType)
 {
-    return RipplePulsePeriodConfigKeyPrefix + animationType;
+    String key;
+    key.reserve(3);
+    key += String(RipplePulsePeriodConfigKeyPrefix);
+    key += String(animationType);
+
+    return key;
 }
 
 String Config::GetRippleDecayKey(AnimationType animationType)
 {
-    return RippleDecayConfigKeyPrefix + animationType;
+    String key;
+    key.reserve(3);
+    key += String(RippleDecayConfigKeyPrefix);
+    key += String(animationType);
+
+    return key;
 }

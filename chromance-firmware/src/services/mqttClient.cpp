@@ -2,20 +2,28 @@
 
 using namespace Chromance;
 
-MQTTClient::MQTTClient(Logger* logger, AnimationController* animationController) : 
+MQTTClient::MQTTClient(Logger* logger, Config* config, AnimationController* animationController) : 
     mqttClient(espClient), 
     lastReconnectAttempt(0),
-    homeAssistantDiscoverySent(false)
+    homeAssistantDiscoverySent(false),
+    deviceID("")
 {
     this->animationController = animationController;
+    this->config = config;
     this->logger = logger;
 
     this->semaphore = xSemaphoreCreateMutex();
 
     for (int32_t i = 0; i < PublishQueueSize; i++)
     {
+        this->publishQueue[i].state.animationStatus = ANIMATION_STATUS_SLEEPING;
+        this->publishQueue[i].state.animationType = ANIMATION_TYPE_RANDOM_ANIMATION;
+        this->publishQueue[i].state.brightness = 255U;
+        this->publishQueue[i].state.fps = 0U;
         this->publishQueue[i].publishedAt = 0U;
     }
+
+    this->deviceID.reserve(12);
 }
 
 MQTTClient::~MQTTClient()
@@ -32,8 +40,6 @@ void MQTTClient::Setup()
 void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
 {
     String messageTopic = String(topic);
-
-    this->logger->Debug("MQTT message arrived in topic: " + messageTopic);
 
     if (messageTopic == HomeAssistantStatusTopic)
     {
@@ -64,12 +70,7 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
             return;
         }
 
-        ChromanceState chromanceState;
-
-        chromanceState.animationStatus = this->animationController->GetAnimationStatus();
-        chromanceState.animationType = this->animationController->GetAnimationType();
-        chromanceState.brightness = this->animationController->GetBrightness();
-        chromanceState.fps = this->animationController->GetFPS();
+        ChromanceState chromanceState = this->GetChromanceState();
 
         if (!doc["state"].isNull())
         {
@@ -121,70 +122,115 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
             }
         }
 
+        AnimationType animationType = ANIMATION_TYPE_RANDOM_ANIMATION;
+
         if (!doc["effect"].isNull())
         {
             const char* effect = doc["effect"];
             AnimationType currentAnimationType = this->animationController->GetAnimationType();
 
-            if (strcmp(effect, "Center Pulse") == 0 && currentAnimationType != ANIMATION_TYPE_CENTER_PULSE)
-            {
-                this->animationController->Play(ANIMATION_TYPE_CENTER_PULSE);
-                chromanceState.animationType = ANIMATION_TYPE_CENTER_PULSE;
-                publishState = true;
-            }
-            else if (strcmp(effect, "Cube Pulse") == 0 && currentAnimationType != ANIMATION_TYPE_CUBE_PULSE)
-            {
-                this->animationController->Play(ANIMATION_TYPE_CUBE_PULSE);
-                chromanceState.animationType = ANIMATION_TYPE_CUBE_PULSE;
-                publishState = true;
-            }
-            else if (strcmp(effect, "Pulse") == 0 && currentAnimationType != ANIMATION_TYPE_PULSE)
-            {
-                this->animationController->Play(ANIMATION_TYPE_PULSE);
-                chromanceState.animationType = ANIMATION_TYPE_PULSE;
-                publishState = true;
-            }
-            else if (strcmp(effect, "Rainbow Beat") == 0 && currentAnimationType != ANIMATION_TYPE_RAINBOW_BEAT)
-            {
-                this->animationController->Play(ANIMATION_TYPE_RAINBOW_BEAT);
-                chromanceState.animationType = ANIMATION_TYPE_RAINBOW_BEAT;
-                publishState = true;
-            }
-            else if (strcmp(effect, "Rainbow March") == 0 && currentAnimationType != ANIMATION_TYPE_RAINBOW_MARCH)
-            {
-                this->animationController->Play(ANIMATION_TYPE_RAINBOW_MARCH);
-                chromanceState.animationType = ANIMATION_TYPE_RAINBOW_MARCH;
-                publishState = true;
-            }
-            else if (strcmp(effect, "Random") == 0 && currentAnimationType != ANIMATION_TYPE_RANDOM_ANIMATION)
+            if (strcmp(effect, "Random") == 0 && currentAnimationType != ANIMATION_TYPE_RANDOM_ANIMATION)
             {
                 this->animationController->Play(ANIMATION_TYPE_RANDOM_ANIMATION);
                 chromanceState.animationType = ANIMATION_TYPE_RANDOM_ANIMATION;
                 publishState = true;
             }
-            else if (strcmp(effect, "Random Pulse") == 0 && currentAnimationType != ANIMATION_TYPE_RANDOM_PULSE)
+            else
             {
-                this->animationController->Play(ANIMATION_TYPE_RANDOM_PULSE);
-                chromanceState.animationType = ANIMATION_TYPE_RANDOM_PULSE;
-                publishState = true;
+                for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
+                {
+                    animationType = (AnimationType)i;
+
+                    if
+                    (
+                        strcmp(effect, this->animationController->GetAnimation(animationType)->GetName()) == 0 && 
+                        currentAnimationType != animationType
+                    )
+                    {
+                        this->animationController->Play(animationType);
+                        chromanceState.animationType = animationType;
+                        publishState = true;
+
+                        break;
+                    }
+                }
             }
-            else if (strcmp(effect, "Star Burst Pulse") == 0 && currentAnimationType != ANIMATION_TYPE_STAR_BURST_PULSE)
+        }
+
+        String animationSpeedKey;
+        float animationSpeed;
+        float currentAnimationSpeed;
+
+        String rippleDecayKey;
+        uint8_t rippleDecay;
+        uint8_t currentRippleDecay;
+
+        String rippleLifespanKey;
+        unsigned long rippleLifespan;
+        unsigned long currentRippleLifespan;
+
+        String ripplePulsePeriodKey;
+        unsigned long ripplePulsePeriod;
+        unsigned long currentRipplePulsePeriod;
+
+        for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
+        {
+            animationType = (AnimationType)i;
+
+            animationSpeedKey = this->config->GetAnimationSpeedKey(animationType);
+
+            if (!doc[animationSpeedKey].isNull())
             {
-                this->animationController->Play(ANIMATION_TYPE_STAR_BURST_PULSE);
-                chromanceState.animationType = ANIMATION_TYPE_STAR_BURST_PULSE;
-                publishState = true;
+                animationSpeed = doc[animationSpeedKey];
+                currentAnimationSpeed = this->config->GetAnimationSpeed(animationType);
+
+                if (currentAnimationSpeed != animationSpeed)
+                {
+                    this->config->SetAnimationSpeed(animationType, animationSpeed);
+                    publishState = true;
+                }
             }
-            else if (strcmp(effect, "Strip Test") == 0 && currentAnimationType != ANIMATION_TYPE_STRIP_TEST)
+
+            rippleDecayKey = this->config->GetRippleDecayKey(animationType);
+
+            if (!doc[rippleDecayKey].isNull())
             {
-                this->animationController->Play(ANIMATION_TYPE_STRIP_TEST);
-                chromanceState.animationType = ANIMATION_TYPE_STRIP_TEST;
-                publishState = true;
+                rippleDecay = doc[rippleDecayKey];
+                currentRippleDecay = this->config->GetRippleDecay(animationType);
+
+                if (currentRippleDecay != rippleDecay)
+                {
+                    this->config->SetRippleDecay(animationType, rippleDecay);
+                    publishState = true;
+                }
             }
-            else if (strcmp(effect, "Around the World") == 0 && currentAnimationType != ANIMATION_TYPE_AROUND_THE_WORLD)
+
+            rippleLifespanKey = this->config->GetRippleLifespanKey(animationType);
+
+            if (!doc[rippleLifespanKey].isNull())
             {
-                this->animationController->Play(ANIMATION_TYPE_AROUND_THE_WORLD);
-                chromanceState.animationType = ANIMATION_TYPE_AROUND_THE_WORLD;
-                publishState = true;
+                rippleLifespan = doc[rippleLifespanKey];
+                currentRippleLifespan = this->config->GetRippleLifespan(animationType);
+
+                if (currentRippleLifespan != rippleLifespan)
+                {
+                    this->config->SetRippleLifespan(animationType, rippleLifespan);
+                    publishState = true;
+                }
+            }
+
+            ripplePulsePeriodKey = this->config->GetRipplePulsePeriod(animationType);
+
+            if (!doc[ripplePulsePeriodKey].isNull())
+            {
+                ripplePulsePeriod = doc[ripplePulsePeriodKey];
+                currentRipplePulsePeriod = this->config->GetRipplePulsePeriod(animationType);
+
+                if (currentRipplePulsePeriod != ripplePulsePeriod)
+                {
+                    this->config->SetRipplePulsePeriod(animationType, ripplePulsePeriod);
+                    publishState = true;
+                }
             }
         }
 
@@ -229,7 +275,6 @@ void MQTTClient::Loop()
             {
                 if (this->publishQueue[i].publishedAt > now)
                 {
-                    this->logger->Debug("Select publish request queue item: " + String(i));
                     this->publishQueue[i].publishedAt = now;
                     state = this->publishQueue[i].state;
                     shouldPublishState = true;
@@ -248,11 +293,14 @@ void MQTTClient::Loop()
     }
 }
 
-bool MQTTClient::Publish(ChromanceState state)
+bool MQTTClient::Publish()
+{
+    return this->Publish(this->GetChromanceState());
+}
+
+bool MQTTClient::Publish(ChromanceState chromanceState)
 {
     bool queued = false;
-
-    this->logger->Debug("Publish chromance state");
 
     if (this->mqttClient.connected())
     {
@@ -264,8 +312,7 @@ bool MQTTClient::Publish(ChromanceState state)
             {
                 if (this->publishQueue[i].publishedAt < now)
                 {
-                    this->logger->Debug("Add chromance state to publish request queue: " + String(i));
-                    this->publishQueue[i].state = state;
+                    this->publishQueue[i].state = chromanceState;
                     this->publishQueue[i].publishedAt = UINT32_MAX;
                     queued = true;
 
@@ -282,8 +329,7 @@ bool MQTTClient::Publish(ChromanceState state)
 
 void MQTTClient::Configure()
 {
-    this->logger->Info("Configure MQTT");
-    this->mqttClient.setBufferSize(PublishJSONBufferSize);
+    this->mqttClient.setBufferSize(PublishJsonBufferSize);
     this->mqttClient.setServer(MQTTBroker, MQTTPort);
     this->mqttClient.setCallback
     (
@@ -302,36 +348,37 @@ void MQTTClient::Connect()
         return;
     }
 
-    this->logger->Debug("MQTT connecting...");
+    uint8_t mac[6];
+    
+    WiFi.macAddress(mac);
+    this->deviceID = "";
+    this->deviceID += String(mac[0], HEX);
+    this->deviceID += String(mac[1], HEX);
+    this->deviceID += String(mac[2], HEX);
+    this->deviceID += String(mac[3], HEX);
+    this->deviceID += String(mac[4], HEX);
+    this->deviceID += String(mac[5], HEX);
 
-    String deviceID = this->GetDeviceID();
     uint8_t willQOS = 1U;
 
-    if (this->mqttClient.connect(deviceID.c_str(), MQTTUsername, MQTTPassword, MQTTStateTopic.c_str(), willQOS, false, "{\"availability\": \"0\", \"state\": \"None\", \"fps\": 0}"))
+    if (this->mqttClient.connect(this->deviceID.c_str(), MQTTUsername, MQTTPassword, MQTTStateTopic, willQOS, false, "{\"availability\": \"0\", \"state\": \"None\", \"fps\": 0}"))
     {
-        this->logger->Debug("MQTT connected");
         this->Subscribe();
         this->lastReconnectAttempt = 0;
 
         return;
     }
-
-    this->logger->Error("MQTT connect failed: " + String(this->mqttClient.state()));
 }
 
 void MQTTClient::Subscribe()
 {
     uint8_t qos = 1U;
-    this->mqttClient.subscribe(MQTTCommandTopic.c_str(), qos);
-    this->logger->Debug("MQTT topic subscribed: " + MQTTCommandTopic);
-    this->mqttClient.subscribe(HomeAssistantStatusTopic.c_str(), qos);
-    this->logger->Debug("MQTT topic subscribed: " + HomeAssistantStatusTopic);
+    this->mqttClient.subscribe(MQTTCommandTopic, qos);
+    this->mqttClient.subscribe(HomeAssistantStatusTopic, qos);
 }
 
 void MQTTClient::PublishState(ChromanceState state)
 {
-    this->logger->Debug("Publish to state MQTT topic");
-
     JsonDocument doc;
 
     doc["animationStatus"] = state.animationStatus;
@@ -340,73 +387,41 @@ void MQTTClient::PublishState(ChromanceState state)
     doc["fps"] = state.fps;
     doc["availability"] = "1";
     doc["state"] = state.animationStatus != ANIMATION_STATUS_PLAYING && state.animationStatus != ANIMATION_STATUS_WAKING_UP ? "OFF" : "ON";
-    
-    if (state.animationType == ANIMATION_TYPE_CENTER_PULSE)
+    doc["effect"] = state.effect;
+
+    AnimationType animationType;
+
+    for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
     {
-        doc["effect"] = "Center Pulse";
-    }
-    else if (state.animationType == ANIMATION_TYPE_CUBE_PULSE)
-    {
-        doc["effect"] = "Cube Pulse";
-    }
-    else if (state.animationType == ANIMATION_TYPE_PULSE)
-    {
-        doc["effect"] = "Pulse";
-    }
-    else if (state.animationType == ANIMATION_TYPE_RAINBOW_BEAT)
-    {
-        doc["effect"] = "Rainbow Beat";
-    }
-    else if (state.animationType == ANIMATION_TYPE_RAINBOW_MARCH)
-    {
-        doc["effect"] = "Rainbow March";
-    }
-    else if (state.animationType == ANIMATION_TYPE_RANDOM_ANIMATION)
-    {
-        doc["effect"] = "Random";
-    }
-    else if (state.animationType == ANIMATION_TYPE_RANDOM_PULSE)
-    {
-        doc["effect"] = "Random Pulse";
-    }
-    else if (state.animationType == ANIMATION_TYPE_STAR_BURST_PULSE)
-    {
-        doc["effect"] = "Star Burst Pulse";
-    }
-    else if (state.animationType == ANIMATION_TYPE_STRIP_TEST)
-    {
-        doc["effect"] = "Strip Test";
-    }
-    else if (state.animationType == ANIMATION_TYPE_AROUND_THE_WORLD)
-    {
-        doc["effect"] = "Around the World";
+        animationType = (AnimationType)i;
+
+        doc[this->config->GetAnimationSpeedKey(animationType)] = this->config->GetAnimationSpeed(animationType);
+        doc[this->config->GetRippleDecayKey(animationType)] = this->config->GetRippleDecay(animationType);
+        doc[this->config->GetRippleLifespanKey(animationType)] = this->config->GetRippleLifespan(animationType);
+        doc[this->config->GetRipplePulsePeriodKey(animationType)] = this->config->GetRipplePulsePeriod(animationType);
     }
     
     doc.shrinkToFit();
 
-    size_t n = serializeJson(doc, this->publishJSONBuffer, PublishJSONBufferSize);
+    size_t n = serializeJson(doc, this->publishJsonBuffer, PublishJsonBufferSize);
 
-    this->mqttClient.publish(MQTTStateTopic.c_str(), (const uint8_t*)&this->publishJSONBuffer, n, false);
+    this->mqttClient.publish(MQTTStateTopic, (const uint8_t*)&this->publishJsonBuffer, n, false);
 }
 
 void MQTTClient::PublishDeviceDiscovery()
 {   
-    this->logger->Debug("Publish to home assistant discovery MQTT topic");
-
-    String deviceID = this->GetDeviceID();
-
-    this->PublishFPSSensorDiscovery(deviceID);
-    this->PublishAnimationSpeedDiscoveries(deviceID);
-    this->PublishRippleLifespanDiscoveries(deviceID);
-    this->PublishRipplePulsePeriodDiscoveries(deviceID);
-    this->PublishRippleDecayDiscoveries(deviceID);
-    this->PublishLightDiscovery(deviceID);
+    this->PublishFPSSensorDiscovery();
+    this->PublishLightDiscovery();
+    this->PublishRipplePulsePeriodDiscoveries();
+    this->PublishRippleDecayDiscoveries();
+    this->PublishAnimationSpeedDiscoveries();
+    this->PublishRippleLifespanDiscoveries();
 }
 
-void MQTTClient::PublishFPSSensorDiscovery(String deviceID)
+void MQTTClient::PublishFPSSensorDiscovery()
 {
-    String uniqueID = "chrfps1";
-    String topic = this->GetDiscoveryTopic("sensor", deviceID, uniqueID);
+    String uniqueID = String("chrfps1");
+    String topic = this->GetDiscoveryTopic("sensor", uniqueID);
     JsonDocument doc;
 
     doc["~"] = MQTTBaseTopic;
@@ -428,45 +443,74 @@ void MQTTClient::PublishFPSSensorDiscovery(String deviceID)
     doc["uniq_id"] = uniqueID;
     doc["stat_t"] = MQTTStateRoute;
     doc["stat_cla"] = "measurement";
-    doc["value_template"] = "{{ value_json.fps }}";
+    doc["val_tpl"] = "{{ value_json.fps }}";
     doc["dev_cla"] = "frequency";
     doc["unit_of_meas"] = "Hz";
     
     this->PublishDocument(doc, topic.c_str());
 }
 
-void PublishAnimationSpeedDiscoveries(String deviceID)
+void MQTTClient::PublishAnimationSpeedDiscoveries()
 {
-
+    for (uint32_t i = 2; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
+    {
+        this->PublishAnimationSpeedDiscovery((AnimationType)i);
+    }
 }
 
-void PublishRippleLifespanDiscoveries(String deviceID)
+void MQTTClient::PublishRippleLifespanDiscoveries()
 {
-
+    for (uint32_t i = 2; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
+    {
+        this->PublishRippleLifespanDiscovery((AnimationType)i);
+    }
 }
 
-void PublishRipplePulsePeriodDiscoveries(String deviceID)
+void MQTTClient::PublishRipplePulsePeriodDiscoveries()
 {
-
+    for (uint32_t i = 2; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
+    {
+        this->PublishRipplePulsePeriodDiscovery((AnimationType)i);
+    }
 }
 
-void PublishRippleDecayDiscoveries(String deviceID)
+void MQTTClient::PublishRippleDecayDiscoveries()
 {
-
+    for (uint32_t i = 2; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
+    {
+        this->PublishRippleDecayDiscovery((AnimationType)i);
+    }
 }
 
-
-void MQTTClient::PublishLightDiscovery(String deviceID)
+void MQTTClient::PublishAnimationSpeedDiscovery(AnimationType animationType)
 {
-    String uniqueID = "chrlight1";
-    String topic = this->GetDiscoveryTopic("light", deviceID, uniqueID);
+    String uniqueID;
+    uniqueID += String("chrspd");
+    uniqueID += String(animationType);
+
+    String topic = this->GetDiscoveryTopic("number", uniqueID);
+
+    String name;
+    name += this->animationController->GetAnimation(animationType)->GetName();
+    name += String(" Speed");
+
+    String valueTemplate;
+    valueTemplate += String("{{ value_json.");
+    valueTemplate += this->config->GetAnimationSpeedKey(animationType);
+    valueTemplate += String(" }}");
+
+    String commandTemplate;
+    commandTemplate += String("{ \"");
+    commandTemplate += this->config->GetAnimationSpeedKey(animationType);
+    commandTemplate += String("\": {{ value }} }");
+
     JsonDocument doc;
-
     doc["~"] = MQTTBaseTopic;
     doc["avty_t"] = MQTTStateRoute;
     doc["avty_tpl"] = "{{ value_json.availability }}";
     doc["pl_avail"] = "1";
     doc["pl_not_avail"] = "0";
+
     JsonObject device = doc["dev"].to<JsonObject>();
     device["name"] = ChromanceNameCapitalized;
     device["mf"] = "Voidstar Lab";
@@ -474,10 +518,207 @@ void MQTTClient::PublishLightDiscovery(String deviceID)
     device["sw"] = "v1.0.0";
     device["hw"] = "v1.0.0";
     device["sa"] = "Study";
+    
     JsonArray ids = device["ids"].to<JsonArray>();
     ids.add("chr");
 
-    doc["name"] = "LED strips";
+    doc["name"] = name;
+    doc["uniq_id"] = uniqueID;
+    doc["stat_t"] = MQTTStateRoute;
+    doc["cmd_t"] = MQTTCommandRoute;
+    doc["cmd_tpl"] = commandTemplate;
+    doc["min"] = 0.01f;
+    doc["max"] = 10.0f;
+    doc["step"] = 0.01f;
+    doc["val_tpl"] = valueTemplate;
+    
+    this->PublishDocument(doc, topic.c_str());
+}
+
+void MQTTClient::PublishRippleLifespanDiscovery(AnimationType animationType)
+{
+    String uniqueID;
+    uniqueID += String("chrlfsp");
+    uniqueID += String(animationType);
+
+    String topic = this->GetDiscoveryTopic("number", uniqueID);
+
+    String name;
+    name += this->animationController->GetAnimation(animationType)->GetName();
+    name += String(" Lifespan");
+
+    String valueTemplate;
+    valueTemplate += String("{{ value_json.");
+    valueTemplate += this->config->GetRippleLifespanKey(animationType);
+    valueTemplate += String(" }}");
+
+    String commandTemplate;
+    commandTemplate += String("{ \"");
+    commandTemplate += this->config->GetRippleLifespanKey(animationType);
+    commandTemplate += String("\": {{ value }} }");
+
+    JsonDocument doc;
+    doc["~"] = MQTTBaseTopic;
+    doc["avty_t"] = MQTTStateRoute;
+    doc["avty_tpl"] = "{{ value_json.availability }}";
+    doc["pl_avail"] = "1";
+    doc["pl_not_avail"] = "0";
+
+    JsonObject device = doc["dev"].to<JsonObject>();
+    device["name"] = ChromanceNameCapitalized;
+    device["mf"] = "Voidstar Lab";
+    device["mdl"] = ChromanceNameCapitalized;
+    device["sw"] = "v1.0.0";
+    device["hw"] = "v1.0.0";
+    device["sa"] = "Study";
+
+    JsonArray ids = device["ids"].to<JsonArray>();
+    ids.add("chr");
+
+    doc["name"] = name;
+    doc["uniq_id"] = uniqueID;
+    doc["stat_t"] = MQTTStateRoute;
+    doc["cmd_t"] = MQTTCommandRoute;
+    doc["cmd_tpl"] = commandTemplate;
+    doc["min"] = 1UL;
+    doc["max"] = 30000UL;
+    doc["step"] = 1UL;
+    doc["val_tpl"] = valueTemplate;
+    
+    this->PublishDocument(doc, topic.c_str());
+}
+
+void MQTTClient::PublishRipplePulsePeriodDiscovery(AnimationType animationType)
+{
+    String uniqueID;
+    uniqueID += String("chrplsprd");
+    uniqueID += String(animationType);
+
+    String topic = this->GetDiscoveryTopic("number", uniqueID);
+
+    String name;
+    name += this->animationController->GetAnimation(animationType)->GetName();
+    name += String(" Pulse Period");
+
+    String valueTemplate;
+    valueTemplate += String("{{ value_json.");
+    valueTemplate += this->config->GetRipplePulsePeriodKey(animationType);
+    valueTemplate += String(" }}");
+
+    String commandTemplate;
+    commandTemplate += String("{ \"");
+    commandTemplate += this->config->GetRipplePulsePeriodKey(animationType);
+    commandTemplate += String("\": {{ value }} }");
+
+    JsonDocument doc;
+    doc["~"] = MQTTBaseTopic;
+    doc["avty_t"] = MQTTStateRoute;
+    doc["avty_tpl"] = "{{ value_json.availability }}";
+    doc["pl_avail"] = "1";
+    doc["pl_not_avail"] = "0";
+
+    JsonObject device = doc["dev"].to<JsonObject>();
+    device["name"] = ChromanceNameCapitalized;
+    device["mf"] = "Voidstar Lab";
+    device["mdl"] = ChromanceNameCapitalized;
+    device["sw"] = "v1.0.0";
+    device["hw"] = "v1.0.0";
+    device["sa"] = "Study";
+
+    JsonArray ids = device["ids"].to<JsonArray>();
+    ids.add("chr");
+
+    doc["name"] = name;
+    doc["uniq_id"] = uniqueID;
+    doc["stat_t"] = MQTTStateRoute;
+    doc["cmd_t"] = MQTTCommandRoute;
+    doc["cmd_tpl"] = commandTemplate;
+    doc["min"] = 1UL;
+    doc["max"] = 30000UL;
+    doc["step"] = 1UL;
+    doc["val_tpl"] = valueTemplate;
+    
+    this->PublishDocument(doc, topic.c_str());
+}
+
+void MQTTClient::PublishRippleDecayDiscovery(AnimationType animationType)
+{
+    String uniqueID;
+    uniqueID += String("chrdcy");
+    uniqueID += String(animationType);
+
+    String topic = this->GetDiscoveryTopic("number", uniqueID);
+
+    String name;
+    name += this->animationController->GetAnimation(animationType)->GetName();
+    name += String(" Decay");
+
+    String valueTemplate;
+    valueTemplate += String("{{ value_json.");
+    valueTemplate += this->config->GetRippleDecayKey(animationType);
+    valueTemplate += String(" }}");
+
+    String commandTemplate;
+    commandTemplate += String("{ \"");
+    commandTemplate += this->config->GetRippleDecayKey(animationType);
+    commandTemplate += String("\": {{ value }} }");
+
+    JsonDocument doc;
+    doc["~"] = MQTTBaseTopic;
+    doc["avty_t"] = MQTTStateRoute;
+    doc["avty_tpl"] = "{{ value_json.availability }}";
+    doc["pl_avail"] = "1";
+    doc["pl_not_avail"] = "0";
+
+    JsonObject device = doc["dev"].to<JsonObject>();
+    device["name"] = ChromanceNameCapitalized;
+    device["mf"] = "Voidstar Lab";
+    device["mdl"] = ChromanceNameCapitalized;
+    device["sw"] = "v1.0.0";
+    device["hw"] = "v1.0.0";
+    device["sa"] = "Study";
+
+    JsonArray ids = device["ids"].to<JsonArray>();
+    ids.add("chr");
+
+    doc["name"] = name;
+    doc["uniq_id"] = uniqueID;
+    doc["stat_t"] = MQTTStateRoute;
+    doc["cmd_t"] = MQTTCommandRoute;
+    doc["cmd_tpl"] = commandTemplate;
+    doc["min"] = 0U;
+    doc["max"] = 255U;
+    doc["step"] = 1U;
+    doc["val_tpl"] = valueTemplate;
+    
+    this->PublishDocument(doc, topic.c_str());
+}
+
+
+void MQTTClient::PublishLightDiscovery()
+{
+    String uniqueID = String("chrlight1");
+    String topic = this->GetDiscoveryTopic("light", uniqueID);
+    
+    JsonDocument doc;
+    doc["~"] = MQTTBaseTopic;
+    doc["avty_t"] = MQTTStateRoute;
+    doc["avty_tpl"] = "{{ value_json.availability }}";
+    doc["pl_avail"] = "1";
+    doc["pl_not_avail"] = "0";
+
+    JsonObject device = doc["dev"].to<JsonObject>();
+    device["name"] = ChromanceNameCapitalized;
+    device["mf"] = "Voidstar Lab";
+    device["mdl"] = ChromanceNameCapitalized;
+    device["sw"] = "v1.0.0";
+    device["hw"] = "v1.0.0";
+    device["sa"] = "Study";
+
+    JsonArray ids = device["ids"].to<JsonArray>();
+    ids.add("chr");
+
+    doc["name"] = ChromanceNameCapitalized;
     doc["uniq_id"] = uniqueID;
     doc["stat_t"] = MQTTStateRoute;
     doc["cmd_t"] = MQTTCommandRoute;
@@ -485,17 +726,14 @@ void MQTTClient::PublishLightDiscovery(String deviceID)
     doc["color_temp"] = false;
     doc["brightness"] = true;
     doc["effect"] = true;
+
     JsonArray effects = doc["effect_list"].to<JsonArray>();
-    effects.add("Center Pulse");
-    effects.add("Cube Pulse");
-    effects.add("Pulse");
-    effects.add("Rainbow Beat");
-    effects.add("Rainbow March");
     effects.add("Random");
-    effects.add("Random Pulse");
-    effects.add("Star Burst Pulse");
-    effects.add("Strip Test");
-    effects.add("Around the World");
+
+    for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
+    {
+        effects.add(this->animationController->GetAnimation((AnimationType)i)->GetName());
+    }
     
     this->PublishDocument(doc, topic.c_str());
 }
@@ -503,20 +741,37 @@ void MQTTClient::PublishLightDiscovery(String deviceID)
 void MQTTClient::PublishDocument(JsonDocument doc, const char* topic)
 {
     doc.shrinkToFit();
-    size_t n = serializeJson(doc, this->publishJSONBuffer, PublishJSONBufferSize);
-    this->mqttClient.publish(topic, (const uint8_t*)&this->publishJSONBuffer, n, false);
+    size_t n = serializeJson(doc, this->publishJsonBuffer, PublishJsonBufferSize);
+    this->mqttClient.publish(topic, (const uint8_t*)&this->publishJsonBuffer, n, false);
 }
 
-String MQTTClient::GetDeviceID()
+String MQTTClient::GetDiscoveryTopic(const char* entityType, String uniqueID)
 {
-    uint8_t mac[6];
-    WiFi.macAddress(mac);
-    String deviceID = String(mac[0], HEX) + String(mac[1], HEX) + String(mac[2], HEX) + String(mac[3], HEX) + String(mac[4], HEX) + String(mac[5], HEX);
+    String topic;
+    topic.reserve(128);
+    topic += String("homeassistant/");
+    topic += String(entityType);
+    topic += String("/");
+    topic += String(ChromanceNameLowercase);
+    topic += String("/");
+    topic += this->deviceID;
+    topic += uniqueID;
+    topic += String("/config");
 
-    return deviceID;
+    return topic;
 }
 
-String MQTTClient::GetDiscoveryTopic(String entityType, String deviceID, String uniqueID)
+ChromanceState MQTTClient::GetChromanceState()
 {
-    return "homeassistant/" + entityType + "/" + ChromanceNameLowercase + "/" + deviceID + uniqueID + "/config";
+    ChromanceState chromanceState;
+
+    chromanceState.animationStatus = this->animationController->GetAnimationStatus();
+    chromanceState.animationType = this->animationController->GetAnimationType();
+    chromanceState.brightness = this->animationController->GetBrightness();
+    chromanceState.fps = this->animationController->GetFPS();
+    chromanceState.effect = chromanceState.animationType == ANIMATION_TYPE_RANDOM_ANIMATION ? 
+        "Random" :
+        this->animationController->GetAnimation(chromanceState.animationType)->GetName();
+
+    return chromanceState;
 }

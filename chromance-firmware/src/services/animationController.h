@@ -33,6 +33,7 @@ namespace Chromance
             uint8_t GetBrightness();
             void SetBrightness(uint8_t value);
             uint32_t GetFPS();
+            Animation* GetAnimation(AnimationType animationType);
 
         private:
 

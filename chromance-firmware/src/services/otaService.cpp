@@ -12,7 +12,7 @@ void OTAService::Setup()
 {
     this->logger->Info("Start OTA server");
 
-    ArduinoOTA.setHostname(ChromanceNameLowercase.c_str());
+    ArduinoOTA.setHostname(ChromanceNameLowercase);
     ArduinoOTA.setPassword(OTAPassword);
 
     ArduinoOTA.onStart
