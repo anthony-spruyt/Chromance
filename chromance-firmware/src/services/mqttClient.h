@@ -33,10 +33,6 @@ namespace Chromance
             void PublishState(ChromanceState state);
             void PublishDeviceDiscovery();
             void PublishFPSSensorDiscovery();
-            void PublishAnimationSpeedDiscoveries();
-            void PublishRippleLifespanDiscoveries();
-            void PublishRipplePulsePeriodDiscoveries();
-            void PublishRippleDecayDiscoveries();
             void PublishAnimationSpeedDiscovery(AnimationType animationType);
             void PublishRippleLifespanDiscovery(AnimationType animationType);
             void PublishRipplePulsePeriodDiscovery(AnimationType animationType);

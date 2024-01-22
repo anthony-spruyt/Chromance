@@ -9,7 +9,8 @@ RainbowMarchAnimation::RainbowMarchAnimation(int32_t id, Config* config, Logger*
 
 void RainbowMarchAnimation::Loop()
 {
-    uint8_t hue = beat8(RainbowAnimationSpeed, 255U);
+    uint16_t speed = this->GetSpeed() * RainbowMarchAnimationSpeed;
+    uint8_t hue = beat8(speed, 255U);
   
-    fill_rainbow(&this->leds[0], NumberOfLEDs, hue, RainbowAnimationHueDelta);
+    fill_rainbow(&this->leds[0], NumberOfLEDs, hue, RainbowMarchAnimationHueDelta);
 }

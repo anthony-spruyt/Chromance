@@ -22,6 +22,7 @@ namespace Chromance
             CRGB* GetBuffer();
             AnimationStatus GetStatus();
             virtual void Transition();
+            virtual bool IsRippleAnimation();
 
         protected:
 

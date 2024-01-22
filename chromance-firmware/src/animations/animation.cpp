@@ -97,6 +97,11 @@ void Animation::Transition()
     }
 }
 
+bool Animation::IsRippleAnimation()
+{
+    return false;
+}
+
 void Animation::Fade()
 {
     if (this->transitionScale == 0)

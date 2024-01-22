@@ -9,7 +9,8 @@ RainbowBeatAnimation::RainbowBeatAnimation(int32_t id, Config* config, Logger* l
 
 void RainbowBeatAnimation::Loop()
 {
-    uint8_t hue = beatsin8(RainbowAnimationSpeed, 0U, 255U);
+    uint16_t speed = this->GetSpeed() * RainbowBeatAnimationSpeed;
+    uint8_t hue = beatsin8(speed, 0U, 255U);
   
-    fill_rainbow(&this->leds[0], NumberOfLEDs, hue, RainbowAnimationHueDelta);
+    fill_rainbow(&this->leds[0], NumberOfLEDs, hue, RainbowBeatAnimationHueDelta);
 }

@@ -21,6 +21,8 @@ namespace Chromance
 
             void Loop() override;
             virtual void Start() = 0;
+            bool IsRippleAnimation() override;
+
 
         protected:
 

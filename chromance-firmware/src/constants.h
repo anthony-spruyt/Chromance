@@ -104,9 +104,16 @@ namespace Chromance
      * The frequency of the wave, in decimal
      * ANSI: unsigned short _Accum. 8 bits int, 8 bits fraction
     */
-    static const uint16_t RainbowAnimationSpeed = 10U;
+    static const uint16_t RainbowBeatAnimationSpeed = 10U;
+    /**
+     * The frequency of the wave, in decimal
+     * ANSI: unsigned short _Accum. 8 bits int, 8 bits fraction
+    */
+    static const uint16_t RainbowMarchAnimationSpeed = 10U;
     // How many hue values to advance for each LED
-    static const uint8_t RainbowAnimationHueDelta = 5U;
+    static const uint8_t RainbowBeatAnimationHueDelta = 5U;
+    // How many hue values to advance for each LED
+    static const uint8_t RainbowMarchAnimationHueDelta = 5U;
 
     //////////////////////////////////////////
     // ANIMATIONS - PULSE

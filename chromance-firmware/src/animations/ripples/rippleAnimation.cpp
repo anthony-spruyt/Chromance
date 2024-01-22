@@ -45,6 +45,11 @@ void RippleAnimation::Loop()
     }
 }
 
+bool RippleAnimation::IsRippleAnimation()
+{
+    return true;
+}
+
 unsigned long RippleAnimation::GetLifespan()
 {
     return this->config->GetRippleLifespan(this->GetAnimationType());

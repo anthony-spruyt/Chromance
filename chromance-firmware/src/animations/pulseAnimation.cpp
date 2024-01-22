@@ -10,7 +10,8 @@ PulseAnimation::PulseAnimation(int32_t id, Config* config, Logger* logger) :
 
 void PulseAnimation::Loop()
 {
-    uint8_t scale = beatsin8(PulseAnimationSpeed, PulseAnimationMinBrightness, PulseAnimationMaxBrightness);
+    uint16_t speed = this->GetSpeed() * PulseAnimationSpeed;
+    uint8_t scale = beatsin8(speed, PulseAnimationMinBrightness, PulseAnimationMaxBrightness);
     fill_solid(this->leds, NumberOfLEDs, this->color);
     nscale8_video(this->leds, NumberOfLEDs, scale);
 }

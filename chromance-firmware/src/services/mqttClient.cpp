@@ -412,10 +412,23 @@ void MQTTClient::PublishDeviceDiscovery()
 {   
     this->PublishFPSSensorDiscovery();
     this->PublishLightDiscovery();
-    this->PublishRipplePulsePeriodDiscoveries();
-    this->PublishRippleDecayDiscoveries();
-    this->PublishAnimationSpeedDiscoveries();
-    this->PublishRippleLifespanDiscoveries();
+
+    AnimationType animationType;
+
+    for (uint32_t i = 2; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
+    {
+        animationType = (AnimationType)i;
+
+        this->PublishAnimationSpeedDiscovery(animationType);
+
+        if (this->animationController->GetAnimation(animationType)->IsRippleAnimation())
+        {
+            this->PublishRipplePulsePeriodDiscovery(animationType);
+            this->PublishRipplePulsePeriodDiscovery(animationType);
+            this->PublishRippleDecayDiscovery(animationType);
+            this->PublishRippleLifespanDiscovery(animationType);
+        }
+    }
 }
 
 void MQTTClient::PublishFPSSensorDiscovery()
@@ -448,38 +461,6 @@ void MQTTClient::PublishFPSSensorDiscovery()
     doc["unit_of_meas"] = "Hz";
     
     this->PublishDocument(doc, topic.c_str());
-}
-
-void MQTTClient::PublishAnimationSpeedDiscoveries()
-{
-    for (uint32_t i = 2; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
-    {
-        this->PublishAnimationSpeedDiscovery((AnimationType)i);
-    }
-}
-
-void MQTTClient::PublishRippleLifespanDiscoveries()
-{
-    for (uint32_t i = 2; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
-    {
-        this->PublishRippleLifespanDiscovery((AnimationType)i);
-    }
-}
-
-void MQTTClient::PublishRipplePulsePeriodDiscoveries()
-{
-    for (uint32_t i = 2; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
-    {
-        this->PublishRipplePulsePeriodDiscovery((AnimationType)i);
-    }
-}
-
-void MQTTClient::PublishRippleDecayDiscoveries()
-{
-    for (uint32_t i = 2; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
-    {
-        this->PublishRippleDecayDiscovery((AnimationType)i);
-    }
 }
 
 void MQTTClient::PublishAnimationSpeedDiscovery(AnimationType animationType)
@@ -718,7 +699,7 @@ void MQTTClient::PublishLightDiscovery()
     JsonArray ids = device["ids"].to<JsonArray>();
     ids.add("chr");
 
-    doc["name"] = ChromanceNameCapitalized;
+    doc["name"] = "LED Controller";
     doc["uniq_id"] = uniqueID;
     doc["stat_t"] = MQTTStateRoute;
     doc["cmd_t"] = MQTTCommandRoute;
