@@ -63,13 +63,13 @@ void Animation::Transition()
 {
     if (this->status == ANIMATION_STATUS_WAKING_UP)
     {
-        if (this->transitionScale < 255 - AnimationTransitionSpeed)
+        if (this->transitionScale < UINT8_MAX - AnimationTransitionSpeed)
         {
             this->transitionScale += AnimationTransitionSpeed;
         }
         else
         {
-            this->transitionScale = 255;
+            this->transitionScale = UINT8_MAX;
             this->status = ANIMATION_STATUS_PLAYING;
         }
 
@@ -108,7 +108,7 @@ void Animation::Fade()
     {
         fill_solid(this->leds, NumberOfLEDs, CRGB::Black);
     }
-    else if (this->transitionScale != 255)
+    else if (this->transitionScale != UINT8_MAX)
     {
         nscale8(this->leds, NumberOfLEDs, this->transitionScale);
     }

@@ -12,7 +12,7 @@ CubePulseAnimation::CubePulseAnimation(int32_t id, RipplePool* ripplePool, Confi
 void CubePulseAnimation::Start()
 {   
     uint8_t node = this->cubeNodes[random(NumberOfCubeNodes)];
-    CHSV color = CHSV(random8(), 255U, 255U);
+    CHSV color = CHSV(random8(), UINT8_MAX, UINT8_MAX);
 
     while (node == this->lastPulseNode)
     {

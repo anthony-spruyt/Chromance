@@ -345,7 +345,7 @@ void AnimationController::Render()
             goingToSleepAnimation = activeAnimations[goingToSleepIndex];
             goingToSleepAnimationBuffer = activeAnimations[goingToSleepIndex]->GetBuffer();
 
-            if (this->transitionScale <= 255U - AnimationTransitionSpeed)
+            if (this->transitionScale <= UINT8_MAX - AnimationTransitionSpeed)
             {
                 this->transitionScale += AnimationTransitionSpeed;
 

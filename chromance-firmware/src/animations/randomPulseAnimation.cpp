@@ -39,7 +39,7 @@ void RandomPulseAnimation::Start()
         (
             node,
             i,
-            CHSV(random8(), 255U, 255U),
+            CHSV(random8(), UINT8_MAX, UINT8_MAX),
             speed,
             this->GetLifespan(),
             RIPPLE_BEHAVIOR_FEISTY

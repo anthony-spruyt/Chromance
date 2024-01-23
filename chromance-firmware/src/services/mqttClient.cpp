@@ -18,7 +18,7 @@ MQTTClient::MQTTClient(Logger* logger, Config* config, AnimationController* anim
     {
         this->publishQueue[i].state.animationStatus = ANIMATION_STATUS_SLEEPING;
         this->publishQueue[i].state.animationType = ANIMATION_TYPE_RANDOM_ANIMATION;
-        this->publishQueue[i].state.brightness = 255U;
+        this->publishQueue[i].state.brightness = UINT8_MAX;
         this->publishQueue[i].state.fps = 0U;
         this->publishQueue[i].publishedAt = 0U;
     }
@@ -668,7 +668,7 @@ void MQTTClient::PublishRippleDecayDiscovery(AnimationType animationType)
     doc["cmd_t"] = MQTTCommandRoute;
     doc["cmd_tpl"] = commandTemplate;
     doc["min"] = 0U;
-    doc["max"] = 255U;
+    doc["max"] = UINT8_MAX;
     doc["step"] = 1U;
     doc["val_tpl"] = valueTemplate;
     

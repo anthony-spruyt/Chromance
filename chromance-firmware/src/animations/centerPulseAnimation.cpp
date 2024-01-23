@@ -10,7 +10,7 @@ CenterPulseAnimation::CenterPulseAnimation(int32_t id, RipplePool* ripplePool, C
 
 void CenterPulseAnimation::Start()
 {
-    CHSV color = CHSV(random8(), 255U, 255U);    
+    CHSV color = CHSV(random8(), UINT8_MAX, UINT8_MAX);    
     float speed = random(100) / 100.0f * 0.3f + this->GetSpeed();
     Ripple* ripple;
 

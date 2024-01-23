@@ -31,7 +31,7 @@ void StarBurstPulseAnimation::Start()
         (
             CenterNode,
             i,
-            CHSV(baseColor + (0xFFFF / 6) * i, 255U, 255U),
+            CHSV(baseColor + (0xFFFF / 6) * i, UINT8_MAX, UINT8_MAX),
             this->GetSpeed(),
             this->GetLifespan(),
             behavior

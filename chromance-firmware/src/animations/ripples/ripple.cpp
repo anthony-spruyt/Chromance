@@ -383,20 +383,12 @@ void Ripple::Render(CRGB* leds, unsigned long age)
                         RedStripOffset :
                         BlackStripOffset;
     float p = (float)age / (float)lifespan;
-    uint8_t scale = p > 0.99f ? 0 : UINT8_MAX - (uint8_t)(p * UINT8_MAX);
-    uint8_t minS = 150U;
-    uint8_t sScale = scale > minS ? scale : minS;
-    CRGB agedColor = CHSV(this->color.hue, sScale, 255U);
+    uint8_t minHue = 168U;
+    uint8_t scale = p * (UINT8_MAX - minHue) + minHue;
+    CRGB agedColor = CHSV(this->color.hue, scale, UINT8_MAX);
     uint16_t index = offset + led;
 
-    if
-    (
-        index < NumberOfLEDs &&
-        (
-            leds[index] == CRGB::Black ||
-            agedColor.getLuma() > leds[index].getLuma()
-        )
-    )
+    if (index < NumberOfLEDs)
     {
         leds[index] = agedColor;
     }

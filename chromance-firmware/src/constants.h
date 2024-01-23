@@ -126,7 +126,7 @@ namespace Chromance
     */
     static const uint16_t PulseAnimationSpeed = 10U;
     static const uint8_t PulseAnimationMinBrightness = 30U;
-    static const uint8_t PulseAnimationMaxBrightness = 255U;
+    static const uint8_t PulseAnimationMaxBrightness = UINT8_MAX;
     static const uint8_t PulseAnimationNumberOfColors = 7U;
     // Hex color codes
     static const uint32_t PulseAnimationColors[PulseAnimationNumberOfColors] =
