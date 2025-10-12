@@ -78,7 +78,7 @@ namespace Chromance
     static const uint32_t NumberOfLEDs = BlueStripLength + GreenStripLength + RedStripLength + BlackStripLength;
     static const uint32_t MaxRefreshRate = 120U;
     static const uint8_t StartupBrightness = 1U;
-    static const uint32_t StartupDelay = 5000U;
+    static const uint32_t StartupDelay = 500U;
     static const uint32_t BlueStripIndex = 0U;
     static const uint32_t GreenStripIndex = 1U;
     static const uint32_t RedStripIndex = 2U;

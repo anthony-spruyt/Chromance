@@ -71,7 +71,7 @@ namespace Chromance
 
 ## OTA Updates
 
-Crete a file in the chromance-formware folder with the name `platformioSecrets.ini`
+Create a file in the chromance-formware folder with the name `platformioSecrets.ini`
 
 ```ini
 ; applies to all environments
@@ -85,3 +85,13 @@ upload_flags =
 ## How to make an animation
 
 To create your own animations you will want to look at the [map.h](src/animations/ripples/map.h) file and the [ripple.cpp](src/animations/ripples/ripple.cpp) file to a lesser extent.  This repository contains a [mapping.jpeg](mapping.jpeg) that shows each nodes number and the segment numbers.  You can use this image to make sense of the `NodeConnections`, `SegmentConnections`, `BorderNodes`, `CubeNodes`, `FunNodes`, and `StarBurstNode` variables in [`map.h`](src/animations/ripples/map.h)
+
+## USB Updates via VSCode dev container
+
+https://learn.microsoft.com/en-us/windows/wsl/connect-usb
+
+Install usbipd
+
+> usbipd bind --busid 9-2
+
+> usbipd attach --wsl --busid 9-2

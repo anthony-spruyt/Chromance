@@ -1,0 +1,38 @@
+{
+	"name": "PlatformIO (Community)",
+	"build": {
+		"dockerfile": "Containerfile",
+		"context": ".",
+		"args": {
+			"FEDORA_COMPAT" : "1", // enables fedora compatibility mode (extra dialout group with gid 18)
+			"VARIANT": "bookworm"
+		}
+	},
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "zsh"
+			},
+			"extensions": [
+                "ms-vscode.cpptools",
+                "platformio.platformio-ide",
+                "pbkit.vscode-pbkit",
+                "jeff-hykin.better-cpp-syntax",
+                "VisualStudioExptTeam.vscodeintellicode-completions"
+			]
+		}
+	},
+	"forwardPorts": [
+		8008
+	],
+	"mounts": [
+		"source=/dev/,target=/dev/,type=bind,consistency=consistent"
+	],
+	"runArgs": [
+		"--privileged",
+        "-v",
+        "/dev/bus/usb:/dev/bus/usb"
+	],
+	"features": {},
+	"postAttachCommand": "sudo service udev restart"
+}
