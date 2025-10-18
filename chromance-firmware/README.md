@@ -95,3 +95,6 @@ Install usbipd
 > usbipd bind --busid 9-2
 
 > usbipd attach --wsl --busid 9-2
+
+
+OTA DOES NOT WORK IN A DEV CONTAINER!! Run it on host directly, make sure python 3 is installed
