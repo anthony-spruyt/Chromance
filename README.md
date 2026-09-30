@@ -127,6 +127,62 @@ Then run `pio run -e esp32dev -t upload`. This POSTs the firmware to the device'
 
 `esp32rc` still uses ArduinoOTA (espota) as a fallback. espota needs the device to connect back to the uploader, so it does not work from a dev container or from WSL in NAT networking mode.
 
+### Home Assistant / MQTT
+
+The Chromance connects to the MQTT broker set in `secrets.h` and registers itself with Home Assistant through [MQTT discovery](https://www.home-assistant.io/integrations/mqtt/#mqtt-discovery). Add the [MQTT integration](https://www.home-assistant.io/integrations/mqtt/) to Home Assistant, pointed at the same broker and using the default `homeassistant` discovery prefix, and a **Chromance** device appears automatically. Discovery is sent again whenever Home Assistant restarts (it listens on `homeassistant/status`).
+
+The device has these entities:
+
+- **LED Controller** (light): on/off, brightness, and an effect list with `Random` plus every animation. `Random` switches to a random animation every 30 seconds (`RandomAnimationDuration` in [constants.h](src/constants.h)).
+- **FPS** (sensor): current frame rate.
+- **\<Animation\> Speed** (number, 0.01–10): per-animation speed multiplier.
+- **\<Animation\> Pulse Period**, **Decay** and **Lifespan** (numbers): ripple animations only. Pulse Period (ms) is how often new ripples start, Lifespan (ms) is how long a ripple lives, and Decay (0–255) is how much of the trail is kept each frame: higher values leave longer trails.
+
+The suggested area (`Study`) and the device info are hard-coded in [mqttClient.cpp](src/services/mqttClient.cpp).
+
+Settings changed from Home Assistant are saved in the ESP32's flash (NVS), so they survive reboots and firmware updates.
+
+#### Topics
+
+| Topic | Direction | Payload |
+|---|---|---|
+| `chromance/v1/command` | to device | JSON command, see below |
+| `chromance/v1/state` | from device | JSON state. Published every 5 s while on, every 15 s while off, and right after a command changes something. It is also the availability topic: the broker's last will sets `"availability": "0"` when the device drops off. |
+| `homeassistant/status` | to device | `online` makes the device re-send discovery |
+
+#### Commands
+
+Send any combination of these keys in one JSON object to `chromance/v1/command`:
+
+```json
+{ "state": "ON", "brightness": 128, "effect": "Cube Pulse" }
+```
+
+| Key | Value |
+|---|---|
+| `state` | `"ON"` or `"OFF"` (fades in/out) |
+| `brightness` | 0–255 |
+| `effect` | `"Random"` or an animation name from the table below |
+| `reboot` | any value restarts the device |
+| `as<N>` | speed multiplier for animation `N` (default 1.0) |
+| `rp<N>` | ripple pulse period in ms for animation `N` (default 2000) |
+| `rl<N>` | ripple lifespan in ms for animation `N` (default 2000) |
+| `rd<N>` | ripple trail decay 0–255 for animation `N`, higher = longer trails (default 247) |
+
+| `N` | Animation | Ripple |
+|---|---|---|
+| 1 | Strip Test (wiring test, not in `Random`, no Home Assistant sliders) | |
+| 2 | Random Pulse | yes |
+| 3 | Cube Pulse | yes |
+| 4 | Star Burst Pulse | yes |
+| 5 | Center Pulse | yes |
+| 6 | Rainbow Beat | |
+| 7 | Rainbow March | |
+| 8 | Pulse | |
+| 9 | Around the World | yes |
+
+For example, `{ "as3": 2.5, "rl3": 4000 }` makes Cube Pulse faster with longer-lived ripples. `N` is the animation's position in `AnimationType` in [models.h](src/models.h). Don't reorder that enum: saved settings and Home Assistant entity IDs are keyed by these numbers.
+
 ### How to make an animation
 
 To create your own animations you will want to look at the [map.h](src/animations/ripples/map.h) file and the [ripple.cpp](src/animations/ripples/ripple.cpp) file to a lesser extent.  This repository contains a [mapping.jpg](mapping.jpg) that shows each nodes number and the segment numbers.  You can use this image to make sense of the `NodeConnections`, `SegmentConnections`, `BorderNodes`, `CubeNodes`, `FunNodes`, and `StarBurstNode` variables in [`map.h`](src/animations/ripples/map.h)
