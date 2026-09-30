@@ -4,7 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository layout
 
-Chromance is hexagonal LED wall art. The hardware design comes from Zack Freedman / Voidstar Lab, and `hardware/` holds those assets (`Models/*.f3d`, `STL's/*.stl`, assembly guide PDF). This repo is a fork: the firmware at the repo root (`platformio.ini`, `src/`) is largely a rewrite by the repo owner and shares little with upstream beyond the hex topology in `map.h`. Its conventions (explicit `this->`, PascalCase methods, `namespace Chromance`, constants in `constants.h`) are deliberate, so match them. It is a PlatformIO project for an ESP32 (Arduino framework, FastLED, PubSubClient, ArduinoJson, ezTime).
+Chromance is hexagonal LED wall art. The hardware design comes from Zack Freedman / Voidstar Lab, and `hardware/` holds those assets (`Models/*.f3d`, `STL's/*.stl`, assembly guide PDF). This repo is a fork: the firmware at the repo root (`platformio.ini`, `src/`) is largely a rewrite by the repo owner and shares little with upstream beyond the hex topology in `map.h`. Its conventions (explicit
+`this->`, PascalCase methods, `namespace Chromance`, constants in `constants.h`) are deliberate, so match them. It is a PlatformIO project for an ESP32 (Arduino framework, FastLED, PubSubClient, ArduinoJson, ezTime).
+
+## Git workflow
+
+This repo uses trunk-based development. Commit straight to `main`. Open a branch and PR only for very large or risky changes, or when asked.
 
 ## Build / upload
 
@@ -21,7 +26,8 @@ pio run -e esp32rc -t upload             # OTA upload via ArduinoOTA/espota (fal
 - There are no tests. `build_src_flags = -Wall -Wextra` applies to `src/` only, and `src/` builds with zero warnings, so keep it that way.
 - Builds need `src/secrets.h`, which is gitignored. It defines `WifiSsid`, `WifiPassword`, `OTAPassword`, `MQTTBroker`, `MQTTPort`, `MQTTUsername` and `MQTTPassword` in `namespace Chromance`. The template is in `README.md`.
 - `platformio.ini` pulls in `platformioSecrets.ini` via `extra_configs`, and the OTA envs `extends = esp32dev-ota`. That section lives in the secrets file, where it supplies the device IP as `upload_port`, `custom_ota_password` for the HTTP upload, and `--port=3232 --auth=<pw>` for espota. `[env]` sets an empty `custom_ota_password` default so builds work without the secrets file.
-- HTTP OTA (`OTAService::SetupHttpOTA`, basic auth `chromance`/`OTAPassword`) works from anywhere that can reach the device, including the dev container. `/update` is routed through `HttpOtaRequestHandler`, not `server.on(uri, method, fn, uploadFn)`. In this WebServer version a registered upload callback is also called for non-multipart POSTs, where `server.upload()` dereferences null and reboots the device. Don't add upload routes with `server.on`. espota does not work from a dev container or NAT-mode WSL, because the device connects back to the uploader. USB works from the WSL host once the device is passed through with `usbipd`. The synced dev container has no USB passthrough.
+- HTTP OTA (`OTAService::SetupHttpOTA`, basic auth `chromance`/`OTAPassword`) works from anywhere that can reach the device, including the dev container. `/update` is routed through `HttpOtaRequestHandler`, not `server.on(uri, method, fn, uploadFn)`. In this WebServer version a registered upload callback is also called for non-multipart POSTs, where `server.upload()` dereferences null and reboots
+  the device. Don't add upload routes with `server.on`. espota does not work from a dev container or NAT-mode WSL, because the device connects back to the uploader. USB works from the WSL host once the device is passed through with `usbipd`. The synced dev container has no USB passthrough.
 - Use `constexpr`, not `static const`, in `src/secrets.h`. With `-Wall`, unused `static const char*` variables warn in every translation unit.
 - `.claude/settings.local.json` denies Claude reading the secrets files, and any Bash command that names them. Mention them only in files edited with Edit/Write, not in shell commands.
 - The repo is onboarded to `anthony-spruyt/repo-operator` (xfg). It syncs root tooling files (`.devcontainer/`, `.vscode/settings.json`, `.pre-commit-config.yaml`, `.claude/`, `.github/renovate.json5`), so change those there, not here. `.devcontainer/setup-devcontainer.sh` is the exception: it is seeded once (`createOnly`) and owned by this repo.
@@ -29,13 +35,15 @@ pio run -e esp32rc -t upload             # OTA upload via ArduinoOTA/espota (fal
 
 ## Architecture
 
-**Tasks (`src/main.cpp`)**: Global service singletons are wired up by constructor injection. `setup()` starts four FreeRTOS tasks and `loop()` is empty. `AnimationControllerTask` runs alone on core 1. WiFi, OTA and MQTT run on core 0. Stack sizes, priorities and cores are in `constants.h`. Define `MONITOR_TASK_STACK_SIZES` in `definitions.h` to log stack usage. Animation rendering pauses while `otaService.IsUpdating()`.
+**Tasks (`src/main.cpp`)**: Global service singletons are wired up by constructor injection. `setup()` starts four FreeRTOS tasks and `loop()` is empty. `AnimationControllerTask` runs alone on core 1. WiFi, OTA and MQTT run on core 0. Stack sizes, priorities and cores are in `constants.h`. Define `MONITOR_TASK_STACK_SIZES` in `definitions.h` to log stack usage. Animation rendering pauses while
+`otaService.IsUpdating()`.
 
 **Headers**: Every file includes `globals.h`, which pulls in `definitions.h` (FastLED `#define`s that must come before `FastLED.h`), `constants.h` (all tunables: pins, strip lengths/offsets, MQTT topics, per-animation enable flags, task config), `secrets.h`, and `models.h` (enums/structs).
 
 **Cross-task communication**: The MQTT task never touches animations directly. It calls `AnimationController::Play/Sleep/Wake`, which set a pending `AnimationRequest` under a mutex. The animation task applies the request in `Loop()` (`xSemaphoreTake(..., 0)`, non-blocking). `MQTTClient::Publish` works the same way, filling a small queue that `MQTTClient::Loop` drains.
 
 **Animations (`src/animations/`)**:
+
 - `Animation` is the base class. Each instance owns its own `CRGB leds[NumberOfLEDs]` buffer and a status (`PLAYING`, `SLEEPING`, `WAKING_UP`, `GOING_TO_SLEEP`).
 - `AnimationController::Render()` loops every non-sleeping animation, then copies a buffer to the real `leds`. During a transition it `blend()`s from the most visible `GOING_TO_SLEEP` animation (highest per-animation `GetTransitionScale()`) to the `WAKING_UP`/`PLAYING` one over the controller's `transitionScale`. Any further fading animations are ignored.
 - In "Random" mode a new animation is picked every `RandomAnimationDuration`.
@@ -44,6 +52,7 @@ pio run -e esp32rc -t upload             # OTA upload via ArduinoOTA/espota (fal
 - LEDs are four physical NEOPIXEL strips (blue/green/red/black) that map into one contiguous array through the offsets in `constants.h`.
 
 **Adding an animation**:
+
 1. Copy `animationTemplate.{h,cpp}`.
 2. Add an `ANIMATION_TYPE_*` entry in `models.h` before `ANIMATION_TYPE_NUMBER_OF_ANIMATIONS`.
 3. Add an `*Enabled` flag in `constants.h`.
@@ -56,6 +65,7 @@ The name string passed to the base constructor becomes the Home Assistant effect
 **Config (`services/config.*`)**: Values persist to ESP32 NVS through `Preferences` (namespace `config`): brightness, sleeping, log level, and per-animation speed / ripple lifespan / pulse period / decay.
 
 **MQTT / Home Assistant (`services/mqttClient.*`)**:
+
 - On connect, and whenever `homeassistant/status` reports `online`, the client publishes HA MQTT discovery configs: a JSON-schema light with an effect list, an FPS sensor, and per-animation `number` entities.
 - Commands arrive as JSON on `chromance/v1/command`. Keys: `state`, `brightness`, `effect`, `reboot`, plus the per-animation config keys.
 - State is published to `chromance/v1/state` periodically (faster while playing than while sleeping).
