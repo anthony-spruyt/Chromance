@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository layout
 
-Chromance is hexagonal LED wall art. The hardware design comes from Zack Freedman / Voidstar Lab, and the repo root holds those assets (`Models/*.f3d`, `STL's/*.stl`, assembly guide PDF). This repo is a fork: the firmware in `chromance-firmware/` is largely a rewrite by the repo owner and shares little with upstream beyond the hex topology in `map.h`. Its conventions (explicit `this->`, PascalCase methods, `namespace Chromance`, constants in `constants.h`) are deliberate, so match them. It is a PlatformIO project for an ESP32 (Arduino framework, FastLED, PubSubClient, ArduinoJson, ezTime).
+Chromance is hexagonal LED wall art. The hardware design comes from Zack Freedman / Voidstar Lab, and `hardware/` holds those assets (`Models/*.f3d`, `STL's/*.stl`, assembly guide PDF). This repo is a fork: the firmware at the repo root (`platformio.ini`, `src/`) is largely a rewrite by the repo owner and shares little with upstream beyond the hex topology in `map.h`. Its conventions (explicit `this->`, PascalCase methods, `namespace Chromance`, constants in `constants.h`) are deliberate, so match them. It is a PlatformIO project for an ESP32 (Arduino framework, FastLED, PubSubClient, ArduinoJson, ezTime).
 
 ## Build / upload
 
-Run from `chromance-firmware/` (PlatformIO CLI `pio`; in the dev container it's at `~/.platformio/penv/bin`):
+Run from the repo root (PlatformIO CLI `pio`; in the dev container it's at `~/.platformio/penv/bin`):
 
 ```sh
 pio run -e esp32dev-usb                  # build (serial logging on, debug build)
@@ -17,10 +17,11 @@ pio device monitor -e esp32dev-usb       # serial monitor, 115200, with exceptio
 pio run -e esp32dev -t upload            # OTA upload (espota) — default env
 ```
 
-- There are no tests or linters.
-- Builds need `src/secrets.h`, which is gitignored. It defines `WifiSsid`, `WifiPassword`, `OTAPassword`, `MQTTBroker`, `MQTTPort`, `MQTTUsername` and `MQTTPassword` in `namespace Chromance`. The template is in `chromance-firmware/README.md`.
+- There are no tests. `build_src_flags = -Wall -Wextra` applies to `src/` only, and `src/` builds with zero warnings, so keep it that way.
+- Builds need `src/secrets.h`, which is gitignored. It defines `WifiSsid`, `WifiPassword`, `OTAPassword`, `MQTTBroker`, `MQTTPort`, `MQTTUsername` and `MQTTPassword` in `namespace Chromance`. The template is in `README.md`.
 - `platformio.ini` pulls in `platformioSecrets.ini` via `extra_configs`, and the OTA envs `extends = esp32dev-ota`. That section lives in the secrets file, where it supplies `--port=3232 --auth=<pw>` along with the device IP as `upload_port`.
 - OTA does not work inside the dev container. Run OTA uploads on the host. USB works in the container once the device is passed through with `usbipd` on WSL.
+- The repo is onboarded to `anthony-spruyt/repo-operator` (xfg). It syncs root tooling files (`.devcontainer/`, `.vscode/settings.json`, `.pre-commit-config.yaml`, `.claude/`, `.github/renovate.json5`), so change those there, not here.
 - `Serial` output only exists when `SERIAL_ENABLED` is defined, which only the `esp32dev-usb` env does. `Logger` is a no-op otherwise.
 
 ## Architecture
@@ -36,7 +37,7 @@ pio run -e esp32dev -t upload            # OTA upload (espota) — default env
 - `AnimationController::Render()` loops every non-sleeping animation, then copies its buffer to the real `leds`. While two animations are active it cross-fades between them with `blend()` over `transitionScale`.
 - In "Random" mode a new animation is picked every `RandomAnimationDuration`.
 - `RippleAnimation` subclasses (Cube/StarBurst/Center/Random Pulse, AroundTheWorld) implement `Start()`. They claim `Ripple`s from one `RipplePool` of 30 that all ripple animations share (`Claim(animationId)`).
-- Ripples walk the hex graph defined in `animations/ripples/map.h`: `NodeConnections` (node → 6 segment slots, clockwise from 12:00, -1 = none), `SegmentConnections`, `LEDAssignments` (segment → LED indices) and node groups such as `BorderNodes`, `CubeNodes` and `StarBurstNode`. `chromance-firmware/mapping.jpg` shows the node and segment numbering.
+- Ripples walk the hex graph defined in `animations/ripples/map.h`: `NodeConnections` (node → 6 segment slots, clockwise from 12:00, -1 = none), `SegmentConnections`, `LEDAssignments` (segment → LED indices) and node groups such as `BorderNodes`, `CubeNodes` and `StarBurstNode`. `mapping.jpg` shows the node and segment numbering.
 - LEDs are four physical NEOPIXEL strips (blue/green/red/black) that map into one contiguous array through the offsets in `constants.h`.
 
 **Adding an animation**:
