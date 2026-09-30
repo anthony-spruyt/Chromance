@@ -1,0 +1,41 @@
+{
+  "version": 4,
+  "configs": {
+    "repo-operator": {
+      "files": [
+        ".claude/hookify-plus/warn-comment-density.md",
+        ".claude/hookify-plus/warn-raw-container-run.md",
+        ".claude/output-styles/eli5.md",
+        ".claude/rules/comments.md",
+        ".claude/rules/github.md",
+        ".claude/rules/research.md",
+        ".claude/settings.json",
+        ".claude/statusline.sh",
+        ".devcontainer/.gitignore",
+        ".devcontainer/devcontainer.json",
+        ".devcontainer/Dockerfile",
+        ".devcontainer/initialize.sh",
+        ".devcontainer/podman-seccomp.json",
+        ".devcontainer/post-start.d/claude-plugins.sh",
+        ".devcontainer/post-start.sh",
+        ".devcontainer/README.md",
+        ".devcontainer/setup-devcontainer.sh",
+        ".editorconfig",
+        ".github/renovate.json5",
+        ".gitignore",
+        ".gitleaks.toml",
+        ".jsonlintrc",
+        ".markdownlint.json",
+        ".markdownlintignore",
+        ".mcp.json",
+        ".mdformat.toml",
+        ".pre-commit-config.yaml",
+        ".prettierignore",
+        ".prettierrc.yaml",
+        ".vscode/settings.json",
+        ".yamllint.yml",
+        "LICENSE"
+      ]
+    }
+  }
+}

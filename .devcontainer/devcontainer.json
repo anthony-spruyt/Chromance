@@ -1,38 +1,51 @@
 {
-	"name": "PlatformIO (Community)",
-	"build": {
-		"dockerfile": "Containerfile",
-		"context": ".",
-		"args": {
-			"FEDORA_COMPAT" : "1", // enables fedora compatibility mode (extra dialout group with gid 18)
-			"VARIANT": "bookworm"
-		}
-	},
-	"customizations": {
-		"vscode": {
-			"settings": {
-				"terminal.integrated.defaultProfile.linux": "zsh"
-			},
-			"extensions": [
-                "ms-vscode.cpptools",
-                "platformio.platformio-ide",
-                "pbkit.vscode-pbkit",
-                "jeff-hykin.better-cpp-syntax",
-                "VisualStudioExptTeam.vscodeintellicode-completions"
-			]
-		}
-	},
-	"forwardPorts": [
-		8008
-	],
-	"mounts": [
-		"source=/dev/,target=/dev/,type=bind,consistency=consistent"
-	],
-	"runArgs": [
-		"--privileged",
-        "-v",
-        "/dev/bus/usb:/dev/bus/usb"
-	],
-	"features": {},
-	"postAttachCommand": "sudo service udev restart"
+  "$schema": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json",
+  "name": "devcontainer-common",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "NEXUS_URL": "${localEnv:NEXUS_URL}"
+    }
+  },
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "containerUser": "vscode",
+  "remoteUser": "vscode",
+  "runArgs": [
+    "--security-opt",
+    "seccomp=${localWorkspaceFolder}/.devcontainer/podman-seccomp.json",
+    "--device",
+    "/dev/fuse",
+    "--env-file",
+    "${localEnv:HOME}/.secrets/.env.common"
+  ],
+  "mounts": [
+    "source=${localEnv:HOME}/.secrets/.gitignore,target=/home/vscode/.secrets/.gitignore,type=bind,readonly",
+    "source=${localEnv:HOME}/.ssh/agent.sock,target=/ssh-agent,type=bind",
+    "source=${localEnv:HOME}/.claude,target=/home/vscode/.claude,type=bind",
+    "source=${localWorkspaceFolderBasename}-containers,target=/var/lib/containers,type=volume"
+  ],
+  "features": {
+    "ghcr.io/devcontainers-extra/features/renovate-cli": {
+      "version": "44.108.2"
+    }
+  },
+  "initializeCommand": "bash ${localWorkspaceFolder}/.devcontainer/initialize.sh",
+  "postCreateCommand": "bash -lc \"cd ${containerWorkspaceFolder} && devcontainer-post-create\"",
+  "waitFor": "postStartCommand",
+  "postStartCommand": "bash -lc \"cd ${containerWorkspaceFolder} && bash .devcontainer/post-start.sh\"",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code",
+        "bierner.markdown-mermaid",
+        "blueglassblock.better-json5",
+        "esbenp.prettier-vscode",
+        "mhutchie.git-graph",
+        "nk2552003.forest-ash-theme-vscode",
+        "redhat.vscode-yaml",
+        "ms-vscode.cpptools",
+        "platformio.platformio-ide"
+      ]
+    }
+  }
 }

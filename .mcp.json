@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "litellm": {
+      "type": "http",
+      "url": "https://litellm.${EXTERNAL_DOMAIN}/mcp",
+      "headers": {
+        "x-litellm-api-key": "Bearer ${LITELLM_API_KEY}"
+      }
+    }
+  }
+}
