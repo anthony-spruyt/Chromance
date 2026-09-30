@@ -1,0 +1,58 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Repository layout
+
+Chromance is hexagonal LED wall art. The hardware design comes from Zack Freedman / Voidstar Lab, and the repo root holds those assets (`Models/*.f3d`, `STL's/*.stl`, assembly guide PDF). This repo is a fork: the firmware in `chromance-firmware/` is largely a rewrite by the repo owner and shares little with upstream beyond the hex topology in `map.h`. Its conventions (explicit `this->`, PascalCase methods, `namespace Chromance`, constants in `constants.h`) are deliberate, so match them. It is a PlatformIO project for an ESP32 (Arduino framework, FastLED, PubSubClient, ArduinoJson, ezTime).
+
+## Build / upload
+
+Run from `chromance-firmware/` (PlatformIO CLI `pio`; in the dev container it's at `~/.platformio/penv/bin`):
+
+```sh
+pio run -e esp32dev-usb                  # build (serial logging on, debug build)
+pio run -e esp32dev-usb -t upload        # flash over USB (esptool)
+pio device monitor -e esp32dev-usb       # serial monitor, 115200, with exception decoder
+pio run -e esp32dev -t upload            # OTA upload (espota) — default env
+```
+
+- There are no tests or linters.
+- Builds need `src/secrets.h`, which is gitignored. It defines `WifiSsid`, `WifiPassword`, `OTAPassword`, `MQTTBroker`, `MQTTPort`, `MQTTUsername` and `MQTTPassword` in `namespace Chromance`. The template is in `chromance-firmware/README.md`.
+- `platformio.ini` pulls in `platformioSecrets.ini` via `extra_configs`, and the OTA envs `extends = esp32dev-ota`. That section lives in the secrets file, where it supplies `--port=3232 --auth=<pw>` along with the device IP as `upload_port`.
+- OTA does not work inside the dev container. Run OTA uploads on the host. USB works in the container once the device is passed through with `usbipd` on WSL.
+- `Serial` output only exists when `SERIAL_ENABLED` is defined, which only the `esp32dev-usb` env does. `Logger` is a no-op otherwise.
+
+## Architecture
+
+**Tasks (`src/main.cpp`)**: Global service singletons are wired up by constructor injection. `setup()` starts four FreeRTOS tasks and `loop()` is empty. `AnimationControllerTask` runs alone on core 1. WiFi, OTA and MQTT run on core 0. Stack sizes, priorities and cores are in `constants.h`. Define `MONITOR_TASK_STACK_SIZES` in `definitions.h` to log stack usage. Animation rendering pauses while `otaService.IsUpdating()`.
+
+**Headers**: Every file includes `globals.h`, which pulls in `definitions.h` (FastLED `#define`s that must come before `FastLED.h`), `constants.h` (all tunables: pins, strip lengths/offsets, MQTT topics, per-animation enable flags, task config), `secrets.h`, and `models.h` (enums/structs).
+
+**Cross-task communication**: The MQTT task never touches animations directly. It calls `AnimationController::Play/Sleep/Wake`, which set a pending `AnimationRequest` under a mutex. The animation task applies the request in `Loop()` (`xSemaphoreTake(..., 0)`, non-blocking). `MQTTClient::Publish` works the same way, filling a small queue that `MQTTClient::Loop` drains.
+
+**Animations (`src/animations/`)**:
+- `Animation` is the base class. Each instance owns its own `CRGB leds[NumberOfLEDs]` buffer and a status (`PLAYING`, `SLEEPING`, `WAKING_UP`, `GOING_TO_SLEEP`).
+- `AnimationController::Render()` loops every non-sleeping animation, then copies its buffer to the real `leds`. While two animations are active it cross-fades between them with `blend()` over `transitionScale`.
+- In "Random" mode a new animation is picked every `RandomAnimationDuration`.
+- `RippleAnimation` subclasses (Cube/StarBurst/Center/Random Pulse, AroundTheWorld) implement `Start()`. They claim `Ripple`s from one `RipplePool` of 30 that all ripple animations share (`Claim(animationId)`).
+- Ripples walk the hex graph defined in `animations/ripples/map.h`: `NodeConnections` (node → 6 segment slots, clockwise from 12:00, -1 = none), `SegmentConnections`, `LEDAssignments` (segment → LED indices) and node groups such as `BorderNodes`, `CubeNodes` and `StarBurstNode`. `chromance-firmware/mapping.jpg` shows the node and segment numbering.
+- LEDs are four physical NEOPIXEL strips (blue/green/red/black) that map into one contiguous array through the offsets in `constants.h`.
+
+**Adding an animation**:
+1. Copy `animationTemplate.{h,cpp}`.
+2. Add an `ANIMATION_TYPE_*` entry in `models.h` before `ANIMATION_TYPE_NUMBER_OF_ANIMATIONS`.
+3. Add an `*Enabled` flag in `constants.h`.
+4. Instantiate it in `AnimationController::Setup()`.
+
+The name string passed to the base constructor becomes the Home Assistant effect name.
+
+**Enum ordering matters**: `RANDOM_ANIMATION` must stay 0, `STRIP_TEST` must stay 1, and `NUMBER_OF_ANIMATIONS` must stay last. `NextAnimation()` skips indices below 2. Config keys are built as prefix + enum integer (e.g. `as3`, `rl3`), and so are HA discovery unique IDs. Reordering the enum therefore scrambles persisted NVS settings and HA entities.
+
+**Config (`services/config.*`)**: Values persist to ESP32 NVS through `Preferences` (namespace `config`): brightness, sleeping, log level, and per-animation speed / ripple lifespan / pulse period / decay.
+
+**MQTT / Home Assistant (`services/mqttClient.*`)**:
+- On connect, and whenever `homeassistant/status` reports `online`, the client publishes HA MQTT discovery configs: a JSON-schema light with an effect list, an FPS sensor, and per-animation `number` entities.
+- Commands arrive as JSON on `chromance/v1/command`. Keys: `state`, `brightness`, `effect`, `reboot`, plus the per-animation config keys.
+- State is published to `chromance/v1/state` periodically (faster while playing than while sleeping).
+- Discovery and command handling call `GetAnimation(i)->...` on every enum index. Disabling an animation through its `*Enabled` flag leaves a `nullptr` there and will crash.
