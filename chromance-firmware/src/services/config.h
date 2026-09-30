@@ -11,6 +11,7 @@ namespace Chromance
         public:
 
             Config();
+            ~Config();
 
             void Setup();
             void SetLogLevel(uint8_t value);
@@ -38,6 +39,7 @@ namespace Chromance
         private:
 
             Preferences preferences;
+            SemaphoreHandle_t semaphore;
             uint8_t logLevel;
             uint8_t brightness;
             bool sleeping;

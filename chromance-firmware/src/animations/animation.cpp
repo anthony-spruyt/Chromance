@@ -59,6 +59,11 @@ AnimationStatus Animation::GetStatus()
     return this->status;
 }
 
+uint8_t Animation::GetTransitionScale()
+{
+    return this->transitionScale;
+}
+
 void Animation::Transition()
 {
     if (this->status == ANIMATION_STATUS_WAKING_UP)

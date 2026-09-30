@@ -26,12 +26,17 @@ void RandomPulseAnimation::Start()
 
     for (int32_t i = 0; i < MaxPathsPerNode; i++)
     {
+        if (NodeConnections[node][i] < 0)
+        {
+            continue;
+        }
+
         ripple = this->ripplePool->Claim(this->id);
 
         if (ripple == nullptr)
         {
             this->logger->Warn("The ripple pool is empty");
-            
+
             break;
         }
 
@@ -44,5 +49,5 @@ void RandomPulseAnimation::Start()
             this->GetLifespan(),
             RIPPLE_BEHAVIOR_FEISTY
         );
-    }    
+    }
 }

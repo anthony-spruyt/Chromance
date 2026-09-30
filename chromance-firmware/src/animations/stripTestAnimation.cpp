@@ -42,7 +42,7 @@ void StripTestAnimation::Loop()
         this->fillTest2 = true;
         this->shouldWaitForFillTestNextFrame = true;
     }
-    else if (!this->fillTest2)
+    else if (!this->fillTest3)
     {
         fill_solid(this->leds, NumberOfLEDs, CRGB(UINT8_MAX, UINT8_MAX, 0U));
         this->fillTest3 = true;

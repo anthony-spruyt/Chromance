@@ -21,6 +21,7 @@ namespace Chromance
             const char* GetName();
             CRGB* GetBuffer();
             AnimationStatus GetStatus();
+            uint8_t GetTransitionScale();
             virtual void Transition();
             virtual bool IsRippleAnimation();
 

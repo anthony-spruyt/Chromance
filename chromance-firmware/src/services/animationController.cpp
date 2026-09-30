@@ -197,6 +197,7 @@ void AnimationController::HandleAnimationRequest()
         this->next = ANIMATION_REQUEST_NONE;
         this->config->SetSleeping(false);
         this->transitionScale = 0;
+        this->lastRandomAnimationStarted = millis();
 
         for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
         {
@@ -278,8 +279,10 @@ void AnimationController::HandleRandomAnimation()
 void AnimationController::Render()
 {
     Animation* animation;
-    uint32_t activeAnimationsCount = 0;
-    Animation* activeAnimations[ANIMATION_TYPE_NUMBER_OF_ANIMATIONS - 1];
+    // The animation being shown (waking up or playing)
+    Animation* wakingUpAnimation = nullptr;
+    // The most visible of the animations going to sleep. Any others are already mostly faded out and are ignored
+    Animation* goingToSleepAnimation = nullptr;
 
     for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
     {
@@ -289,78 +292,71 @@ void AnimationController::Render()
         {
             continue;
         }
-        
+
         switch (animation->GetStatus())
         {
             case ANIMATION_STATUS_PLAYING:
                 animation->Loop();
-                activeAnimations[activeAnimationsCount] = animation;
-                activeAnimationsCount++;
+
+                if (wakingUpAnimation == nullptr)
+                {
+                    wakingUpAnimation = animation;
+                }
                 break;
             case ANIMATION_STATUS_WAKING_UP:
+                animation->Loop();
+                animation->Transition();
+                wakingUpAnimation = animation;
+                break;
             case ANIMATION_STATUS_GOING_TO_SLEEP:
                 animation->Loop();
                 animation->Transition();
-                activeAnimations[activeAnimationsCount] = animation;
-                activeAnimationsCount++;
+
+                if
+                (
+                    goingToSleepAnimation == nullptr ||
+                    animation->GetTransitionScale() > goingToSleepAnimation->GetTransitionScale()
+                )
+                {
+                    goingToSleepAnimation = animation;
+                }
                 break;
             default:
                 break;
         }
     }
 
-    if (activeAnimationsCount > 0)
+    if (wakingUpAnimation != nullptr && goingToSleepAnimation != nullptr)
     {
-        if (activeAnimationsCount == 1)
+        CRGB* wakingUpAnimationBuffer = wakingUpAnimation->GetBuffer();
+        CRGB* goingToSleepAnimationBuffer = goingToSleepAnimation->GetBuffer();
+
+        if (this->transitionScale <= UINT8_MAX - AnimationTransitionSpeed)
         {
-            CRGB* currentAnimationBuffer = activeAnimations[0]->GetBuffer();
+            this->transitionScale += AnimationTransitionSpeed;
 
             for (int32_t i = 0; i < NumberOfLEDs; i++)
             {
-                this->leds[i] = currentAnimationBuffer[i];
+                this->leds[i] = blend(goingToSleepAnimationBuffer[i], wakingUpAnimationBuffer[i], this->transitionScale);
             }
         }
         else
         {
-            Animation* wakingUpAnimation;
-            CRGB* wakingUpAnimationBuffer;
-            Animation* goingToSleepAnimation;
-            CRGB* goingToSleepAnimationBuffer;
-            uint32_t wakingUpIndex;
-            uint32_t goingToSleepIndex;
-
-            if (activeAnimations[0]->GetStatus() == ANIMATION_STATUS_WAKING_UP || activeAnimations[0]->GetStatus() == ANIMATION_STATUS_PLAYING)
+            for (int32_t i = 0; i < NumberOfLEDs; i++)
             {
-                wakingUpIndex = 0;
-                goingToSleepIndex = 1;
+                this->leds[i] = wakingUpAnimationBuffer[i];
             }
-            else
-            {
-                wakingUpIndex = 1;
-                goingToSleepIndex = 0;
-            }
+        }
+    }
+    else if (wakingUpAnimation != nullptr || goingToSleepAnimation != nullptr)
+    {
+        CRGB* currentAnimationBuffer = wakingUpAnimation != nullptr ?
+            wakingUpAnimation->GetBuffer() :
+            goingToSleepAnimation->GetBuffer();
 
-            wakingUpAnimation = activeAnimations[wakingUpIndex];
-            wakingUpAnimationBuffer = activeAnimations[wakingUpIndex]->GetBuffer();
-            goingToSleepAnimation = activeAnimations[goingToSleepIndex];
-            goingToSleepAnimationBuffer = activeAnimations[goingToSleepIndex]->GetBuffer();
-
-            if (this->transitionScale <= UINT8_MAX - AnimationTransitionSpeed)
-            {
-                this->transitionScale += AnimationTransitionSpeed;
-
-                for (int32_t i = 0; i < NumberOfLEDs; i++)
-                {
-                    this->leds[i] = blend(goingToSleepAnimationBuffer[i], wakingUpAnimationBuffer[i], this->transitionScale);
-                }
-            }
-            else
-            {
-                for (int32_t i = 0; i < NumberOfLEDs; i++)
-                {
-                    this->leds[i] = wakingUpAnimationBuffer[i];
-                }
-            }
+        for (int32_t i = 0; i < NumberOfLEDs; i++)
+        {
+            this->leds[i] = currentAnimationBuffer[i];
         }
     }
     else

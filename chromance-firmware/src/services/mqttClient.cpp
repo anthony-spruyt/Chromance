@@ -72,7 +72,7 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
 
         ChromanceState chromanceState = this->GetChromanceState();
 
-        if (!doc["state"].isNull())
+        if (doc["state"].is<const char*>())
         {
             const char* state = doc["state"];
 
@@ -124,7 +124,7 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
 
         AnimationType animationType = ANIMATION_TYPE_RANDOM_ANIMATION;
 
-        if (!doc["effect"].isNull())
+        if (doc["effect"].is<const char*>())
         {
             const char* effect = doc["effect"];
             AnimationType currentAnimationType = this->animationController->GetAnimationType();
@@ -133,6 +133,7 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
             {
                 this->animationController->Play(ANIMATION_TYPE_RANDOM_ANIMATION);
                 chromanceState.animationType = ANIMATION_TYPE_RANDOM_ANIMATION;
+                chromanceState.effect = "Random";
                 publishState = true;
             }
             else
@@ -149,6 +150,7 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
                     {
                         this->animationController->Play(animationType);
                         chromanceState.animationType = animationType;
+                        chromanceState.effect = this->animationController->GetAnimation(animationType)->GetName();
                         publishState = true;
 
                         break;
