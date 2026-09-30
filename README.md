@@ -56,7 +56,7 @@ This will cover how to get this codebase up and running on your Chromance by Zac
 The following might need to be changed depending on your setup/hardware.
 
 - Change `board = esp32dev` to match the model of ESP32 you have, a list can be [found here](https://docs.platformio.org/en/latest/boards/index.html)
-- OTA uploads need the Chromance's IP, which goes in `platformioSecrets.ini` (see OTA Updates). Give it a static IP / DHCP reservation in your router after setting up the WiFi.
+- OTA uploads need the Chromance's IP, which goes in `platformioSecrets.ini` (see OTA Updates). Give it a static IP / DHCP reservation in your router after setting up the WiFi. The device advertises `chromance.local` over mDNS, but that only resolves on Windows/macOS, not in WSL or a dev container. Use the IP, or add a DNS A record for it on your DNS server.
 
 #### constants.h
 
@@ -131,13 +131,20 @@ Then run `pio run -e esp32dev -t upload`. This POSTs the firmware to the device'
 
 To create your own animations you will want to look at the [map.h](src/animations/ripples/map.h) file and the [ripple.cpp](src/animations/ripples/ripple.cpp) file to a lesser extent.  This repository contains a [mapping.jpg](mapping.jpg) that shows each nodes number and the segment numbers.  You can use this image to make sense of the `NodeConnections`, `SegmentConnections`, `BorderNodes`, `CubeNodes`, `FunNodes`, and `StarBurstNode` variables in [`map.h`](src/animations/ripples/map.h)
 
-### USB Updates via VSCode dev container
+### USB Updates (WSL / dev container)
 
-https://learn.microsoft.com/en-us/windows/wsl/connect-usb
+Needed for the first flash, or to recover a device that won't boot. Otherwise use OTA.
 
-Install usbipd
+On Windows, pass the ESP32 through to WSL with [usbipd](https://learn.microsoft.com/en-us/windows/wsl/connect-usb):
 
-> usbipd bind --busid 9-2
+```powershell
+winget install usbipd
+usbipd list                          # find the "CP210x" / "CH340" serial adapter's BUSID
+usbipd bind --busid <BUSID>          # admin, once per device
+usbipd attach --wsl --busid <BUSID>  # every time it is plugged in
+```
 
-> usbipd attach --wsl --busid 9-2
+It then appears as `/dev/ttyUSB0` in WSL and the dev container. Flash with `pio run -e esp32dev-usb -t upload` and watch the logs with `pio device monitor -e esp32dev-usb`.
+
+A PC's USB port can't power the LED strips. On USB power alone the ESP32 flashes fine, but browns out and reboot-loops once the firmware starts. Keep the main 5V supply connected if your board isolates USB 5V from VIN with a diode (most do). Otherwise set the brightness low, or turn it off in Home Assistant, before unplugging, and move it back to the main supply after flashing.
 
