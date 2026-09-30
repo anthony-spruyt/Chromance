@@ -14,13 +14,16 @@ Run from the repo root (PlatformIO CLI `pio`; in the dev container it's at `~/.p
 pio run -e esp32dev-usb                  # build (serial logging on, debug build)
 pio run -e esp32dev-usb -t upload        # flash over USB (esptool)
 pio device monitor -e esp32dev-usb       # serial monitor, 115200, with exception decoder
-pio run -e esp32dev -t upload            # OTA upload (espota) — default env
+pio run -e esp32dev -t upload            # OTA upload over HTTP (curl POST to /update) — default env
+pio run -e esp32rc -t upload             # OTA upload via ArduinoOTA/espota (fallback)
 ```
 
 - There are no tests. `build_src_flags = -Wall -Wextra` applies to `src/` only, and `src/` builds with zero warnings, so keep it that way.
 - Builds need `src/secrets.h`, which is gitignored. It defines `WifiSsid`, `WifiPassword`, `OTAPassword`, `MQTTBroker`, `MQTTPort`, `MQTTUsername` and `MQTTPassword` in `namespace Chromance`. The template is in `README.md`.
-- `platformio.ini` pulls in `platformioSecrets.ini` via `extra_configs`, and the OTA envs `extends = esp32dev-ota`. That section lives in the secrets file, where it supplies `--port=3232 --auth=<pw>` along with the device IP as `upload_port`.
-- OTA does not work inside the dev container. Run OTA uploads on the host. USB works in the container once the device is passed through with `usbipd` on WSL.
+- `platformio.ini` pulls in `platformioSecrets.ini` via `extra_configs`, and the OTA envs `extends = esp32dev-ota`. That section lives in the secrets file, where it supplies the device IP as `upload_port`, `custom_ota_password` for the HTTP upload, and `--port=3232 --auth=<pw>` for espota. `[env]` sets an empty `custom_ota_password` default so builds work without the secrets file.
+- HTTP OTA (`OTAService::SetupHttpOTA`, basic auth `chromance`/`OTAPassword`) works from anywhere that can reach the device, including the dev container. espota does not work from a dev container or NAT-mode WSL, because the device connects back to the uploader. USB works once the device is passed through with `usbipd` on WSL.
+- Use `constexpr`, not `static const`, in `src/secrets.h`. With `-Wall`, unused `static const char*` variables warn in every translation unit.
+- `.claude/settings.local.json` denies Claude reading the secrets files, and any Bash command that names them. Mention them only in files edited with Edit/Write, not in shell commands.
 - The repo is onboarded to `anthony-spruyt/repo-operator` (xfg). It syncs root tooling files (`.devcontainer/`, `.vscode/settings.json`, `.pre-commit-config.yaml`, `.claude/`, `.github/renovate.json5`), so change those there, not here.
 - `Serial` output only exists when `SERIAL_ENABLED` is defined, which only the `esp32dev-usb` env does. `Logger` is a no-op otherwise.
 

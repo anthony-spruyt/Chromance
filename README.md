@@ -56,7 +56,7 @@ This will cover how to get this codebase up and running on your Chromance by Zac
 The following might need to be changed depending on your setup/hardware.
 
 - Change `board = esp32dev` to match the model of ESP32 you have, a list can be [found here](https://docs.platformio.org/en/latest/boards/index.html)
-- Change `upload_port = 192.168.50.95` to match the static IP you setup in your router after setting up the WiFi.
+- OTA uploads need the Chromance's IP, which goes in `platformioSecrets.ini` (see OTA Updates). Give it a static IP / DHCP reservation in your router after setting up the WiFi.
 
 #### constants.h
 
@@ -83,23 +83,23 @@ namespace Chromance
     // WiFi
     //////////////////////////////////////////
 
-    static const char* WifiSsid = "myssid";
-    static const char* WifiPassword = "mywifipassword";
+    constexpr const char* WifiSsid = "myssid";
+    constexpr const char* WifiPassword = "mywifipassword";
 
     //////////////////////////////////////////
     // OTA
     //////////////////////////////////////////
 
-    static const char* OTAPassword = "myotapassword";
+    constexpr const char* OTAPassword = "myotapassword";
 
     //////////////////////////////////////////
     // MQTT
     //////////////////////////////////////////
 
-    static const char* MQTTBroker = "mqttbroker.local";
-    static const int32_t MQTTPort = 1883;
-    static const char* MQTTUsername = "chromance";
-    static const char* MQTTPassword = "mymqttpassword";
+    constexpr const char* MQTTBroker = "mqttbroker.local";
+    constexpr int32_t MQTTPort = 1883;
+    constexpr const char* MQTTUsername = "chromance";
+    constexpr const char* MQTTPassword = "mymqttpassword";
 }
 
 #endif
@@ -107,16 +107,25 @@ namespace Chromance
 
 ### OTA Updates
 
+The first upload must be over USB (`esp32dev-usb`). After that, update over WiFi.
+
 Create a file in the repo root with the name `platformioSecrets.ini`
 
 ```ini
-; applies to all environments
-; or use "extends" (https://docs.platformio.org/en/latest/projectconf/section_env_advanced.html#extends)
-[esp32dev-ota] 
-upload_flags = 
+; used by the OTA environments via "extends" (https://docs.platformio.org/en/latest/projectconf/section_env_advanced.html#extends)
+[esp32dev-ota]
+upload_port = 192.168.x.x
+; same as OTAPassword in secrets.h
+custom_ota_password = myotapassword
+; only needed for the espota environment (esp32rc)
+upload_flags =
  --port=3232
  --auth=myotapassword
 ```
+
+Then run `pio run -e esp32dev -t upload`. This POSTs the firmware to the device's HTTP update endpoint (`http://<ip>/update`, user `chromance`, password `OTAPassword`) with curl. It works from a dev container, WSL, or any machine that can reach the device, because the device never has to connect back.
+
+`esp32rc` still uses ArduinoOTA (espota) as a fallback. espota needs the device to connect back to the uploader, so it does not work from a dev container or from WSL in NAT networking mode.
 
 ### How to make an animation
 
@@ -132,5 +141,3 @@ Install usbipd
 
 > usbipd attach --wsl --busid 9-2
 
-
-OTA DOES NOT WORK IN A DEV CONTAINER!! Run it on host directly, make sure python 3 is installed

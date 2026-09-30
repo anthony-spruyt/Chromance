@@ -19,6 +19,15 @@ namespace Chromance
     constexpr uint32_t WifiConnectionTimeout = 15U;
 
     //////////////////////////////////////////
+    // OTA
+    //////////////////////////////////////////
+
+    // HTTP firmware upload endpoint, authenticated with OTAHttpUsername and OTAPassword
+    constexpr uint16_t OTAHttpPort = 80U;
+    constexpr const char* OTAHttpPath = "/update";
+    constexpr const char* OTAHttpUsername = "chromance";
+
+    //////////////////////////////////////////
     // TIME
     //////////////////////////////////////////
 
@@ -185,7 +194,7 @@ namespace Chromance
     constexpr UBaseType_t MQTTClientTaskPriority = 1U;
     constexpr uint32_t AnimationControllerTaskStackSize = 8000U;
     constexpr uint32_t WiFiServiceTaskStackSize = 4000U;
-    constexpr uint32_t OTAServiceTaskStackSize = 4000U;
+    constexpr uint32_t OTAServiceTaskStackSize = 8000U;
     constexpr uint32_t MQTTClientTaskStackSize = 4000U;
 }
 

@@ -3,6 +3,7 @@
 
 #include "../globals.h"
 #include "logger.h"
+#include <WebServer.h>
 
 namespace Chromance
 {
@@ -18,8 +19,15 @@ namespace Chromance
 
         private:
 
+            void SetupArduinoOTA();
+            void SetupHttpOTA();
+            void HandleHttpUpload();
+            void HandleHttpUploadComplete();
+
             Logger* logger;
+            WebServer server;
             bool isUpdating;
+            bool httpUploadAuthorized;
     };
 }
 
