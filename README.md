@@ -185,7 +185,7 @@ For example, `{ "as3": 2.5, "rl3": 4000 }` makes Cube Pulse faster with longer-l
 
 To create your own animations you will want to look at the [map.h](src/animations/ripples/map.h) file and the [ripple.cpp](src/animations/ripples/ripple.cpp) file to a lesser extent.  This repository contains a [mapping.jpg](mapping.jpg) that shows each nodes number and the segment numbers.  You can use this image to make sense of the `NodeConnections`, `SegmentConnections`, `BorderNodes`, `CubeNodes`, `FunNodes`, and `StarBurstNode` variables in [`map.h`](src/animations/ripples/map.h)
 
-### USB Updates (WSL / dev container)
+### USB Updates (WSL)
 
 Needed for the first flash, or to recover a device that won't boot. Otherwise use OTA.
 
@@ -198,7 +198,7 @@ usbipd bind --busid <BUSID>          # admin, once per device
 usbipd attach --wsl --busid <BUSID>  # every time it is plugged in
 ```
 
-It then appears as `/dev/ttyUSB0` in WSL and the dev container. Flash with `pio run -e esp32dev-usb -t upload` and watch the logs with `pio device monitor -e esp32dev-usb`.
+It then appears as `/dev/ttyUSB0` in WSL. The dev container has no USB passthrough, so flash over USB from WSL itself. Flash with `pio run -e esp32dev-usb -t upload` and watch the logs with `pio device monitor -e esp32dev-usb`.
 
 A PC's USB port can't power the LED strips. On USB power alone the ESP32 flashes fine, but browns out and reboot-loops once the firmware starts. Keep the main 5V supply connected if your board isolates USB 5V from VIN with a diode (most do). Otherwise set the brightness low, or turn it off in Home Assistant, before unplugging, and move it back to the main supply after flashing.
 

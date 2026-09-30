@@ -8,7 +8,7 @@ Chromance is hexagonal LED wall art. The hardware design comes from Zack Freedma
 
 ## Build / upload
 
-Run from the repo root (PlatformIO CLI `pio`; in the dev container it's at `~/.platformio/penv/bin`):
+Run from the repo root with the PlatformIO CLI `pio` (the dev container installs it with pipx in `.devcontainer/setup-devcontainer.sh`):
 
 ```sh
 pio run -e esp32dev-usb                  # build (serial logging on, debug build)
@@ -21,10 +21,10 @@ pio run -e esp32rc -t upload             # OTA upload via ArduinoOTA/espota (fal
 - There are no tests. `build_src_flags = -Wall -Wextra` applies to `src/` only, and `src/` builds with zero warnings, so keep it that way.
 - Builds need `src/secrets.h`, which is gitignored. It defines `WifiSsid`, `WifiPassword`, `OTAPassword`, `MQTTBroker`, `MQTTPort`, `MQTTUsername` and `MQTTPassword` in `namespace Chromance`. The template is in `README.md`.
 - `platformio.ini` pulls in `platformioSecrets.ini` via `extra_configs`, and the OTA envs `extends = esp32dev-ota`. That section lives in the secrets file, where it supplies the device IP as `upload_port`, `custom_ota_password` for the HTTP upload, and `--port=3232 --auth=<pw>` for espota. `[env]` sets an empty `custom_ota_password` default so builds work without the secrets file.
-- HTTP OTA (`OTAService::SetupHttpOTA`, basic auth `chromance`/`OTAPassword`) works from anywhere that can reach the device, including the dev container. `/update` is routed through `HttpOtaRequestHandler`, not `server.on(uri, method, fn, uploadFn)`. In this WebServer version a registered upload callback is also called for non-multipart POSTs, where `server.upload()` dereferences null and reboots the device. Don't add upload routes with `server.on`. espota does not work from a dev container or NAT-mode WSL, because the device connects back to the uploader. USB works once the device is passed through with `usbipd` on WSL.
+- HTTP OTA (`OTAService::SetupHttpOTA`, basic auth `chromance`/`OTAPassword`) works from anywhere that can reach the device, including the dev container. `/update` is routed through `HttpOtaRequestHandler`, not `server.on(uri, method, fn, uploadFn)`. In this WebServer version a registered upload callback is also called for non-multipart POSTs, where `server.upload()` dereferences null and reboots the device. Don't add upload routes with `server.on`. espota does not work from a dev container or NAT-mode WSL, because the device connects back to the uploader. USB works from the WSL host once the device is passed through with `usbipd`. The synced dev container has no USB passthrough.
 - Use `constexpr`, not `static const`, in `src/secrets.h`. With `-Wall`, unused `static const char*` variables warn in every translation unit.
 - `.claude/settings.local.json` denies Claude reading the secrets files, and any Bash command that names them. Mention them only in files edited with Edit/Write, not in shell commands.
-- The repo is onboarded to `anthony-spruyt/repo-operator` (xfg). It syncs root tooling files (`.devcontainer/`, `.vscode/settings.json`, `.pre-commit-config.yaml`, `.claude/`, `.github/renovate.json5`), so change those there, not here.
+- The repo is onboarded to `anthony-spruyt/repo-operator` (xfg). It syncs root tooling files (`.devcontainer/`, `.vscode/settings.json`, `.pre-commit-config.yaml`, `.claude/`, `.github/renovate.json5`), so change those there, not here. `.devcontainer/setup-devcontainer.sh` is the exception: it is seeded once (`createOnly`) and owned by this repo.
 - `Serial` output only exists when `SERIAL_ENABLED` is defined, which only the `esp32dev-usb` env does. `Logger` is a no-op otherwise.
 
 ## Architecture
