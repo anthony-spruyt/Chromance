@@ -17,7 +17,7 @@ Ripple* RipplePool::Claim(int32_t animationId)
             return &this->ripples[i];
         }
     }
-    
+
     return nullptr;
 }
 

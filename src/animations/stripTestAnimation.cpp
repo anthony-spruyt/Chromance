@@ -61,7 +61,7 @@ void StripTestAnimation::Loop()
         }
 
         fill_solid(this->leds, NumberOfLEDs, CRGB::Black);
-        
+
         switch (this->nextPixelColorTest)
         {
             case 0U:

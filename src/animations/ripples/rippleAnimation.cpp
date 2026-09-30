@@ -28,7 +28,7 @@ void RippleAnimation::Loop()
     for (int32_t i = 0; i < RipplePool::NumberOfRipples; i++)
     {
         ripple = ripplePool->Get(i);
-        
+
         if (ripple->GetAnimationId() == this->id)
         {
             ripple->Advance(this->leds);

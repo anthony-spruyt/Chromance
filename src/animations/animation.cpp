@@ -11,7 +11,7 @@ Animation::Animation(int32_t id, const char* name, Config* config, Logger* logge
 {
     this->config = config;
     this->logger = logger;
-    
+
     fill_solid(this->leds, NumberOfLEDs, CRGB::Black);
 }
 

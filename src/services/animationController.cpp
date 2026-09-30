@@ -66,9 +66,9 @@ void AnimationController::Setup()
     this->animations[ANIMATION_TYPE_RAINBOW_MARCH] = RainbowMarchAnimationEnabled ? new RainbowMarchAnimation(ANIMATION_TYPE_RAINBOW_MARCH, this->config, this->logger) : nullptr;
     this->animations[ANIMATION_TYPE_PULSE] = PulseAnimationEnabled ? new PulseAnimation(ANIMATION_TYPE_PULSE, this->config, this->logger) : nullptr;
     this->animations[ANIMATION_TYPE_AROUND_THE_WORLD] = AroundTheWorldAnimationEnabled ? new AroundTheWorldAnimation(ANIMATION_TYPE_AROUND_THE_WORLD, &ripplePool, this->config, this->logger) : nullptr;
-    
+
     this->lastRandomAnimationStarted = millis() + StartupDelay;
-    
+
     // The constructor sets this to random currently but in future this can be from config
     if (this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION)
     {
@@ -102,7 +102,7 @@ void AnimationController::Loop()
         this->HandleBrightness();
         this->HandleAnimationRequest();
         this->HandleRandomAnimation();
-        
+
         xSemaphoreGive(this->semaphore);
     }
 
@@ -183,7 +183,7 @@ Animation* AnimationController::GetAnimation(AnimationType animationType)
 void AnimationController::HandleBrightness()
 {
     uint8_t configBrightness = this->config->GetBrightness();
-        
+
     if (FastLED.getBrightness() != configBrightness)
     {
         FastLED.setBrightness(configBrightness);
@@ -260,9 +260,9 @@ void AnimationController::HandleRandomAnimation()
     )
     {
         this->lastRandomAnimationStarted = now;
-        
+
         Animation* animation = this->animations[this->NextAnimation()];
-        
+
         for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
         {
             if (this->animations[i] != nullptr && i != animation->GetID())
@@ -377,7 +377,7 @@ AnimationType AnimationController::NextAnimation()
         if (this->animations[i] != nullptr && this->animations[i]->GetStatus() == ANIMATION_STATUS_PLAYING)
         {
             exclude = i;
-            
+
             break;
         }
     }

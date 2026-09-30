@@ -27,7 +27,7 @@ void WiFiService::Configure()
     WiFi.setHostname(ChromanceNameLowercase);
     WiFi.disconnect(false, true);
     vTaskDelay(1000);
-    
+
     if (WiFi.getMode() != WIFI_STA)
     {
         WiFi.mode(WIFI_STA);
@@ -43,7 +43,7 @@ void WiFiService::Connect()
 
     WiFi.begin(WifiSsid, WifiPassword);
     unsigned long start = millis();
-    
+
     while
     (
         WiFi.status() != WL_CONNECTED &&

@@ -69,7 +69,7 @@ void setup()
             WiFiServiceTaskCore
         );
     }
-    
+
     timeService.Setup();
 
     otaService.Setup();

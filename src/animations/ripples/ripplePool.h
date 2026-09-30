@@ -19,7 +19,7 @@ namespace Chromance
             Ripple* Claim(int32_t animationId);
             /**
              * Get a ripple by index
-             * @param index The index of the ripple 
+             * @param index The index of the ripple
              * @return A ripple
             */
             Ripple* Get(uint32_t index);

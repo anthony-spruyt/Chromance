@@ -20,13 +20,13 @@ namespace Chromance
     /**
      * Border nodes are on the very edge of the network.
      * Ripples fired here don't look very impressive.
-     */ 
+     */
     constexpr int32_t NumberOfBorderNodes = 10;
     constexpr int32_t BorderNodes[NumberOfBorderNodes] = {0, 1, 2, 3, 6, 10, 13, 19, 21, 24};
-    
+
     constexpr int32_t CenterNode = 15;
     constexpr int32_t BottomNode = 24;
-    
+
     /**
      * LED segment numbers
      * Beam 0 is at 12:00 and advance clockwise

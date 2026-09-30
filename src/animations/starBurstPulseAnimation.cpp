@@ -11,8 +11,8 @@ StarBurstPulseAnimation::StarBurstPulseAnimation(int32_t id, RipplePool* rippleP
 void StarBurstPulseAnimation::Start()
 {
     uint8_t baseColor = random8();
-    RippleBehavior behavior = random(2) ? 
-        RIPPLE_BEHAVIOR_ALWAYS_LEFT : 
+    RippleBehavior behavior = random(2) ?
+        RIPPLE_BEHAVIOR_ALWAYS_LEFT :
         RIPPLE_BEHAVIOR_ALWAYS_RIGHT;
     Ripple* ripple;
 
@@ -23,7 +23,7 @@ void StarBurstPulseAnimation::Start()
         if (ripple == nullptr)
         {
             this->logger->Warn("The ripple pool is empty");
-            
+
             break;
         }
 
@@ -36,5 +36,5 @@ void StarBurstPulseAnimation::Start()
             this->GetLifespan(),
             behavior
         );
-    }    
+    }
 }

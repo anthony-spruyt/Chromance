@@ -50,7 +50,7 @@ namespace Chromance
             RippleState GetState();
             int32_t GetAnimationId();
             unsigned long GetStartedAt();
-        
+
         private:
 
             void Render(CRGB* leds, unsigned long age);

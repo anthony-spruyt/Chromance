@@ -26,7 +26,7 @@ void Logger::Trace(const String& message)
     }
 
     this->Log(LOG_LEVEL_TRACE, message);
-    
+
 }
 
 void Logger::Debug(const String& message)
@@ -88,7 +88,7 @@ void Logger::Log(LogLevel logLevel, const String& message)
     if (xSemaphoreTake(this->semaphore, portMAX_DELAY) == pdTRUE)
     {
         Serial.printf("(%s)[%s] %s\n", timestamp.c_str(), logLevelString, message.c_str());
-        
+
         xSemaphoreGive(this->semaphore);
     }
 #endif

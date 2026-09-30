@@ -20,7 +20,7 @@ namespace Chromance
             uint8_t GetBrightness();
             void SetSleeping(bool value);
             bool GetSleeping();
-            
+
             float GetAnimationSpeed(AnimationType animationType);
             unsigned long GetRippleLifespan(AnimationType animationType);
             unsigned long GetRipplePulsePeriod(AnimationType animationType);
@@ -35,7 +35,7 @@ namespace Chromance
             String GetRippleLifespanKey(AnimationType animationType);
             String GetRipplePulsePeriodKey(AnimationType animationType);
             String GetRippleDecayKey(AnimationType animationType);
-        
+
         private:
 
             Preferences preferences;

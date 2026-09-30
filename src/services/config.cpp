@@ -35,7 +35,7 @@ void Config::Setup()
     String lifespanKey;
     String pulsePeriodKey;
     String decayKey;
-    
+
     for (int32_t i = 0; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
     {
         speedKey = this->GetAnimationSpeedKey((AnimationType)i);
@@ -48,7 +48,7 @@ void Config::Setup()
         this->ripplePulsePeriod[i] = this->preferences.getULong(pulsePeriodKey.c_str(), this->ripplePulsePeriod[i]);
         this->rippleDecay[i] = (uint8_t)this->preferences.getUShort(decayKey.c_str(), this->rippleDecay[i]);
     }
-    
+
     preferences.end();
 }
 

@@ -10,7 +10,7 @@ namespace Chromance
     class WiFiService
     {
         public:
-    
+
             WiFiService(Logger* logger);
 
             void Setup();

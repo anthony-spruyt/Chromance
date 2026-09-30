@@ -13,7 +13,7 @@ namespace Chromance
     class AnimationController
     {
         public:
-        
+
             AnimationController(Logger* logger, Config* config);
             ~AnimationController();
 

@@ -10,7 +10,7 @@ CubePulseAnimation::CubePulseAnimation(int32_t id, RipplePool* ripplePool, Confi
 }
 
 void CubePulseAnimation::Start()
-{   
+{
     uint8_t node = this->cubeNodes[random(NumberOfCubeNodes)];
     CHSV color = CHSV(random8(), UINT8_MAX, UINT8_MAX);
 
@@ -21,8 +21,8 @@ void CubePulseAnimation::Start()
 
     this->lastPulseNode = node;
 
-    RippleBehavior behavior = random(2) ? 
-        RIPPLE_BEHAVIOR_ALWAYS_LEFT : 
+    RippleBehavior behavior = random(2) ?
+        RIPPLE_BEHAVIOR_ALWAYS_LEFT :
         RIPPLE_BEHAVIOR_ALWAYS_RIGHT;
     Ripple* ripple;
 
@@ -35,7 +35,7 @@ void CubePulseAnimation::Start()
             if (ripple == nullptr)
             {
                 this->logger->Warn("The ripple pool is empty");
-                
+
                 break;
             }
 

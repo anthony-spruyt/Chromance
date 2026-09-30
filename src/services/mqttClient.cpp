@@ -2,8 +2,8 @@
 
 using namespace Chromance;
 
-MQTTClient::MQTTClient(Logger* logger, Config* config, AnimationController* animationController) : 
-    mqttClient(espClient), 
+MQTTClient::MQTTClient(Logger* logger, Config* config, AnimationController* animationController) :
+    mqttClient(espClient),
     lastReconnectAttempt(0),
     homeAssistantDiscoverySent(false),
     deviceID("")
@@ -32,7 +32,7 @@ MQTTClient::~MQTTClient()
 }
 
 void MQTTClient::Setup()
-{   
+{
     this->Configure();
     this->Connect();
 }
@@ -78,7 +78,7 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
 
             if
             (
-                strcmp(state, "ON") == 0 && 
+                strcmp(state, "ON") == 0 &&
                 chromanceState.animationStatus != ANIMATION_STATUS_PLAYING &&
                 chromanceState.animationStatus != ANIMATION_STATUS_WAKING_UP
             )
@@ -89,7 +89,7 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
             }
             else if
             (
-                strcmp(state, "OFF") == 0 && 
+                strcmp(state, "OFF") == 0 &&
                 chromanceState.animationStatus != ANIMATION_STATUS_GOING_TO_SLEEP &&
                 chromanceState.animationStatus != ANIMATION_STATUS_SLEEPING
             )
@@ -99,7 +99,7 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
                 publishState = true;
             }
         }
-        
+
         if (!doc["brightness"].isNull())
         {
             int32_t brightness = doc["brightness"];
@@ -144,7 +144,7 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
 
                     if
                     (
-                        strcmp(effect, this->animationController->GetAnimation(animationType)->GetName()) == 0 && 
+                        strcmp(effect, this->animationController->GetAnimation(animationType)->GetName()) == 0 &&
                         currentAnimationType != animationType
                     )
                     {
@@ -351,7 +351,7 @@ void MQTTClient::Connect()
     }
 
     uint8_t mac[6];
-    
+
     WiFi.macAddress(mac);
     this->deviceID = "";
     this->deviceID += String(mac[0], HEX);
@@ -402,7 +402,7 @@ void MQTTClient::PublishState(ChromanceState state)
         doc[this->config->GetRippleLifespanKey(animationType)] = this->config->GetRippleLifespan(animationType);
         doc[this->config->GetRipplePulsePeriodKey(animationType)] = this->config->GetRipplePulsePeriod(animationType);
     }
-    
+
     doc.shrinkToFit();
 
     size_t n = serializeJson(doc, this->publishJsonBuffer, PublishJsonBufferSize);
@@ -411,7 +411,7 @@ void MQTTClient::PublishState(ChromanceState state)
 }
 
 void MQTTClient::PublishDeviceDiscovery()
-{   
+{
     this->PublishFPSSensorDiscovery();
     this->PublishLightDiscovery();
 
@@ -442,7 +442,7 @@ void MQTTClient::PublishFPSSensorDiscovery()
     doc["val_tpl"] = "{{ value_json.fps }}";
     doc["dev_cla"] = "frequency";
     doc["unit_of_meas"] = "Hz";
-    
+
     this->PublishDocument(doc, this->GetDiscoveryTopic("sensor", uniqueID).c_str());
 }
 
@@ -484,7 +484,7 @@ void MQTTClient::PublishNumberDiscovery
     doc["max"] = max;
     doc["step"] = step;
     doc["val_tpl"] = valueTemplate;
-    
+
     this->PublishDocument(doc, this->GetDiscoveryTopic("number", uniqueID).c_str());
 }
 
@@ -507,7 +507,7 @@ void MQTTClient::PublishLightDiscovery()
     {
         effects.add(this->animationController->GetAnimation((AnimationType)i)->GetName());
     }
-    
+
     this->PublishDocument(doc, this->GetDiscoveryTopic("light", uniqueID).c_str());
 }
 
@@ -565,7 +565,7 @@ ChromanceState MQTTClient::GetChromanceState()
     chromanceState.animationType = this->animationController->GetAnimationType();
     chromanceState.brightness = this->animationController->GetBrightness();
     chromanceState.fps = this->animationController->GetFPS();
-    chromanceState.effect = chromanceState.animationType == ANIMATION_TYPE_RANDOM_ANIMATION ? 
+    chromanceState.effect = chromanceState.animationType == ANIMATION_TYPE_RANDOM_ANIMATION ?
         "Random" :
         this->animationController->GetAnimation(chromanceState.animationType)->GetName();
 

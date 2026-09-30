@@ -29,5 +29,5 @@ void AroundTheWorldAnimation::Start()
         speed,
         this->GetLifespan(),
         RIPPLE_BEHAVIOR_ALWAYS_LEFT
-    );  
+    );
 }

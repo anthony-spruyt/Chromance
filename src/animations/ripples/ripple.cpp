@@ -48,7 +48,7 @@ void Ripple::Advance(CRGB* leds)
 
     // Ripple slows down as it ages
     this->pressure += Fmap(float(age), 0.0f, float(this->lifespan), this->speed, 0.0f);
-    
+
     // TODO: Motion of ripple is severely affected by loop speed. Make it time invariant
 
     if (this->pressure < 1.0f && (this->state == RIPPLE_STATE_TRAVEL_UP || this->state == RIPPLE_STATE_TRAVEL_DOWN))
@@ -77,7 +77,7 @@ void Ripple::Advance(CRGB* leds)
                     int32_t sharpRight = (this->direction + 5) % MaxPathsPerNode;
 
                     if (this->behavior <= RIPPLE_BEHAVIOR_ANGRY)
-                    { 
+                    {
                         // Semi-random aggressive turn mode
                         // The more aggressive a ripple, the tighter turns it wants to make.
                         // If there aren't any segments it can turn to, we need to adjust its behavior.
@@ -362,16 +362,16 @@ unsigned long Ripple::GetStartedAt()
 void Ripple::Render(CRGB* leds, unsigned long age)
 {
     int32_t segment = this->node;
-    int32_t fromBottom = this->direction;    
+    int32_t fromBottom = this->direction;
     int32_t strip = LEDAssignments[segment][0];
     int32_t led = round
     (
         Fmap
         (
             (float)fromBottom,
-            0.0f, 
+            0.0f,
             (float)(LEDsPerSegment - 1),
-            (float)LEDAssignments[segment][2], 
+            (float)LEDAssignments[segment][2],
             (float)LEDAssignments[segment][1]
         )
     );
