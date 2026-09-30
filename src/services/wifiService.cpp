@@ -23,6 +23,8 @@ void WiFiService::Loop()
 
 void WiFiService::Configure()
 {
+    // DHCP hostname, so routers that register DHCP names in local DNS resolve it. Must be set before WiFi starts
+    WiFi.setHostname(ChromanceNameLowercase);
     WiFi.disconnect(false, true);
     vTaskDelay(1000);
     
