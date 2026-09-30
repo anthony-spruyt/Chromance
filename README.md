@@ -138,7 +138,7 @@ The device has these entities:
 - **\<Animation\> Speed** (number, 0.01–10): per-animation speed multiplier.
 - **\<Animation\> Pulse Period**, **Decay** and **Lifespan** (numbers): ripple animations only. Pulse Period (ms) is how often new ripples start, Lifespan (ms) is how long a ripple lives, and Decay (0–255) is how much of the trail is kept each frame: higher values leave longer trails.
 
-The suggested area (`Study`) and the device info are hard-coded in [mqttClient.cpp](src/services/mqttClient.cpp).
+Assign the device to an area in Home Assistant. The firmware doesn't suggest one.
 
 Settings changed from Home Assistant are saved in the ESP32's flash (NVS), so they survive reboots and firmware updates.
 

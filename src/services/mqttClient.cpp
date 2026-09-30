@@ -525,7 +525,6 @@ void MQTTClient::PopulateDiscoveryDocument(JsonDocument& doc, const String& name
     device["mdl"] = ChromanceNameCapitalized;
     device["sw"] = "v1.0.0";
     device["hw"] = "v1.0.0";
-    device["sa"] = "Study";
 
     JsonArray ids = device["ids"].to<JsonArray>();
     ids.add("chr");
