@@ -15,7 +15,7 @@ namespace Chromance
 
         private:
 
-            static const int32_t NumberOfRandomPulseNodes = 9;
+            static constexpr int32_t NumberOfRandomPulseNodes = 9;
             
             int32_t randomPulseNodes[NumberOfRandomPulseNodes] = {7, 8, 9, 11, 12, 15, 17, 18, 20};
             int32_t lastPulseNode;

@@ -15,16 +15,16 @@ namespace Chromance
             ~Logger();
 
             void Setup();
-            void Trace(String message);
-            void Debug(String message);
-            void Info(String message);
-            void Warn(String message);
-            void Error(String message);
-            void Ciritical(String message);
+            void Trace(const String& message);
+            void Debug(const String& message);
+            void Info(const String& message);
+            void Warn(const String& message);
+            void Error(const String& message);
+            void Critical(const String& message);
 
         private:
 
-            void Log(LogLevel logLevel, String message);
+            void Log(LogLevel logLevel, const String& message);
             const char* LogLevelToString(LogLevel logLevel);
 
             TimeService* timeService;

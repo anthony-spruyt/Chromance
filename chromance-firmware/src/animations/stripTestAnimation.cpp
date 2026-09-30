@@ -4,13 +4,13 @@ using namespace Chromance;
 
 StripTestAnimation::StripTestAnimation(int32_t id, Config* config, Logger* logger) :
     Animation(id, "Strip Test", config, logger),
+    lastFrame(0UL),
     counter(0U),
     fillTest1(false),
     fillTest2(false),
     fillTest3(false),
     shouldWaitForFillTestNextFrame(false),
     shouldWaitForPixelTestNextFrame(false),
-    lastFrame(0UL),
     nextPixelColorTest(0U)
 {
 }
@@ -27,8 +27,6 @@ void StripTestAnimation::Loop()
         this->shouldWaitForPixelTestNextFrame = false;
         delay(StripTestAnimation::PixelTestMillis);
     }
-
-    unsigned long now = millis();
 
     if (!this->fillTest1)
     {

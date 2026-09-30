@@ -24,7 +24,7 @@ namespace Chromance
             */
             Ripple* Get(uint32_t index);
 
-            static const uint32_t NumberOfRipples = 30U;
+            static constexpr uint32_t NumberOfRipples = 30U;
 
         private:
 

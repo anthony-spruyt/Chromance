@@ -10,15 +10,15 @@ using namespace Chromance;
 Ripple::Ripple() :
     state(RIPPLE_STATE_DEAD),
     color(0U, 0U, 0U),
+    node(0),
+    direction(0),
     speed(0.0f),
     lifespan(0U),
     behavior(RIPPLE_BEHAVIOR_COUCH_POTATO),
     justStarted(false),
     pressure(0.0f),
     startedAt(0U),
-    node(0),
-    direction(0)
-
+    animationId(-1)
 {
 }
 

@@ -188,8 +188,8 @@ void MQTTClientTask(void *pvParameters)
         (
             ChromanceStateUpdatesEnabled &&
             (
-                animationStatus == ANIMATION_STATUS_SLEEPING && now - lastChromanceStateUpdate > ChromanceSleepingStateUpdateFrequency ||
-                animationStatus != ANIMATION_STATUS_SLEEPING && now - lastChromanceStateUpdate > ChromanceStateUpdateFrequency
+                (animationStatus == ANIMATION_STATUS_SLEEPING && now - lastChromanceStateUpdate > ChromanceSleepingStateUpdateFrequency) ||
+                (animationStatus != ANIMATION_STATUS_SLEEPING && now - lastChromanceStateUpdate > ChromanceStateUpdateFrequency)
             )
         )
         {

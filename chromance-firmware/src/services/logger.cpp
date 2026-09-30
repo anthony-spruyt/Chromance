@@ -18,7 +18,7 @@ void Logger::Setup()
 {
 }
 
-void Logger::Trace(String message)
+void Logger::Trace(const String& message)
 {
     if (this->config->GetLogLevel() > (uint8_t)LOG_LEVEL_TRACE)
     {
@@ -29,7 +29,7 @@ void Logger::Trace(String message)
     
 }
 
-void Logger::Debug(String message)
+void Logger::Debug(const String& message)
 {
     if (this->config->GetLogLevel() > (uint8_t)LOG_LEVEL_DEBUG)
     {
@@ -39,7 +39,7 @@ void Logger::Debug(String message)
     this->Log(LOG_LEVEL_DEBUG, message);
 }
 
-void Logger::Info(String message)
+void Logger::Info(const String& message)
 {
     if (this->config->GetLogLevel() > (uint8_t)LOG_LEVEL_INFORMATION)
     {
@@ -49,7 +49,7 @@ void Logger::Info(String message)
     this->Log(LOG_LEVEL_INFORMATION, message);
 }
 
-void Logger::Warn(String message)
+void Logger::Warn(const String& message)
 {
     if (this->config->GetLogLevel() > (uint8_t)LOG_LEVEL_WARNING)
     {
@@ -59,7 +59,7 @@ void Logger::Warn(String message)
     this->Log(LOG_LEVEL_WARNING, message);
 }
 
-void Logger::Error(String message)
+void Logger::Error(const String& message)
 {
     if (this->config->GetLogLevel() > (uint8_t)LOG_LEVEL_ERROR)
     {
@@ -69,7 +69,7 @@ void Logger::Error(String message)
     this->Log(LOG_LEVEL_ERROR, message);
 }
 
-void Logger::Ciritical(String message)
+void Logger::Critical(const String& message)
 {
     if (this->config->GetLogLevel() > (uint8_t)LOG_LEVEL_CRITICAL)
     {
@@ -79,7 +79,7 @@ void Logger::Ciritical(String message)
     this->Log(LOG_LEVEL_CRITICAL, message);
 }
 
-void Logger::Log(LogLevel logLevel, String message)
+void Logger::Log(LogLevel logLevel, const String& message)
 {
 #ifdef SERIAL_ENABLED
     String timestamp = this->timeService->Now();

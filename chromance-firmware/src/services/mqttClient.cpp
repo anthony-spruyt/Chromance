@@ -421,14 +421,13 @@ void MQTTClient::PublishDeviceDiscovery()
     {
         animationType = (AnimationType)i;
 
-        this->PublishAnimationSpeedDiscovery(animationType);
+        this->PublishNumberDiscovery(animationType, "chrspd", " Speed", this->config->GetAnimationSpeedKey(animationType), 0.01f, 10.0f, 0.01f);
 
         if (this->animationController->GetAnimation(animationType)->IsRippleAnimation())
         {
-            this->PublishRipplePulsePeriodDiscovery(animationType);
-            this->PublishRipplePulsePeriodDiscovery(animationType);
-            this->PublishRippleDecayDiscovery(animationType);
-            this->PublishRippleLifespanDiscovery(animationType);
+            this->PublishNumberDiscovery(animationType, "chrplsprd", " Pulse Period", this->config->GetRipplePulsePeriodKey(animationType), 1.0f, 30000.0f, 1.0f);
+            this->PublishNumberDiscovery(animationType, "chrdcy", " Decay", this->config->GetRippleDecayKey(animationType), 0.0f, UINT8_MAX, 1.0f);
+            this->PublishNumberDiscovery(animationType, "chrlfsp", " Lifespan", this->config->GetRippleLifespanKey(animationType), 1.0f, 30000.0f, 1.0f);
         }
     }
 }
@@ -436,274 +435,65 @@ void MQTTClient::PublishDeviceDiscovery()
 void MQTTClient::PublishFPSSensorDiscovery()
 {
     String uniqueID = String("chrfps1");
-    String topic = this->GetDiscoveryTopic("sensor", uniqueID);
     JsonDocument doc;
 
-    doc["~"] = MQTTBaseTopic;
-    doc["avty_t"] = MQTTStateRoute;
-    doc["avty_tpl"] = "{{ value_json.availability }}";
-    doc["pl_avail"] = "1";
-    doc["pl_not_avail"] = "0";
-    JsonObject device = doc["dev"].to<JsonObject>();
-    device["name"] = ChromanceNameCapitalized;
-    device["mf"] = "Voidstar Lab";
-    device["mdl"] = ChromanceNameCapitalized;
-    device["sw"] = "v1.0.0";
-    device["hw"] = "v1.0.0";
-    device["sa"] = "Study";
-    JsonArray ids = device["ids"].to<JsonArray>();
-    ids.add("chr");
-
-    doc["name"] = "FPS";
-    doc["uniq_id"] = uniqueID;
-    doc["stat_t"] = MQTTStateRoute;
+    this->PopulateDiscoveryDocument(doc, String("FPS"), uniqueID);
     doc["stat_cla"] = "measurement";
     doc["val_tpl"] = "{{ value_json.fps }}";
     doc["dev_cla"] = "frequency";
     doc["unit_of_meas"] = "Hz";
     
-    this->PublishDocument(doc, topic.c_str());
+    this->PublishDocument(doc, this->GetDiscoveryTopic("sensor", uniqueID).c_str());
 }
 
-void MQTTClient::PublishAnimationSpeedDiscovery(AnimationType animationType)
+void MQTTClient::PublishNumberDiscovery
+(
+    AnimationType animationType,
+    const char* uniqueIDPrefix,
+    const char* nameSuffix,
+    const String& configKey,
+    float min,
+    float max,
+    float step
+)
 {
     String uniqueID;
-    uniqueID += String("chrspd");
+    uniqueID += String(uniqueIDPrefix);
     uniqueID += String(animationType);
-
-    String topic = this->GetDiscoveryTopic("number", uniqueID);
 
     String name;
     name += this->animationController->GetAnimation(animationType)->GetName();
-    name += String(" Speed");
+    name += String(nameSuffix);
 
     String valueTemplate;
     valueTemplate += String("{{ value_json.");
-    valueTemplate += this->config->GetAnimationSpeedKey(animationType);
+    valueTemplate += configKey;
     valueTemplate += String(" }}");
 
     String commandTemplate;
     commandTemplate += String("{ \"");
-    commandTemplate += this->config->GetAnimationSpeedKey(animationType);
+    commandTemplate += configKey;
     commandTemplate += String("\": {{ value }} }");
 
     JsonDocument doc;
-    doc["~"] = MQTTBaseTopic;
-    doc["avty_t"] = MQTTStateRoute;
-    doc["avty_tpl"] = "{{ value_json.availability }}";
-    doc["pl_avail"] = "1";
-    doc["pl_not_avail"] = "0";
 
-    JsonObject device = doc["dev"].to<JsonObject>();
-    device["name"] = ChromanceNameCapitalized;
-    device["mf"] = "Voidstar Lab";
-    device["mdl"] = ChromanceNameCapitalized;
-    device["sw"] = "v1.0.0";
-    device["hw"] = "v1.0.0";
-    device["sa"] = "Study";
-    
-    JsonArray ids = device["ids"].to<JsonArray>();
-    ids.add("chr");
-
-    doc["name"] = name;
-    doc["uniq_id"] = uniqueID;
-    doc["stat_t"] = MQTTStateRoute;
+    this->PopulateDiscoveryDocument(doc, name, uniqueID);
     doc["cmd_t"] = MQTTCommandRoute;
     doc["cmd_tpl"] = commandTemplate;
-    doc["min"] = 0.01f;
-    doc["max"] = 10.0f;
-    doc["step"] = 0.01f;
+    doc["min"] = min;
+    doc["max"] = max;
+    doc["step"] = step;
     doc["val_tpl"] = valueTemplate;
     
-    this->PublishDocument(doc, topic.c_str());
+    this->PublishDocument(doc, this->GetDiscoveryTopic("number", uniqueID).c_str());
 }
-
-void MQTTClient::PublishRippleLifespanDiscovery(AnimationType animationType)
-{
-    String uniqueID;
-    uniqueID += String("chrlfsp");
-    uniqueID += String(animationType);
-
-    String topic = this->GetDiscoveryTopic("number", uniqueID);
-
-    String name;
-    name += this->animationController->GetAnimation(animationType)->GetName();
-    name += String(" Lifespan");
-
-    String valueTemplate;
-    valueTemplate += String("{{ value_json.");
-    valueTemplate += this->config->GetRippleLifespanKey(animationType);
-    valueTemplate += String(" }}");
-
-    String commandTemplate;
-    commandTemplate += String("{ \"");
-    commandTemplate += this->config->GetRippleLifespanKey(animationType);
-    commandTemplate += String("\": {{ value }} }");
-
-    JsonDocument doc;
-    doc["~"] = MQTTBaseTopic;
-    doc["avty_t"] = MQTTStateRoute;
-    doc["avty_tpl"] = "{{ value_json.availability }}";
-    doc["pl_avail"] = "1";
-    doc["pl_not_avail"] = "0";
-
-    JsonObject device = doc["dev"].to<JsonObject>();
-    device["name"] = ChromanceNameCapitalized;
-    device["mf"] = "Voidstar Lab";
-    device["mdl"] = ChromanceNameCapitalized;
-    device["sw"] = "v1.0.0";
-    device["hw"] = "v1.0.0";
-    device["sa"] = "Study";
-
-    JsonArray ids = device["ids"].to<JsonArray>();
-    ids.add("chr");
-
-    doc["name"] = name;
-    doc["uniq_id"] = uniqueID;
-    doc["stat_t"] = MQTTStateRoute;
-    doc["cmd_t"] = MQTTCommandRoute;
-    doc["cmd_tpl"] = commandTemplate;
-    doc["min"] = 1UL;
-    doc["max"] = 30000UL;
-    doc["step"] = 1UL;
-    doc["val_tpl"] = valueTemplate;
-    
-    this->PublishDocument(doc, topic.c_str());
-}
-
-void MQTTClient::PublishRipplePulsePeriodDiscovery(AnimationType animationType)
-{
-    String uniqueID;
-    uniqueID += String("chrplsprd");
-    uniqueID += String(animationType);
-
-    String topic = this->GetDiscoveryTopic("number", uniqueID);
-
-    String name;
-    name += this->animationController->GetAnimation(animationType)->GetName();
-    name += String(" Pulse Period");
-
-    String valueTemplate;
-    valueTemplate += String("{{ value_json.");
-    valueTemplate += this->config->GetRipplePulsePeriodKey(animationType);
-    valueTemplate += String(" }}");
-
-    String commandTemplate;
-    commandTemplate += String("{ \"");
-    commandTemplate += this->config->GetRipplePulsePeriodKey(animationType);
-    commandTemplate += String("\": {{ value }} }");
-
-    JsonDocument doc;
-    doc["~"] = MQTTBaseTopic;
-    doc["avty_t"] = MQTTStateRoute;
-    doc["avty_tpl"] = "{{ value_json.availability }}";
-    doc["pl_avail"] = "1";
-    doc["pl_not_avail"] = "0";
-
-    JsonObject device = doc["dev"].to<JsonObject>();
-    device["name"] = ChromanceNameCapitalized;
-    device["mf"] = "Voidstar Lab";
-    device["mdl"] = ChromanceNameCapitalized;
-    device["sw"] = "v1.0.0";
-    device["hw"] = "v1.0.0";
-    device["sa"] = "Study";
-
-    JsonArray ids = device["ids"].to<JsonArray>();
-    ids.add("chr");
-
-    doc["name"] = name;
-    doc["uniq_id"] = uniqueID;
-    doc["stat_t"] = MQTTStateRoute;
-    doc["cmd_t"] = MQTTCommandRoute;
-    doc["cmd_tpl"] = commandTemplate;
-    doc["min"] = 1UL;
-    doc["max"] = 30000UL;
-    doc["step"] = 1UL;
-    doc["val_tpl"] = valueTemplate;
-    
-    this->PublishDocument(doc, topic.c_str());
-}
-
-void MQTTClient::PublishRippleDecayDiscovery(AnimationType animationType)
-{
-    String uniqueID;
-    uniqueID += String("chrdcy");
-    uniqueID += String(animationType);
-
-    String topic = this->GetDiscoveryTopic("number", uniqueID);
-
-    String name;
-    name += this->animationController->GetAnimation(animationType)->GetName();
-    name += String(" Decay");
-
-    String valueTemplate;
-    valueTemplate += String("{{ value_json.");
-    valueTemplate += this->config->GetRippleDecayKey(animationType);
-    valueTemplate += String(" }}");
-
-    String commandTemplate;
-    commandTemplate += String("{ \"");
-    commandTemplate += this->config->GetRippleDecayKey(animationType);
-    commandTemplate += String("\": {{ value }} }");
-
-    JsonDocument doc;
-    doc["~"] = MQTTBaseTopic;
-    doc["avty_t"] = MQTTStateRoute;
-    doc["avty_tpl"] = "{{ value_json.availability }}";
-    doc["pl_avail"] = "1";
-    doc["pl_not_avail"] = "0";
-
-    JsonObject device = doc["dev"].to<JsonObject>();
-    device["name"] = ChromanceNameCapitalized;
-    device["mf"] = "Voidstar Lab";
-    device["mdl"] = ChromanceNameCapitalized;
-    device["sw"] = "v1.0.0";
-    device["hw"] = "v1.0.0";
-    device["sa"] = "Study";
-
-    JsonArray ids = device["ids"].to<JsonArray>();
-    ids.add("chr");
-
-    doc["name"] = name;
-    doc["uniq_id"] = uniqueID;
-    doc["stat_t"] = MQTTStateRoute;
-    doc["cmd_t"] = MQTTCommandRoute;
-    doc["cmd_tpl"] = commandTemplate;
-    doc["min"] = 0U;
-    doc["max"] = UINT8_MAX;
-    doc["step"] = 1U;
-    doc["val_tpl"] = valueTemplate;
-    
-    this->PublishDocument(doc, topic.c_str());
-}
-
 
 void MQTTClient::PublishLightDiscovery()
 {
     String uniqueID = String("chrlight1");
-    String topic = this->GetDiscoveryTopic("light", uniqueID);
-    
     JsonDocument doc;
-    doc["~"] = MQTTBaseTopic;
-    doc["avty_t"] = MQTTStateRoute;
-    doc["avty_tpl"] = "{{ value_json.availability }}";
-    doc["pl_avail"] = "1";
-    doc["pl_not_avail"] = "0";
 
-    JsonObject device = doc["dev"].to<JsonObject>();
-    device["name"] = ChromanceNameCapitalized;
-    device["mf"] = "Voidstar Lab";
-    device["mdl"] = ChromanceNameCapitalized;
-    device["sw"] = "v1.0.0";
-    device["hw"] = "v1.0.0";
-    device["sa"] = "Study";
-
-    JsonArray ids = device["ids"].to<JsonArray>();
-    ids.add("chr");
-
-    doc["name"] = "LED Controller";
-    doc["uniq_id"] = uniqueID;
-    doc["stat_t"] = MQTTStateRoute;
+    this->PopulateDiscoveryDocument(doc, String("LED Controller"), uniqueID);
     doc["cmd_t"] = MQTTCommandRoute;
     doc["schema"] = "json";
     doc["color_temp"] = false;
@@ -718,17 +508,41 @@ void MQTTClient::PublishLightDiscovery()
         effects.add(this->animationController->GetAnimation((AnimationType)i)->GetName());
     }
     
-    this->PublishDocument(doc, topic.c_str());
+    this->PublishDocument(doc, this->GetDiscoveryTopic("light", uniqueID).c_str());
 }
 
-void MQTTClient::PublishDocument(JsonDocument doc, const char* topic)
+void MQTTClient::PopulateDiscoveryDocument(JsonDocument& doc, const String& name, const String& uniqueID)
+{
+    doc["~"] = MQTTBaseTopic;
+    doc["avty_t"] = MQTTStateRoute;
+    doc["avty_tpl"] = "{{ value_json.availability }}";
+    doc["pl_avail"] = "1";
+    doc["pl_not_avail"] = "0";
+
+    JsonObject device = doc["dev"].to<JsonObject>();
+    device["name"] = ChromanceNameCapitalized;
+    device["mf"] = "Voidstar Lab";
+    device["mdl"] = ChromanceNameCapitalized;
+    device["sw"] = "v1.0.0";
+    device["hw"] = "v1.0.0";
+    device["sa"] = "Study";
+
+    JsonArray ids = device["ids"].to<JsonArray>();
+    ids.add("chr");
+
+    doc["name"] = name;
+    doc["uniq_id"] = uniqueID;
+    doc["stat_t"] = MQTTStateRoute;
+}
+
+void MQTTClient::PublishDocument(JsonDocument& doc, const char* topic)
 {
     doc.shrinkToFit();
     size_t n = serializeJson(doc, this->publishJsonBuffer, PublishJsonBufferSize);
     this->mqttClient.publish(topic, (const uint8_t*)&this->publishJsonBuffer, n, false);
 }
 
-String MQTTClient::GetDiscoveryTopic(const char* entityType, String uniqueID)
+String MQTTClient::GetDiscoveryTopic(const char* entityType, const String& uniqueID)
 {
     String topic;
     topic.reserve(128);

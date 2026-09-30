@@ -10,22 +10,22 @@
 
 namespace Chromance
 {
-    static float Fmap(float x, float inMin, float inMax, float outMin, float outMax)
+    inline float Fmap(float x, float inMin, float inMax, float outMin, float outMax)
     {
         return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin; // TODO need to get rid of this division since ESP32 does software float div which is shit slow
     }
 
-    static const int32_t NumberOfSegments = 40;
-    static const int32_t NumberOfNodes = 25;
+    constexpr int32_t NumberOfSegments = 40;
+    constexpr int32_t NumberOfNodes = 25;
     /**
      * Border nodes are on the very edge of the network.
      * Ripples fired here don't look very impressive.
      */ 
-    static const int32_t NumberOfBorderNodes = 10;
-    static const int32_t BorderNodes[NumberOfBorderNodes] = {0, 1, 2, 3, 6, 10, 13, 19, 21, 24};
+    constexpr int32_t NumberOfBorderNodes = 10;
+    constexpr int32_t BorderNodes[NumberOfBorderNodes] = {0, 1, 2, 3, 6, 10, 13, 19, 21, 24};
     
-    static const int32_t CenterNode = 15;
-    static const int32_t BottomNode = 24;
+    constexpr int32_t CenterNode = 15;
+    constexpr int32_t BottomNode = 24;
     
     /**
      * LED segment numbers
@@ -33,7 +33,7 @@ namespace Chromance
      * -1 means nothing connected on that side
      * Index stands for the node ie nodeConnections[7] stands for node 7
      */
-    static const int32_t NodeConnections[NumberOfNodes][6] =
+    constexpr int32_t NodeConnections[NumberOfNodes][6] =
     {
         {-1, -1, 1, -1, 0, -1},
         {-1, -1, 3, -1, 2, -1},
@@ -70,7 +70,7 @@ namespace Chromance
      * Second: Node closer to floor
      * Node connection list ()
      */
-    static const int32_t SegmentConnections[NumberOfSegments][2] =
+    constexpr int32_t SegmentConnections[NumberOfSegments][2] =
     {
         {0, 3},
         {0, 4},
@@ -121,7 +121,7 @@ namespace Chromance
      * Second: LED index closer to ceiling
      * Third: LED index closer to floor
      */
-    static const int32_t LEDAssignments[NumberOfSegments][3] =
+    constexpr int32_t LEDAssignments[NumberOfSegments][3] =
     {
         {RedStripIndex, headof(3), tailof(3)},
         {RedStripIndex, tailof(2), headof(2)},

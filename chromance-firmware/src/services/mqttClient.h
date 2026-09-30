@@ -23,7 +23,7 @@ namespace Chromance
 
         private:
 
-            static const int32_t PublishQueueSize = 5;
+            static constexpr int32_t PublishQueueSize = 5;
 
             void Configure();
             void Callback(char* topic, byte* payload, uint32_t length);
@@ -33,13 +33,20 @@ namespace Chromance
             void PublishState(ChromanceState state);
             void PublishDeviceDiscovery();
             void PublishFPSSensorDiscovery();
-            void PublishAnimationSpeedDiscovery(AnimationType animationType);
-            void PublishRippleLifespanDiscovery(AnimationType animationType);
-            void PublishRipplePulsePeriodDiscovery(AnimationType animationType);
-            void PublishRippleDecayDiscovery(AnimationType animationType);
+            void PublishNumberDiscovery
+            (
+                AnimationType animationType,
+                const char* uniqueIDPrefix,
+                const char* nameSuffix,
+                const String& configKey,
+                float min,
+                float max,
+                float step
+            );
             void PublishLightDiscovery();
-            void PublishDocument(JsonDocument doc, const char* topic);
-            String GetDiscoveryTopic(const char* entityType, String uniqueID);
+            void PopulateDiscoveryDocument(JsonDocument& doc, const String& name, const String& uniqueID);
+            void PublishDocument(JsonDocument& doc, const char* topic);
+            String GetDiscoveryTopic(const char* entityType, const String& uniqueID);
             ChromanceState GetChromanceState();
 
             Logger* logger;

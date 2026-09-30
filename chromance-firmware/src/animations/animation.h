@@ -12,6 +12,7 @@ namespace Chromance
         public:
 
             Animation(int32_t id, const char* name, Config* config, Logger* logger);
+            virtual ~Animation() = default;
 
             virtual void Loop() = 0;
             virtual void Sleep(bool fade);

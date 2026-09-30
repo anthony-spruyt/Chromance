@@ -3,10 +3,10 @@
 using namespace Chromance;
 
 Config::Config() :
+    preferences(),
     logLevel(0), // trace
     brightness(1),
-    sleeping(false),
-    preferences()
+    sleeping(false)
 {
     this->semaphore = xSemaphoreCreateMutex();
 
@@ -54,7 +54,7 @@ void Config::Setup()
 
 void Config::SetLogLevel(uint8_t value)
 {
-    if (value < 0 || value > 6)
+    if (value > LOG_LEVEL_NONE)
     {
         return;
     }

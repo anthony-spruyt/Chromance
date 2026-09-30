@@ -15,8 +15,8 @@ namespace Chromance
 
         private:
 
-            static const unsigned long PixelTestMillis = 500UL;
-            static const unsigned long FillTestMillis = 5000UL;
+            static constexpr unsigned long PixelTestMillis = 500UL;
+            static constexpr unsigned long FillTestMillis = 5000UL;
 
             unsigned long lastFrame;
             uint32_t counter;
