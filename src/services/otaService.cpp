@@ -97,27 +97,13 @@ void OTAService::SetupArduinoOTA()
 */
 void OTAService::SetupHttpOTA()
 {
-    this->server.on
-    (
-        OTAHttpPath,
-        HTTP_POST,
-        [this]()
-        {
-            this->HandleHttpUploadComplete();
-        },
-        [this]()
-        {
-            this->HandleHttpUpload();
-        }
-    );
-
+    // WebServer takes ownership and deletes its handlers
+    this->server.addHandler(new HttpOtaRequestHandler(this));
     this->server.begin();
 }
 
-void OTAService::HandleHttpUpload()
+void OTAService::HandleHttpUpload(HTTPUpload& upload)
 {
-    HTTPUpload& upload = this->server.upload();
-
     switch (upload.status)
     {
         case UPLOAD_FILE_START:
@@ -191,4 +177,50 @@ void OTAService::HandleHttpUploadComplete()
     // Give the response time to reach the client before restarting
     delay(500);
     ESP.restart();
+}
+
+HttpOtaRequestHandler::HttpOtaRequestHandler(OTAService* otaService)
+{
+    this->otaService = otaService;
+}
+
+bool HttpOtaRequestHandler::canHandle(HTTPMethod method, String uri)
+{
+    return method == HTTP_POST && uri == OTAHttpPath;
+}
+
+bool HttpOtaRequestHandler::canUpload(String uri)
+{
+    return uri == OTAHttpPath;
+}
+
+bool HttpOtaRequestHandler::canRaw(String uri)
+{
+    (void)uri;
+
+    return false;
+}
+
+bool HttpOtaRequestHandler::handle(WebServer& server, HTTPMethod requestMethod, String requestUri)
+{
+    (void)server;
+
+    if (!this->canHandle(requestMethod, requestUri))
+    {
+        return false;
+    }
+
+    this->otaService->HandleHttpUploadComplete();
+
+    return true;
+}
+
+void HttpOtaRequestHandler::upload(WebServer& server, String requestUri, HTTPUpload& upload)
+{
+    (void)server;
+
+    if (this->canUpload(requestUri))
+    {
+        this->otaService->HandleHttpUpload(upload);
+    }
 }
