@@ -25,16 +25,25 @@
         ".gitignore",
         ".gitleaks.toml",
         ".jsonlintrc",
+        ".lycheeignore",
         ".markdownlint.json",
         ".markdownlintignore",
         ".mcp.json",
         ".mdformat.toml",
+        ".mega-linter-base.yml",
+        ".mega-linter.yml",
         ".pre-commit-config.yaml",
         ".prettierignore",
         ".prettierrc.yaml",
+        ".secretlintignore",
+        ".shellcheckrc",
+        ".trivyignore.yaml",
         ".vscode/settings.json",
         ".yamllint.yml",
-        "LICENSE"
+        "LICENSE",
+        "lint-config.sh",
+        "lint.sh",
+        "trivy-mega-linter.yaml"
       ]
     }
   }
