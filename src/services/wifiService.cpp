@@ -44,11 +44,9 @@ void WiFiService::Connect()
     WiFi.begin(WifiSsid, WifiPassword);
     unsigned long start = millis();
 
-    while
-    (
+    while (
         WiFi.status() != WL_CONNECTED &&
-        millis() - start < WifiConnectionTimeout * 1000
-    )
+        millis() - start < WifiConnectionTimeout * 1000)
     {
         delay(1000);
     }

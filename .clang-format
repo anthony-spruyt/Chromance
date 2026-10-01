@@ -1,0 +1,23 @@
+---
+Language: Cpp
+BasedOnStyle: Microsoft
+AccessModifierOffset: 0
+IndentAccessModifiers: true
+EmptyLineAfterAccessModifier: Leave
+EmptyLineBeforeAccessModifier: Leave
+NamespaceIndentation: All
+FixNamespaceComments: false
+BreakConstructorInitializers: AfterColon
+PackConstructorInitializers: Never
+ConstructorInitializerIndentWidth: 4
+PointerAlignment: Left
+ColumnLimit: 0
+# FastLED needs definitions.h before FastLED.h
+SortIncludes: Never
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortEnumsOnASingleLine: true
+Cpp11BracedListStyle: false
+AlignTrailingComments:
+  Kind: Leave

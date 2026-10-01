@@ -18,7 +18,7 @@ namespace Chromance
              * Write changed values to NVS once they have been unchanged for ConfigSaveDelay.
              * Flash writes stall the LED driver, so call this only between frames
              * @param now Write immediately, e.g. before a reboot
-            */
+             */
             void Save(bool now = false);
             void SetLogLevel(uint8_t value);
             uint8_t GetLogLevel();

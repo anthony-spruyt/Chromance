@@ -74,7 +74,7 @@ namespace Chromance
             unsigned long startedAt;
             // The ID of the animation that has claimed this ripple
             int32_t animationId;
-        };
+    };
 }
 
 #endif

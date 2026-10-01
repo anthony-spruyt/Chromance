@@ -12,10 +12,10 @@ using namespace Chromance;
 void loop(void);
 void setup(void);
 void MonitorStackSize(uint32_t stackSize, const char* taskName);
-void AnimationControllerTask(void *pvParameters);
-void WiFiServiceTask(void *pvParameters);
-void OTAServiceTask(void *pvParameters);
-void MQTTClientTask(void *pvParameters);
+void AnimationControllerTask(void* pvParameters);
+void WiFiServiceTask(void* pvParameters);
+void OTAServiceTask(void* pvParameters);
+void MQTTClientTask(void* pvParameters);
 
 Config config;
 TimeService timeService;
@@ -42,32 +42,28 @@ void setup()
 
     if (AnimationControllerTaskHandle == nullptr)
     {
-        xTaskCreatePinnedToCore
-        (
+        xTaskCreatePinnedToCore(
             AnimationControllerTask,
             "AnimationControllerTask",
             AnimationControllerTaskStackSize,
             nullptr,
             AnimationControllerTaskPriority,
             &AnimationControllerTaskHandle,
-            AnimationControllerTaskCore
-        );
+            AnimationControllerTaskCore);
     }
 
     wifiService.Setup();
 
     if (WiFiServiceTaskHandle == nullptr)
     {
-        xTaskCreatePinnedToCore
-        (
+        xTaskCreatePinnedToCore(
             WiFiServiceTask,
             "WiFiServiceTask",
             WiFiServiceTaskStackSize,
             nullptr,
             WiFiServiceTaskPriority,
             &WiFiServiceTaskHandle,
-            WiFiServiceTaskCore
-        );
+            WiFiServiceTaskCore);
     }
 
     timeService.Setup();
@@ -76,32 +72,28 @@ void setup()
 
     if (OTAServiceTaskHandle == nullptr)
     {
-        xTaskCreatePinnedToCore
-        (
+        xTaskCreatePinnedToCore(
             OTAServiceTask,
             "OTAServiceTask",
             OTAServiceTaskStackSize,
             nullptr,
             OTAServiceTaskPriority,
             &OTAServiceTaskHandle,
-            OTAServiceTaskCore
-        );
+            OTAServiceTaskCore);
     }
 
     mqttClient.Setup();
 
     if (MQTTClientTaskHandle == nullptr)
     {
-        xTaskCreatePinnedToCore
-        (
+        xTaskCreatePinnedToCore(
             MQTTClientTask,
             "MQTTClientTask",
             MQTTClientTaskStackSize,
             nullptr,
             MQTTClientTaskPriority,
             &MQTTClientTaskHandle,
-            MQTTClientTaskCore
-        );
+            MQTTClientTaskCore);
     }
 }
 
@@ -123,7 +115,7 @@ void MonitorStackSize(uint32_t stackSize, const char* taskName)
     }
 }
 
-void AnimationControllerTask(void *pvParameters)
+void AnimationControllerTask(void* pvParameters)
 {
     delay(StartupDelay);
 
@@ -143,7 +135,7 @@ void AnimationControllerTask(void *pvParameters)
     }
 }
 
-void WiFiServiceTask(void *pvParameters)
+void WiFiServiceTask(void* pvParameters)
 {
     for (;;)
     {
@@ -156,7 +148,7 @@ void WiFiServiceTask(void *pvParameters)
     }
 }
 
-void OTAServiceTask(void *pvParameters)
+void OTAServiceTask(void* pvParameters)
 {
     for (;;)
     {
@@ -169,7 +161,7 @@ void OTAServiceTask(void *pvParameters)
     }
 }
 
-void MQTTClientTask(void *pvParameters)
+void MQTTClientTask(void* pvParameters)
 {
     AnimationStatus animationStatus;
 
@@ -184,14 +176,10 @@ void MQTTClientTask(void *pvParameters)
         unsigned long now = millis();
         animationStatus = animationController.GetAnimationStatus();
 
-        if
-        (
+        if (
             ChromanceStateUpdatesEnabled &&
-            (
-                (animationStatus == ANIMATION_STATUS_SLEEPING && now - lastChromanceStateUpdate > ChromanceSleepingStateUpdateFrequency) ||
-                (animationStatus != ANIMATION_STATUS_SLEEPING && now - lastChromanceStateUpdate > ChromanceStateUpdateFrequency)
-            )
-        )
+            ((animationStatus == ANIMATION_STATUS_SLEEPING && now - lastChromanceStateUpdate > ChromanceSleepingStateUpdateFrequency) ||
+             (animationStatus != ANIMATION_STATUS_SLEEPING && now - lastChromanceStateUpdate > ChromanceStateUpdateFrequency)))
         {
             lastChromanceStateUpdate = now;
 

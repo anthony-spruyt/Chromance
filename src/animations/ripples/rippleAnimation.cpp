@@ -2,14 +2,12 @@
 
 using namespace Chromance;
 
-RippleAnimation::RippleAnimation
-(
+RippleAnimation::RippleAnimation(
     int32_t id,
     const char* name,
     RipplePool* ripplePool,
     Config* config,
-    Logger* logger
-) :
+    Logger* logger) :
     Animation(id, name, config, logger),
     lastPulse(0UL),
     lastStep(0UL)

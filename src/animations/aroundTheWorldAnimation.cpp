@@ -21,13 +21,11 @@ void AroundTheWorldAnimation::Start()
 
     float speed = random(100) / 100.0f * 1.0f + this->GetSpeed();
 
-    ripple->Start
-    (
+    ripple->Start(
         BottomNode,
         1,
         CHSV(random8(), UINT8_MAX, UINT8_MAX),
         speed,
         this->GetLifespan(),
-        RIPPLE_BEHAVIOR_ALWAYS_LEFT
-    );
+        RIPPLE_BEHAVIOR_ALWAYS_LEFT);
 }

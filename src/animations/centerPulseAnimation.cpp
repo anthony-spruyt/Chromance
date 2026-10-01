@@ -25,14 +25,12 @@ void CenterPulseAnimation::Start()
             break;
         }
 
-        ripple->Start
-        (
+        ripple->Start(
             CenterNode,
             i,
             color,
             speed,
             this->GetLifespan(),
-            RIPPLE_BEHAVIOR_FEISTY
-        );
+            RIPPLE_BEHAVIOR_FEISTY);
     }
 }

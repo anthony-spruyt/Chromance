@@ -11,7 +11,7 @@ namespace Chromance
     {
         public:
 
-            OTAService(Logger* logger);
+            explicit OTAService(Logger* logger);
 
             void Setup();
             void Loop();
@@ -36,12 +36,12 @@ namespace Chromance
      * Routes POST OTAHttpPath to OTAService. Unlike server.on(uri, method, fn, uploadFn), this does not accept
      * raw (non-multipart) bodies: WebServer would call the upload callback for those with no HTTPUpload, and
      * server.upload() would dereference a null pointer
-    */
+     */
     class HttpOtaRequestHandler : public RequestHandler
     {
         public:
 
-            HttpOtaRequestHandler(OTAService* otaService);
+            explicit HttpOtaRequestHandler(OTAService* otaService);
 
             bool canHandle(HTTPMethod method, String uri) override;
             bool canUpload(String uri) override;

@@ -40,14 +40,12 @@ void RandomPulseAnimation::Start()
             break;
         }
 
-        ripple->Start
-        (
+        ripple->Start(
             node,
             i,
             CHSV(random8(), UINT8_MAX, UINT8_MAX),
             speed,
             this->GetLifespan(),
-            RIPPLE_BEHAVIOR_FEISTY
-        );
+            RIPPLE_BEHAVIOR_FEISTY);
     }
 }

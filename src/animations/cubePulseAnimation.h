@@ -17,7 +17,7 @@ namespace Chromance
 
             static constexpr int32_t NumberOfCubeNodes = 8;
 
-            int32_t cubeNodes[NumberOfCubeNodes] = {7, 8, 9, 11, 12, 17, 18, 20};
+            int32_t cubeNodes[NumberOfCubeNodes] = { 7, 8, 9, 11, 12, 17, 18, 20 };
             int32_t lastPulseNode;
     };
 }

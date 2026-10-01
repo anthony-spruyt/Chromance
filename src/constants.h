@@ -138,12 +138,12 @@ namespace Chromance
     /**
      * The frequency of the wave, in decimal
      * ANSI: unsigned short _Accum. 8 bits int, 8 bits fraction
-    */
+     */
     constexpr uint16_t RainbowBeatAnimationSpeed = 10U;
     /**
      * The frequency of the wave, in decimal
      * ANSI: unsigned short _Accum. 8 bits int, 8 bits fraction
-    */
+     */
     constexpr uint16_t RainbowMarchAnimationSpeed = 10U;
     // How many hue values to advance for each LED
     constexpr uint8_t RainbowBeatAnimationHueDelta = 5U;
@@ -158,14 +158,13 @@ namespace Chromance
     /**
      * The frequency of the wave, in decimal
      * ANSI: unsigned short _Accum. 8 bits int, 8 bits fraction
-    */
+     */
     constexpr uint16_t PulseAnimationSpeed = 10U;
     constexpr uint8_t PulseAnimationMinBrightness = 30U;
     constexpr uint8_t PulseAnimationMaxBrightness = UINT8_MAX;
     constexpr uint8_t PulseAnimationNumberOfColors = 7U;
     // Hex color codes
-    constexpr uint32_t PulseAnimationColors[PulseAnimationNumberOfColors] =
-    {
+    constexpr uint32_t PulseAnimationColors[PulseAnimationNumberOfColors] = {
         0x006400, // DarkGreen
         0x8B0000, // DarkRed
         0x9400D3, // DarkViolet
@@ -212,86 +211,110 @@ namespace Chromance
     //////////////////////////////////////////
 
     constexpr bool PlasmaAnimationEnabled = true;
-    enum PlasmaParameter { PLASMA_DETAIL, PLASMA_MORPH_SPEED, PLASMA_COLOR_SPEED };
-    constexpr AnimationParameter PlasmaAnimationParameters[] =
+    enum PlasmaParameter
     {
-        {"Detail", 1.0f, 20.0f, 1.0f, 6.0f, nullptr},
-        {"Morph Speed", 0.0f, 1000.0f, 5.0f, 125.0f, nullptr},
-        {"Color Speed", 0.0f, 255.0f, 1.0f, 10.0f, nullptr}
+        PLASMA_DETAIL,
+        PLASMA_MORPH_SPEED,
+        PLASMA_COLOR_SPEED
+    };
+    constexpr AnimationParameter PlasmaAnimationParameters[] = {
+        { "Detail", 1.0f, 20.0f, 1.0f, 6.0f, nullptr },
+        { "Morph Speed", 0.0f, 1000.0f, 5.0f, 125.0f, nullptr },
+        { "Color Speed", 0.0f, 255.0f, 1.0f, 10.0f, nullptr }
     };
 
     constexpr bool RadarAnimationEnabled = true;
-    enum RadarParameter { RADAR_TURNS_PER_MINUTE, RADAR_TRAIL, RADAR_COLOR_SPEED };
-    constexpr AnimationParameter RadarAnimationParameters[] =
+    enum RadarParameter
     {
-        {"Turns Per Minute", 1.0f, 120.0f, 1.0f, 20.0f, nullptr},
-        {"Trail", 1.0f, 255.0f, 1.0f, 96.0f, nullptr},
-        {"Color Speed", 0.0f, 255.0f, 1.0f, 10.0f, nullptr}
+        RADAR_TURNS_PER_MINUTE,
+        RADAR_TRAIL,
+        RADAR_COLOR_SPEED
+    };
+    constexpr AnimationParameter RadarAnimationParameters[] = {
+        { "Turns Per Minute", 1.0f, 120.0f, 1.0f, 20.0f, nullptr },
+        { "Trail", 1.0f, 255.0f, 1.0f, 96.0f, nullptr },
+        { "Color Speed", 0.0f, 255.0f, 1.0f, 10.0f, nullptr }
     };
 
     constexpr bool RainbowSwirlAnimationEnabled = true;
-    enum RainbowSwirlParameter { RAINBOW_SWIRL_SPIN_SPEED, RAINBOW_SWIRL_TWIST };
-    constexpr AnimationParameter RainbowSwirlAnimationParameters[] =
+    enum RainbowSwirlParameter
     {
-        {"Spin Speed", 0.0f, 500.0f, 2.0f, 100.0f, nullptr},
-        {"Twist", -254.0f, 254.0f, 2.0f, 128.0f, nullptr}
+        RAINBOW_SWIRL_SPIN_SPEED,
+        RAINBOW_SWIRL_TWIST
+    };
+    constexpr AnimationParameter RainbowSwirlAnimationParameters[] = {
+        { "Spin Speed", 0.0f, 500.0f, 2.0f, 100.0f, nullptr },
+        { "Twist", -254.0f, 254.0f, 2.0f, 128.0f, nullptr }
     };
 
     constexpr bool RingsAnimationEnabled = true;
-    enum RingsParameter { RINGS_COUNT, RINGS_RING_SPEED, RINGS_COLOR_SPEED };
-    constexpr AnimationParameter RingsAnimationParameters[] =
+    enum RingsParameter
     {
-        {"Count", 1.0f, 10.0f, 1.0f, 3.0f, nullptr},
-        {"Ring Speed", 0.0f, 1000.0f, 5.0f, 250.0f, nullptr},
-        {"Color Speed", 0.0f, 255.0f, 1.0f, 20.0f, nullptr}
+        RINGS_COUNT,
+        RINGS_RING_SPEED,
+        RINGS_COLOR_SPEED
+    };
+    constexpr AnimationParameter RingsAnimationParameters[] = {
+        { "Count", 1.0f, 10.0f, 1.0f, 3.0f, nullptr },
+        { "Ring Speed", 0.0f, 1000.0f, 5.0f, 250.0f, nullptr },
+        { "Color Speed", 0.0f, 255.0f, 1.0f, 20.0f, nullptr }
     };
 
     constexpr bool FireAnimationEnabled = true;
-    enum FireParameter { FIRE_RISE_SPEED, FIRE_FLICKER_SPEED, FIRE_COOLING, FIRE_DETAIL };
-    constexpr AnimationParameter FireAnimationParameters[] =
+    enum FireParameter
     {
-        {"Rise Speed", 0.0f, 1000.0f, 5.0f, 400.0f, nullptr},
-        {"Flicker Speed", 0.0f, 1000.0f, 5.0f, 120.0f, nullptr},
-        {"Cooling", 0.0f, 255.0f, 1.0f, 160.0f, nullptr},
-        {"Detail", 1.0f, 20.0f, 1.0f, 6.0f, nullptr}
+        FIRE_RISE_SPEED,
+        FIRE_FLICKER_SPEED,
+        FIRE_COOLING,
+        FIRE_DETAIL
+    };
+    constexpr AnimationParameter FireAnimationParameters[] = {
+        { "Rise Speed", 0.0f, 1000.0f, 5.0f, 400.0f, nullptr },
+        { "Flicker Speed", 0.0f, 1000.0f, 5.0f, 120.0f, nullptr },
+        { "Cooling", 0.0f, 255.0f, 1.0f, 160.0f, nullptr },
+        { "Detail", 1.0f, 20.0f, 1.0f, 6.0f, nullptr }
     };
     // HeatColors_p blends back to black past this index
     constexpr uint8_t FireAnimationMaxPaletteIndex = 240U;
 
     constexpr bool TwinkleAnimationEnabled = true;
-    enum TwinkleParameter { TWINKLE_PER_SECOND, TWINKLE_FADE_OUT_TIME, TWINKLE_FADE_IN_TIME };
-    constexpr AnimationParameter TwinkleAnimationParameters[] =
+    enum TwinkleParameter
     {
-        {"Twinkles Per Second", 0.5f, 50.0f, 0.5f, 10.0f, nullptr},
-        {"Fade Out Time", 100.0f, 10000.0f, 50.0f, 1500.0f, "ms"},
-        {"Fade In Time", 0.0f, 10000.0f, 50.0f, 750.0f, "ms"}
+        TWINKLE_PER_SECOND,
+        TWINKLE_FADE_OUT_TIME,
+        TWINKLE_FADE_IN_TIME
+    };
+    constexpr AnimationParameter TwinkleAnimationParameters[] = {
+        { "Twinkles Per Second", 0.5f, 50.0f, 0.5f, 10.0f, nullptr },
+        { "Fade Out Time", 100.0f, 10000.0f, 50.0f, 1500.0f, "ms" },
+        { "Fade In Time", 0.0f, 10000.0f, 50.0f, 750.0f, "ms" }
     };
 
     inline const AnimationParameter* GetAnimationParameters(AnimationType animationType, uint8_t& count)
     {
         switch (animationType)
         {
-            case ANIMATION_TYPE_PLASMA:
-                count = NumberOfParameters(PlasmaAnimationParameters);
-                return PlasmaAnimationParameters;
-            case ANIMATION_TYPE_RADAR:
-                count = NumberOfParameters(RadarAnimationParameters);
-                return RadarAnimationParameters;
-            case ANIMATION_TYPE_RAINBOW_SWIRL:
-                count = NumberOfParameters(RainbowSwirlAnimationParameters);
-                return RainbowSwirlAnimationParameters;
-            case ANIMATION_TYPE_RINGS:
-                count = NumberOfParameters(RingsAnimationParameters);
-                return RingsAnimationParameters;
-            case ANIMATION_TYPE_FIRE:
-                count = NumberOfParameters(FireAnimationParameters);
-                return FireAnimationParameters;
-            case ANIMATION_TYPE_TWINKLE:
-                count = NumberOfParameters(TwinkleAnimationParameters);
-                return TwinkleAnimationParameters;
-            default:
-                count = 0U;
-                return nullptr;
+        case ANIMATION_TYPE_PLASMA:
+            count = NumberOfParameters(PlasmaAnimationParameters);
+            return PlasmaAnimationParameters;
+        case ANIMATION_TYPE_RADAR:
+            count = NumberOfParameters(RadarAnimationParameters);
+            return RadarAnimationParameters;
+        case ANIMATION_TYPE_RAINBOW_SWIRL:
+            count = NumberOfParameters(RainbowSwirlAnimationParameters);
+            return RainbowSwirlAnimationParameters;
+        case ANIMATION_TYPE_RINGS:
+            count = NumberOfParameters(RingsAnimationParameters);
+            return RingsAnimationParameters;
+        case ANIMATION_TYPE_FIRE:
+            count = NumberOfParameters(FireAnimationParameters);
+            return FireAnimationParameters;
+        case ANIMATION_TYPE_TWINKLE:
+            count = NumberOfParameters(TwinkleAnimationParameters);
+            return TwinkleAnimationParameters;
+        default:
+            count = 0U;
+            return nullptr;
         }
     }
 

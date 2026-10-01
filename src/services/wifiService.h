@@ -11,7 +11,7 @@ namespace Chromance
     {
         public:
 
-            WiFiService(Logger* logger);
+            explicit WiFiService(Logger* logger);
 
             void Setup();
             void Loop();

@@ -21,9 +21,7 @@ void CubePulseAnimation::Start()
 
     this->lastPulseNode = node;
 
-    RippleBehavior behavior = random(2) ?
-        RIPPLE_BEHAVIOR_ALWAYS_LEFT :
-        RIPPLE_BEHAVIOR_ALWAYS_RIGHT;
+    RippleBehavior behavior = random(2) ? RIPPLE_BEHAVIOR_ALWAYS_LEFT : RIPPLE_BEHAVIOR_ALWAYS_RIGHT;
     Ripple* ripple;
 
     for (int32_t i = 0; i < MaxPathsPerNode; i++)
@@ -39,15 +37,13 @@ void CubePulseAnimation::Start()
                 break;
             }
 
-            ripple->Start
-            (
+            ripple->Start(
                 node,
                 i,
                 color,
                 this->GetSpeed(),
                 this->GetLifespan(),
-                behavior
-            );
+                behavior);
         }
     }
 }

@@ -26,7 +26,6 @@ void Logger::Trace(const String& message)
     }
 
     this->Log(LOG_LEVEL_TRACE, message);
-
 }
 
 void Logger::Debug(const String& message)
@@ -98,19 +97,19 @@ const char* Logger::LogLevelToString(LogLevel logLevel)
 {
     switch (logLevel)
     {
-        case LOG_LEVEL_TRACE:
-            return "Trace";
-        case LOG_LEVEL_DEBUG:
-            return "Debug";
-        case LOG_LEVEL_INFORMATION:
-            return "Information";
-        case LOG_LEVEL_WARNING:
-            return "Warning";
-        case LOG_LEVEL_ERROR:
-            return "Error";
-        case LOG_LEVEL_CRITICAL:
-            return "Critical";
-        default:
-            return "Unknown";
+    case LOG_LEVEL_TRACE:
+        return "Trace";
+    case LOG_LEVEL_DEBUG:
+        return "Debug";
+    case LOG_LEVEL_INFORMATION:
+        return "Information";
+    case LOG_LEVEL_WARNING:
+        return "Warning";
+    case LOG_LEVEL_ERROR:
+        return "Error";
+    case LOG_LEVEL_CRITICAL:
+        return "Critical";
+    default:
+        return "Unknown";
     }
 }

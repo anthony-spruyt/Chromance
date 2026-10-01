@@ -129,11 +129,9 @@ void AnimationController::Wake()
 
 void AnimationController::Play(AnimationType animationType)
 {
-    if
-    (
+    if (
         animationType >= ANIMATION_TYPE_NUMBER_OF_ANIMATIONS ||
-        (animationType != ANIMATION_TYPE_RANDOM_ANIMATION && this->animations[animationType] == nullptr)
-    )
+        (animationType != ANIMATION_TYPE_RANDOM_ANIMATION && this->animations[animationType] == nullptr))
     {
         return;
     }
@@ -217,12 +215,10 @@ void AnimationController::HandleRandomAnimation()
 {
     unsigned long now = millis();
 
-    if
-    (
+    if (
         !config->GetSleeping() &&
         this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION &&
-        now - this->lastRandomAnimationStarted > this->config->GetRandomAnimationDuration() * 1000UL
-    )
+        now - this->lastRandomAnimationStarted > this->config->GetRandomAnimationDuration() * 1000UL)
     {
         this->lastRandomAnimationStarted = now;
         this->Show(ANIMATION_TYPE_RANDOM_ANIMATION);
@@ -317,9 +313,7 @@ uint8_t AnimationController::GetFadedBrightness()
     unsigned long elapsed = millis() - this->brightnessChangedAt;
     unsigned long duration = this->config->GetTransitionDuration();
 
-    this->brightness = elapsed >= duration ?
-        target :
-        lerp8by8(this->brightnessFrom, target, UINT8_MAX * elapsed / duration);
+    this->brightness = elapsed >= duration ? target : lerp8by8(this->brightnessFrom, target, UINT8_MAX * elapsed / duration);
 
     return this->brightness;
 }
@@ -330,14 +324,10 @@ AnimationType AnimationController::NextAnimation()
 
     for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
     {
-        if
-        (
+        if (
             this->animations[i] != nullptr &&
-            (
-                this->animations[i]->GetStatus() == ANIMATION_STATUS_PLAYING ||
-                this->animations[i]->GetStatus() == ANIMATION_STATUS_WAKING_UP
-            )
-        )
+            (this->animations[i]->GetStatus() == ANIMATION_STATUS_PLAYING ||
+             this->animations[i]->GetStatus() == ANIMATION_STATUS_WAKING_UP))
         {
             exclude = i;
 

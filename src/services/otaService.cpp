@@ -33,36 +33,25 @@ void OTAService::SetupArduinoOTA()
     ArduinoOTA.setHostname(ChromanceNameLowercase);
     ArduinoOTA.setPassword(OTAPassword);
 
-    ArduinoOTA.onStart
-    (
-        [this]()
-        {
+    ArduinoOTA.onStart(
+        [this]() {
             this->isUpdating = true;
             this->logger->Info("Start OTA update");
-        }
-    );
+        });
 
-    ArduinoOTA.onEnd
-    (
-        [this]()
-        {
+    ArduinoOTA.onEnd(
+        [this]() {
             this->logger->Info("OTA update completed");
             this->isUpdating = false;
-        }
-    );
+        });
 
-    ArduinoOTA.onProgress
-    (
-        [this](uint32_t progress, uint32_t total)
-        {
+    ArduinoOTA.onProgress(
+        [this](uint32_t progress, uint32_t total) {
             this->logger->Debug("OTA update progress: " + String((float)progress / ((float)total / 100.0f)));
-        }
-    );
+        });
 
-    ArduinoOTA.onError
-    (
-        [this](ota_error_t error)
-        {
+    ArduinoOTA.onError(
+        [this](ota_error_t error) {
             if (error == OTA_AUTH_ERROR)
             {
                 this->logger->Error("OTA update error: Auth failed");
@@ -85,7 +74,7 @@ void OTAService::SetupArduinoOTA()
             }
 
             this->isUpdating = false;
-    });
+        });
 
     ArduinoOTA.begin();
 }
@@ -94,7 +83,7 @@ void OTAService::SetupArduinoOTA()
  * Firmware upload over plain HTTP: POST a multipart form with the image in a "firmware" field to OTAHttpPath.
  * Every connection is made by the uploader, so unlike ArduinoOTA (where the device connects back to the
  * uploader) this works from behind NAT, e.g. a dev container
-*/
+ */
 void OTAService::SetupHttpOTA()
 {
     // WebServer takes ownership and deletes its handlers
@@ -106,46 +95,46 @@ void OTAService::HandleHttpUpload(HTTPUpload& upload)
 {
     switch (upload.status)
     {
-        case UPLOAD_FILE_START:
+    case UPLOAD_FILE_START:
             // Headers are parsed before the body, so credentials can be checked before anything is written
-            this->httpUploadAuthorized = this->server.authenticate(OTAHttpUsername, OTAPassword);
+        this->httpUploadAuthorized = this->server.authenticate(OTAHttpUsername, OTAPassword);
 
-            if (!this->httpUploadAuthorized)
-            {
-                this->logger->Warn("HTTP OTA update rejected: Auth failed");
+        if (!this->httpUploadAuthorized)
+        {
+            this->logger->Warn("HTTP OTA update rejected: Auth failed");
 
-                return;
-            }
+            return;
+        }
 
-            this->isUpdating = true;
-            this->logger->Info("Start HTTP OTA update");
+        this->isUpdating = true;
+        this->logger->Info("Start HTTP OTA update");
 
-            if (!Update.begin(UPDATE_SIZE_UNKNOWN))
-            {
-                this->logger->Error("HTTP OTA update error: " + String(Update.errorString()));
-            }
-            break;
-        case UPLOAD_FILE_WRITE:
-            if (this->httpUploadAuthorized && !Update.hasError() && Update.write(upload.buf, upload.currentSize) != upload.currentSize)
-            {
-                this->logger->Error("HTTP OTA update error: " + String(Update.errorString()));
-            }
-            break;
-        case UPLOAD_FILE_END:
-            if (this->httpUploadAuthorized && Update.end(true))
-            {
-                this->logger->Info("HTTP OTA update received " + String(upload.totalSize) + " bytes");
-            }
-            break;
-        case UPLOAD_FILE_ABORTED:
-            if (this->httpUploadAuthorized)
-            {
-                Update.abort();
-                this->logger->Error("HTTP OTA update error: Upload aborted");
-            }
+        if (!Update.begin(UPDATE_SIZE_UNKNOWN))
+        {
+            this->logger->Error("HTTP OTA update error: " + String(Update.errorString()));
+        }
+        break;
+    case UPLOAD_FILE_WRITE:
+        if (this->httpUploadAuthorized && !Update.hasError() && Update.write(upload.buf, upload.currentSize) != upload.currentSize)
+        {
+            this->logger->Error("HTTP OTA update error: " + String(Update.errorString()));
+        }
+        break;
+    case UPLOAD_FILE_END:
+        if (this->httpUploadAuthorized && Update.end(true))
+        {
+            this->logger->Info("HTTP OTA update received " + String(upload.totalSize) + " bytes");
+        }
+        break;
+    case UPLOAD_FILE_ABORTED:
+        if (this->httpUploadAuthorized)
+        {
+            Update.abort();
+            this->logger->Error("HTTP OTA update error: Upload aborted");
+        }
 
-            this->isUpdating = false;
-            break;
+        this->isUpdating = false;
+        break;
     }
 }
 

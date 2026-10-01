@@ -27,7 +27,7 @@ namespace Chromance
             /**
              * Start a new type of animation
              * @param animationType The type of animation to start
-            */
+             */
             void Play(AnimationType animationType);
             AnimationType GetAnimationType();
             AnimationStatus GetAnimationStatus();

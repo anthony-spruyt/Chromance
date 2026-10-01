@@ -22,7 +22,7 @@ namespace Chromance
      * Ripples fired here don't look very impressive.
      */
     constexpr int32_t NumberOfBorderNodes = 10;
-    constexpr int32_t BorderNodes[NumberOfBorderNodes] = {0, 1, 2, 3, 6, 10, 13, 19, 21, 24};
+    constexpr int32_t BorderNodes[NumberOfBorderNodes] = { 0, 1, 2, 3, 6, 10, 13, 19, 21, 24 };
 
     constexpr int32_t CenterNode = 15;
     constexpr int32_t BottomNode = 24;
@@ -31,6 +31,7 @@ namespace Chromance
     constexpr float HexColumnWidth = 0.8660254f;
     constexpr float HexRowHeight = 0.5f;
     // {column, row} on the wall: a column is half a hexagon wide and a row is half a segment tall
+    // clang-format off
     constexpr int32_t NodeCoordinates[NumberOfNodes][2] =
     {
         {1, 0}, {3, 0}, {5, 0},
@@ -43,6 +44,7 @@ namespace Chromance
         {2, 7}, {4, 7},
         {3, 8}
     };
+    // clang-format on
 
     /**
      * LED segment numbers
@@ -50,6 +52,7 @@ namespace Chromance
      * -1 means nothing connected on that side
      * Index stands for the node ie nodeConnections[7] stands for node 7
      */
+    // clang-format off
     constexpr int32_t NodeConnections[NumberOfNodes][6] =
     {
         {-1, -1, 1, -1, 0, -1},
@@ -82,10 +85,12 @@ namespace Chromance
         {32, 37, -1, -1, 39, 36},
         {-1, 39, -1, -1, -1, 38}
     };
+    // clang-format on
     /**
      * First member: Node closer to ceiling
      * Second: Node closer to floor
      */
+    // clang-format off
     constexpr int32_t SegmentConnections[NumberOfSegments][2] =
     {
         {0, 3},
@@ -129,16 +134,18 @@ namespace Chromance
         {22, 24},
         {23, 24}
     };
+    // clang-format on
     // These are mapped as base 1 and NOT base 0, hence the S - 1
-    #define headof(S) ((S - 1) * 14)
-    #define tailof(S) (headof(S) + 13)
+#define headof(S) ((S - 1) * 14)
+#define tailof(S) (headof(S) + 13)
     // Indexed by the strip number in LEDAssignments
-    constexpr uint32_t StripOffsets[4] = {BlueStripOffset, GreenStripOffset, RedStripOffset, BlackStripOffset};
+    constexpr uint32_t StripOffsets[4] = { BlueStripOffset, GreenStripOffset, RedStripOffset, BlackStripOffset };
     /**
      * First member: Strip number
      * Second: LED index closer to ceiling
      * Third: LED index closer to floor
      */
+    // clang-format off
     constexpr int32_t LEDAssignments[NumberOfSegments][3] =
     {
         {RedStripIndex, headof(3), tailof(3)},
@@ -189,6 +196,7 @@ namespace Chromance
         {BlackStripIndex, tailof(1), headof(1)},
         {BlueStripIndex, tailof(1), headof(1)}
     };
+    // clang-format on
 
     // The LED index of a segment's step, where step 0 is closest to the ceiling and LEDsPerSegment - 1 closest to the floor
     inline uint32_t SegmentLED(int32_t segment, uint32_t step)

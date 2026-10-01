@@ -34,7 +34,7 @@ namespace Chromance
         /**
          * This is not an animation type. It is a hack to get the count of animation types
          * DO NOT MOVE- We have to use auto assignment and this needs to be the last
-        */
+         */
         ANIMATION_TYPE_NUMBER_OF_ANIMATIONS
     };
 
@@ -59,29 +59,29 @@ namespace Chromance
 
     struct ChromanceState
     {
-        AnimationType animationType;
-        AnimationStatus animationStatus;
-        uint8_t brightness;
-        uint32_t fps;
-        uint32_t current;
-        const char* effect;
+            AnimationType animationType;
+            AnimationStatus animationStatus;
+            uint8_t brightness;
+            uint32_t fps;
+            uint32_t current;
+            const char* effect;
     };
 
     // A per-animation setting with its own Home Assistant number entity
     struct AnimationParameter
     {
-        const char* name;
-        float min;
-        float max;
-        float step;
-        float defaultValue;
-        const char* unit;
+            const char* name;
+            float min;
+            float max;
+            float step;
+            float defaultValue;
+            const char* unit;
     };
 
     struct PublishRequest
     {
-        unsigned long publishedAt;
-        ChromanceState state;
+            unsigned long publishedAt;
+            ChromanceState state;
     };
 }
 

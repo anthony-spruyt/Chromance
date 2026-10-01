@@ -78,23 +78,19 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
         {
             const char* state = doc["state"];
 
-            if
-            (
+            if (
                 strcmp(state, "ON") == 0 &&
                 chromanceState.animationStatus != ANIMATION_STATUS_PLAYING &&
-                chromanceState.animationStatus != ANIMATION_STATUS_WAKING_UP
-            )
+                chromanceState.animationStatus != ANIMATION_STATUS_WAKING_UP)
             {
                 this->animationController->Wake();
                 chromanceState.animationStatus = ANIMATION_STATUS_WAKING_UP;
                 publishState = true;
             }
-            else if
-            (
+            else if (
                 strcmp(state, "OFF") == 0 &&
                 chromanceState.animationStatus != ANIMATION_STATUS_GOING_TO_SLEEP &&
-                chromanceState.animationStatus != ANIMATION_STATUS_SLEEPING
-            )
+                chromanceState.animationStatus != ANIMATION_STATUS_SLEEPING)
             {
                 this->animationController->Sleep();
                 chromanceState.animationStatus = ANIMATION_STATUS_GOING_TO_SLEEP;
@@ -144,12 +140,10 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
                 {
                     animationType = (AnimationType)i;
 
-                    if
-                    (
+                    if (
                         this->animationController->GetAnimation(animationType) != nullptr &&
                         strcmp(effect, this->animationController->GetAnimation(animationType)->GetName()) == 0 &&
-                        currentAnimationType != animationType
-                    )
+                        currentAnimationType != animationType)
                     {
                         this->animationController->Play(animationType);
                         chromanceState.animationType = animationType;
@@ -408,13 +402,10 @@ void MQTTClient::Configure()
 {
     this->mqttClient.setBufferSize(PublishJsonBufferSize);
     this->mqttClient.setServer(MQTTBroker, MQTTPort);
-    this->mqttClient.setCallback
-    (
-        [this](char* topic, byte* payload, uint32_t length)
-        {
+    this->mqttClient.setCallback(
+        [this](char* topic, byte* payload, uint32_t length) {
             this->Callback(topic, payload, length);
-        }
-    );
+        });
     this->mqttClient.setKeepAlive(MQTTKeepAlive);
 }
 
@@ -579,16 +570,14 @@ void MQTTClient::PublishCurrentSensorDiscovery()
     this->PublishDocument(doc, this->GetDiscoveryTopic("sensor", uniqueID).c_str());
 }
 
-void MQTTClient::PublishNumberDiscovery
-(
+void MQTTClient::PublishNumberDiscovery(
     AnimationType animationType,
     const char* uniqueIDPrefix,
     const char* nameSuffix,
     const String& configKey,
     float min,
     float max,
-    float step
-)
+    float step)
 {
     String uniqueID;
     uniqueID += String(uniqueIDPrefix);
@@ -601,16 +590,14 @@ void MQTTClient::PublishNumberDiscovery
     this->PublishNumberDiscovery(uniqueID, name, configKey, min, max, step);
 }
 
-void MQTTClient::PublishNumberDiscovery
-(
+void MQTTClient::PublishNumberDiscovery(
     const String& uniqueID,
     const String& name,
     const String& configKey,
     float min,
     float max,
     float step,
-    const char* unit
-)
+    const char* unit)
 {
     String valueTemplate;
     valueTemplate += String("{{ value_json.");
@@ -721,9 +708,7 @@ ChromanceState MQTTClient::GetChromanceState()
     chromanceState.brightness = this->animationController->GetBrightness();
     chromanceState.fps = this->animationController->GetFPS();
     chromanceState.current = this->animationController->GetCurrent();
-    chromanceState.effect = chromanceState.animationType == ANIMATION_TYPE_RANDOM_ANIMATION ?
-        "Random" :
-        this->animationController->GetAnimation(chromanceState.animationType)->GetName();
+    chromanceState.effect = chromanceState.animationType == ANIMATION_TYPE_RANDOM_ANIMATION ? "Random" : this->animationController->GetAnimation(chromanceState.animationType)->GetName();
 
     return chromanceState;
 }

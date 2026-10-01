@@ -36,9 +36,7 @@ void TwinkleAnimation::Loop()
     for (segment = 0; segment < NumberOfSegments; segment++)
     {
         age = this->age[segment] = min(this->age[segment] + seconds, lifetime);
-        value = age < fadeInTime ?
-            (uint8_t)(age * UINT8_MAX / fadeInTime) :
-            UINT8_MAX - (uint8_t)((age - fadeInTime) * UINT8_MAX / fadeOutTime);
+        value = age < fadeInTime ? (uint8_t)(age * UINT8_MAX / fadeInTime) : UINT8_MAX - (uint8_t)((age - fadeInTime) * UINT8_MAX / fadeOutTime);
 
         for (uint32_t step = 0; step < LEDsPerSegment; step++)
         {

@@ -11,6 +11,13 @@ EXTENDS:
   - ".mega-linter-base.yml"
 CONFIG_PROPERTIES_TO_APPEND:
   - "ENABLE_LINTERS"
+ENABLE_LINTERS:
+  - "CPP_CLANG_FORMAT"
+  - "CPP_CPPCHECK"
+  - "CPP_CPPLINT"
+# Headers would otherwise be parsed as C
+CPP_CPPCHECK_ARGUMENTS:
+  - "--language=c++"
 EXCLUDED_DIRECTORIES:
   - "coverage"
   - "dist"
@@ -20,5 +27,6 @@ EXCLUDED_DIRECTORIES:
   - "worktrees"
   - ".worktrees"
   - ".output"
+  - ".pio"
   - "node_modules"
   - ".git"

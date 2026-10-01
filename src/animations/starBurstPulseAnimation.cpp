@@ -11,9 +11,7 @@ StarBurstPulseAnimation::StarBurstPulseAnimation(int32_t id, RipplePool* rippleP
 void StarBurstPulseAnimation::Start()
 {
     uint8_t baseColor = random8();
-    RippleBehavior behavior = random(2) ?
-        RIPPLE_BEHAVIOR_ALWAYS_LEFT :
-        RIPPLE_BEHAVIOR_ALWAYS_RIGHT;
+    RippleBehavior behavior = random(2) ? RIPPLE_BEHAVIOR_ALWAYS_LEFT : RIPPLE_BEHAVIOR_ALWAYS_RIGHT;
     Ripple* ripple;
 
     for (int32_t i = 0; i < MaxPathsPerNode; i++)
@@ -27,14 +25,12 @@ void StarBurstPulseAnimation::Start()
             break;
         }
 
-        ripple->Start
-        (
+        ripple->Start(
             CenterNode,
             i,
-            CHSV(baseColor + (256 / 6) * i,UINT8_MAX, UINT8_MAX),
+            CHSV(baseColor + (256 / 6) * i, UINT8_MAX, UINT8_MAX),
             this->GetSpeed(),
             this->GetLifespan(),
-            behavior
-        );
+            behavior);
     }
 }

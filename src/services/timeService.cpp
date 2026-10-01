@@ -23,9 +23,7 @@ String TimeService::Now()
 
 String TimeService::Now(String format)
 {
-    return this->isInitialized ?
-        this->localTimezone.dateTime(format) :
-        String(millis());
+    return this->isInitialized ? this->localTimezone.dateTime(format) : String(millis());
 }
 
 String TimeService::NowUTC()
@@ -35,9 +33,7 @@ String TimeService::NowUTC()
 
 String TimeService::NowUTC(String format)
 {
-    return this->isInitialized ?
-        UTC.dateTime(format) :
-        String(millis());
+    return this->isInitialized ? UTC.dateTime(format) : String(millis());
 }
 
 Timezone TimeService::GetLocalTimezone()

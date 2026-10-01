@@ -34,26 +34,22 @@ namespace Chromance
             void PublishDeviceDiscovery();
             void PublishFPSSensorDiscovery();
             void PublishCurrentSensorDiscovery();
-            void PublishNumberDiscovery
-            (
+            void PublishNumberDiscovery(
                 AnimationType animationType,
                 const char* uniqueIDPrefix,
                 const char* nameSuffix,
                 const String& configKey,
                 float min,
                 float max,
-                float step
-            );
-            void PublishNumberDiscovery
-            (
+                float step);
+            void PublishNumberDiscovery(
                 const String& uniqueID,
                 const String& name,
                 const String& configKey,
                 float min,
                 float max,
                 float step,
-                const char* unit = nullptr
-            );
+                const char* unit = nullptr);
             void PublishLightDiscovery();
             void PopulateDiscoveryDocument(JsonDocument& doc, const String& name, const String& uniqueID);
             void PublishDocument(JsonDocument& doc, const char* topic);

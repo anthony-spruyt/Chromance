@@ -64,24 +64,24 @@ void StripTestAnimation::Loop()
 
         switch (this->nextPixelColorTest)
         {
-            case 0U:
-                leds[this->counter] = CRGB::Red;
-                this->nextPixelColorTest++;
-                this->shouldWaitForPixelTestNextFrame = true;
-                break;
-            case 1U:
-                leds[this->counter] = CRGB::Green;
-                this->nextPixelColorTest++;
-                this->shouldWaitForPixelTestNextFrame = true;
-                break;
-            case 2U:
-                leds[this->counter] = CRGB::Blue;
-                this->nextPixelColorTest = 0;
-                this->counter++;
-                this->shouldWaitForPixelTestNextFrame = true;
-                break;
-            default:
-                break;
+        case 0U:
+            leds[this->counter] = CRGB::Red;
+            this->nextPixelColorTest++;
+            this->shouldWaitForPixelTestNextFrame = true;
+            break;
+        case 1U:
+            leds[this->counter] = CRGB::Green;
+            this->nextPixelColorTest++;
+            this->shouldWaitForPixelTestNextFrame = true;
+            break;
+        case 2U:
+            leds[this->counter] = CRGB::Blue;
+            this->nextPixelColorTest = 0;
+            this->counter++;
+            this->shouldWaitForPixelTestNextFrame = true;
+            break;
+        default:
+            break;
         }
     }
 }
