@@ -8,7 +8,9 @@ Config::Config() :
     brightness(1),
     sleeping(false),
     transitionDuration(DefaultTransitionDuration),
-    rippleStepsPerSecond(DefaultRippleStepsPerSecond)
+    rippleStepsPerSecond(DefaultRippleStepsPerSecond),
+    maxBrightness(DefaultMaxBrightness),
+    maxCurrent(DefaultMaxCurrent)
 {
     this->semaphore = xSemaphoreCreateMutex();
 
@@ -34,6 +36,8 @@ void Config::Setup()
     this->sleeping = this->preferences.getBool(SleepingConfigKey, this->sleeping);
     this->transitionDuration = this->preferences.getULong(TransitionDurationConfigKey, this->transitionDuration);
     this->rippleStepsPerSecond = this->preferences.getUInt(RippleStepsPerSecondConfigKey, this->rippleStepsPerSecond);
+    this->maxBrightness = (uint8_t)this->preferences.getUShort(MaxBrightnessConfigKey, this->maxBrightness);
+    this->maxCurrent = this->preferences.getUInt(MaxCurrentConfigKey, this->maxCurrent);
 
     String speedKey;
     String lifespanKey;
@@ -179,6 +183,66 @@ void Config::SetRippleStepsPerSecond(uint32_t value)
 uint32_t Config::GetRippleStepsPerSecond()
 {
     return this->rippleStepsPerSecond;
+}
+
+void Config::SetMaxBrightness(uint8_t value)
+{
+    if (value < 1U)
+    {
+        value = 1U;
+    }
+    else if (value > 100U)
+    {
+        value = 100U;
+    }
+
+    this->maxBrightness = value;
+
+    if (xSemaphoreTake(this->semaphore, portMAX_DELAY) != pdTRUE)
+    {
+        return;
+    }
+
+    preferences.begin(ConfigNamespace, false);
+    this->preferences.putUShort(MaxBrightnessConfigKey, value);
+    preferences.end();
+
+    xSemaphoreGive(this->semaphore);
+}
+
+uint8_t Config::GetMaxBrightness()
+{
+    return this->maxBrightness;
+}
+
+void Config::SetMaxCurrent(uint32_t value)
+{
+    if (value < MinMaxCurrent)
+    {
+        value = MinMaxCurrent;
+    }
+    else if (value > MaxMaxCurrent)
+    {
+        value = MaxMaxCurrent;
+    }
+
+    this->maxCurrent = value;
+
+    if (xSemaphoreTake(this->semaphore, portMAX_DELAY) != pdTRUE)
+    {
+        return;
+    }
+
+    preferences.begin(ConfigNamespace, false);
+    this->preferences.putUInt(MaxCurrentConfigKey, value);
+    preferences.end();
+
+    xSemaphoreGive(this->semaphore);
+}
+
+uint32_t Config::GetMaxCurrent()
+{
+    return this->maxCurrent;
 }
 
 float Config::GetAnimationSpeed(AnimationType animationType)

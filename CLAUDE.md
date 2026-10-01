@@ -48,6 +48,7 @@ pio run -e esp32rc -t upload             # OTA upload via ArduinoOTA/espota (fal
 - Each animation owns one `transitionScale` that `Transition()` moves over the configured transition duration by `millis()`. A reversed fade carries on from the current scale. `Wake(false)`/`Sleep(false)` switch instantly. Waking from `SLEEPING` calls `Reset()`, which clears the buffer. `RippleAnimation` overrides it to release its ripples and `PulseAnimation` to pick a new colour.
 - `AnimationController::Render()` runs every non-sleeping animation and adds each buffer into `leds`, scaled by `ease8InOutCubic(GetTransitionScale())`. Fades never modify animation buffers. `Show()` wakes one animation and sleeps the rest. The strip test always switches without a fade because its `Loop()` blocks for seconds.
 - In "Random" mode a new animation is picked every `RandomAnimationDuration`.
+- Brightness is applied per frame with `FastLED.show(brightness)`, not `FastLED.setBrightness()`. `Render()` scales the HA brightness by the max brightness percent, fades it over the transition duration, then lowers it if FastLED's power estimate for the frame exceeds the max current.
 - `RippleAnimation` subclasses (Cube/StarBurst/Center/Random Pulse, AroundTheWorld) implement `Start()`. They claim `Ripple`s from one `RipplePool` of 30 that all ripple animations share (`Claim(animationId)`). Ripples and trail decay advance in fixed steps at the configured ripple steps per second, not once per frame, so ripple speed and trail length don't depend on FPS.
 - Ripples walk the hex graph defined in `animations/ripples/map.h`: `NodeConnections` (node → 6 segment slots, clockwise from 12:00, -1 = none), `SegmentConnections`, `LEDAssignments` (segment → LED indices) and node groups such as `BorderNodes`, `CubeNodes` and `StarBurstNode`. `mapping.jpg` shows the node and segment numbering.
 - LEDs are four physical NEOPIXEL strips (blue/green/red/black) that map into one contiguous array through the offsets in `constants.h`.
@@ -63,11 +64,11 @@ The name string passed to the base constructor becomes the Home Assistant effect
 
 **Enum ordering matters**: `RANDOM_ANIMATION` must stay 0, `STRIP_TEST` must stay 1, and `NUMBER_OF_ANIMATIONS` must stay last. `NextAnimation()` skips indices below 2. Config keys are built as prefix + enum integer (e.g. `as3`, `rl3`), and so are HA discovery unique IDs. Reordering the enum therefore scrambles persisted NVS settings and HA entities.
 
-**Config (`services/config.*`)**: Values persist to ESP32 NVS through `Preferences` (namespace `config`): brightness, sleeping, log level, transition duration (`td`), ripple steps per second (`rs`), and per-animation speed / ripple lifespan / pulse period / decay.
+**Config (`services/config.*`)**: Values persist to ESP32 NVS through `Preferences` (namespace `config`): brightness, sleeping, log level, transition duration (`td`), ripple steps per second (`rs`), max brightness percent (`mb`), max current in mA (`mc`, sent and published as amps), and per-animation speed / ripple lifespan / pulse period / decay.
 
 **MQTT / Home Assistant (`services/mqttClient.*`)**:
 
-- On connect, and whenever `homeassistant/status` reports `online`, the client publishes HA MQTT discovery configs: a JSON-schema light with an effect list, an FPS sensor, global transition duration and ripple steps per second `number` entities, and per-animation `number` entities.
-- Commands arrive as JSON on `chromance/v1/command`. Keys: `state`, `brightness`, `effect`, `reboot`, `td`, `rs`, plus the per-animation config keys.
+- On connect, and whenever `homeassistant/status` reports `online`, the client publishes HA MQTT discovery configs: a JSON-schema light with an effect list, FPS and estimated current sensors, global transition duration / ripple steps per second / max brightness / max current `number` entities, and per-animation `number` entities.
+- Commands arrive as JSON on `chromance/v1/command`. Keys: `state`, `brightness`, `effect`, `reboot`, `td`, `rs`, `mb`, `mc`, plus the per-animation config keys.
 - State is published to `chromance/v1/state` periodically (faster while playing than while sleeping).
 - Disabling an animation through its `*Enabled` flag leaves a `nullptr` at its index. Discovery, command handling, `Play()` and `NextAnimation()` skip those, so any new code that loops over `GetAnimation(i)` must null-check too.

@@ -66,6 +66,8 @@ namespace Chromance
     constexpr const char* RippleDecayConfigKeyPrefix = "rd";
     constexpr const char* TransitionDurationConfigKey = "td";
     constexpr const char* RippleStepsPerSecondConfigKey = "rs";
+    constexpr const char* MaxBrightnessConfigKey = "mb";
+    constexpr const char* MaxCurrentConfigKey = "mc";
 
     //////////////////////////////////////////
     // LEDs
@@ -85,7 +87,13 @@ namespace Chromance
     constexpr uint32_t BlackStripLength = 154U;
     constexpr uint32_t NumberOfLEDs = BlueStripLength + GreenStripLength + RedStripLength + BlackStripLength;
     constexpr uint32_t MaxRefreshRate = 120U;
-    constexpr uint8_t StartupBrightness = 1U;
+    // Percent of full brightness that 100% in Home Assistant maps to
+    constexpr uint8_t DefaultMaxBrightness = 66U;
+    constexpr uint32_t LEDVoltage = 5U;
+    // FastLED assumes ~42mA per white LED but real ones can draw ~60mA, so the default leaves headroom under the 30A supply
+    constexpr uint32_t DefaultMaxCurrent = 20000U;
+    constexpr uint32_t MinMaxCurrent = 1000U;
+    constexpr uint32_t MaxMaxCurrent = 30000U;
     constexpr uint32_t StartupDelay = 500U;
     constexpr uint32_t BlueStripIndex = 0U;
     constexpr uint32_t GreenStripIndex = 1U;

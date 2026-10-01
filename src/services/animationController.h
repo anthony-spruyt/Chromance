@@ -33,16 +33,18 @@ namespace Chromance
             uint8_t GetBrightness();
             void SetBrightness(uint8_t value);
             uint32_t GetFPS();
+            // Estimated LED current draw in milliamps
+            uint32_t GetCurrent();
             Animation* GetAnimation(AnimationType animationType);
 
         private:
 
-            void HandleBrightness();
             void HandleAnimationRequest();
             void HandleRandomAnimation();
             // Wakes an animation and puts every other animation to sleep
             void Show(AnimationType animationType);
             void Render();
+            uint8_t GetFadedBrightness();
             AnimationType NextAnimation();
 
             Logger* logger;
@@ -54,6 +56,11 @@ namespace Chromance
             unsigned long lastRandomAnimationStarted;
             AnimationRequest next;
             RipplePool ripplePool;
+            uint8_t brightness;
+            uint8_t brightnessFrom;
+            uint8_t brightnessTarget;
+            unsigned long brightnessChangedAt;
+            uint32_t current;
     };
 }
 

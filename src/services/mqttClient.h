@@ -33,6 +33,7 @@ namespace Chromance
             void PublishState(ChromanceState state);
             void PublishDeviceDiscovery();
             void PublishFPSSensorDiscovery();
+            void PublishCurrentSensorDiscovery();
             void PublishNumberDiscovery
             (
                 AnimationType animationType,
@@ -50,7 +51,8 @@ namespace Chromance
                 const String& configKey,
                 float min,
                 float max,
-                float step
+                float step,
+                const char* unit = nullptr
             );
             void PublishLightDiscovery();
             void PopulateDiscoveryDocument(JsonDocument& doc, const String& name, const String& uniqueID);

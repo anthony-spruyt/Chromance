@@ -57,6 +57,7 @@ namespace Chromance
         AnimationStatus animationStatus;
         uint8_t brightness;
         uint32_t fps;
+        uint32_t current;
         const char* effect;
     };
 

@@ -20,6 +20,7 @@ MQTTClient::MQTTClient(Logger* logger, Config* config, AnimationController* anim
         this->publishQueue[i].state.animationType = ANIMATION_TYPE_RANDOM_ANIMATION;
         this->publishQueue[i].state.brightness = UINT8_MAX;
         this->publishQueue[i].state.fps = 0U;
+        this->publishQueue[i].state.current = 0U;
         this->publishQueue[i].publishedAt = 0U;
     }
 
@@ -178,6 +179,29 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
             if (this->config->GetRippleStepsPerSecond() != rippleStepsPerSecond)
             {
                 this->config->SetRippleStepsPerSecond(rippleStepsPerSecond);
+                publishState = true;
+            }
+        }
+
+        if (!doc[MaxBrightnessConfigKey].isNull())
+        {
+            uint8_t maxBrightness = doc[MaxBrightnessConfigKey];
+
+            if (this->config->GetMaxBrightness() != maxBrightness)
+            {
+                this->config->SetMaxBrightness(maxBrightness);
+                publishState = true;
+            }
+        }
+
+        // HA sends amps, NVS stores milliamps
+        if (!doc[MaxCurrentConfigKey].isNull())
+        {
+            uint32_t maxCurrent = lroundf(doc[MaxCurrentConfigKey].as<float>() * 1000.0f);
+
+            if (this->config->GetMaxCurrent() != maxCurrent)
+            {
+                this->config->SetMaxCurrent(maxCurrent);
                 publishState = true;
             }
         }
@@ -410,11 +434,14 @@ void MQTTClient::PublishState(ChromanceState state)
     doc["animationType"] = state.animationType;
     doc["brightness"] = state.brightness;
     doc["fps"] = state.fps;
+    doc["ma"] = state.current;
     doc["availability"] = "1";
     doc["state"] = state.animationStatus != ANIMATION_STATUS_PLAYING && state.animationStatus != ANIMATION_STATUS_WAKING_UP ? "OFF" : "ON";
     doc["effect"] = state.effect;
     doc[TransitionDurationConfigKey] = this->config->GetTransitionDuration();
     doc[RippleStepsPerSecondConfigKey] = this->config->GetRippleStepsPerSecond();
+    doc[MaxBrightnessConfigKey] = this->config->GetMaxBrightness();
+    doc[MaxCurrentConfigKey] = this->config->GetMaxCurrent() / 1000.0f;
 
     AnimationType animationType;
 
@@ -438,7 +465,10 @@ void MQTTClient::PublishState(ChromanceState state)
 void MQTTClient::PublishDeviceDiscovery()
 {
     this->PublishFPSSensorDiscovery();
+    this->PublishCurrentSensorDiscovery();
     this->PublishLightDiscovery();
+    this->PublishNumberDiscovery(String("chrmb1"), String("Max Brightness"), String(MaxBrightnessConfigKey), 1.0f, 100.0f, 1.0f, "%");
+    this->PublishNumberDiscovery(String("chrmc1"), String("Max Current"), String(MaxCurrentConfigKey), MinMaxCurrent / 1000.0f, MaxMaxCurrent / 1000.0f, 0.5f, "A");
     this->PublishNumberDiscovery(String("chrtd1"), String("Transition Duration"), String(TransitionDurationConfigKey), 0.0f, MaxTransitionDuration, 1.0f);
     this->PublishNumberDiscovery(String("chrrs1"), String("Ripple Steps Per Second"), String(RippleStepsPerSecondConfigKey), 1.0f, MaxRippleStepsPerSecond, 1.0f);
 
@@ -478,6 +508,20 @@ void MQTTClient::PublishFPSSensorDiscovery()
     this->PublishDocument(doc, this->GetDiscoveryTopic("sensor", uniqueID).c_str());
 }
 
+void MQTTClient::PublishCurrentSensorDiscovery()
+{
+    String uniqueID = String("chrcur1");
+    JsonDocument doc;
+
+    this->PopulateDiscoveryDocument(doc, String("Current"), uniqueID);
+    doc["stat_cla"] = "measurement";
+    doc["val_tpl"] = "{{ (value_json.ma / 1000) | round(2) }}";
+    doc["dev_cla"] = "current";
+    doc["unit_of_meas"] = "A";
+
+    this->PublishDocument(doc, this->GetDiscoveryTopic("sensor", uniqueID).c_str());
+}
+
 void MQTTClient::PublishNumberDiscovery
 (
     AnimationType animationType,
@@ -507,7 +551,8 @@ void MQTTClient::PublishNumberDiscovery
     const String& configKey,
     float min,
     float max,
-    float step
+    float step,
+    const char* unit
 )
 {
     String valueTemplate;
@@ -529,6 +574,11 @@ void MQTTClient::PublishNumberDiscovery
     doc["max"] = max;
     doc["step"] = step;
     doc["val_tpl"] = valueTemplate;
+
+    if (unit != nullptr)
+    {
+        doc["unit_of_meas"] = unit;
+    }
 
     this->PublishDocument(doc, this->GetDiscoveryTopic("number", uniqueID).c_str());
 }
@@ -613,6 +663,7 @@ ChromanceState MQTTClient::GetChromanceState()
     chromanceState.animationType = this->animationController->GetAnimationType();
     chromanceState.brightness = this->animationController->GetBrightness();
     chromanceState.fps = this->animationController->GetFPS();
+    chromanceState.current = this->animationController->GetCurrent();
     chromanceState.effect = chromanceState.animationType == ANIMATION_TYPE_RANDOM_ANIMATION ?
         "Random" :
         this->animationController->GetAnimation(chromanceState.animationType)->GetName();

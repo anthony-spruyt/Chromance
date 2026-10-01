@@ -24,6 +24,10 @@ namespace Chromance
             unsigned long GetTransitionDuration();
             void SetRippleStepsPerSecond(uint32_t value);
             uint32_t GetRippleStepsPerSecond();
+            void SetMaxBrightness(uint8_t value);
+            uint8_t GetMaxBrightness();
+            void SetMaxCurrent(uint32_t value);
+            uint32_t GetMaxCurrent();
 
             float GetAnimationSpeed(AnimationType animationType);
             unsigned long GetRippleLifespan(AnimationType animationType);
@@ -49,6 +53,8 @@ namespace Chromance
             bool sleeping;
             unsigned long transitionDuration;
             uint32_t rippleStepsPerSecond;
+            uint8_t maxBrightness;
+            uint32_t maxCurrent;
             float animationSpeed[ANIMATION_TYPE_NUMBER_OF_ANIMATIONS];
             unsigned long rippleLifespan[ANIMATION_TYPE_NUMBER_OF_ANIMATIONS];
             unsigned long ripplePulsePeriod[ANIMATION_TYPE_NUMBER_OF_ANIMATIONS];

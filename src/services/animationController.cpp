@@ -15,7 +15,12 @@ AnimationController::AnimationController(Logger* logger, Config* config) :
     currentAnimationType(ANIMATION_TYPE_RANDOM_ANIMATION),
     lastRandomAnimationStarted(0),
     next(ANIMATION_REQUEST_NONE),
-    ripplePool()
+    ripplePool(),
+    brightness(0U),
+    brightnessFrom(0U),
+    brightnessTarget(0U),
+    brightnessChangedAt(0UL),
+    current(0U)
 {
     this->logger = logger;
     this->config = config;
@@ -49,7 +54,6 @@ void AnimationController::Setup()
     FastLED.addLeds<NEOPIXEL, BlackStripDataPin>(this->leds, BlackStripOffset, BlackStripLength);
 
     FastLED.setMaxRefreshRate(MaxRefreshRate);
-    FastLED.setBrightness(StartupBrightness);
     FastLED.setCorrection(TypicalLEDStrip);
 
     FastLED.clear();
@@ -77,7 +81,6 @@ void AnimationController::Loop()
 {
     if (xSemaphoreTake(this->semaphore, 0U) == pdTRUE)
     {
-        this->HandleBrightness();
         this->HandleAnimationRequest();
         this->HandleRandomAnimation();
 
@@ -154,19 +157,14 @@ uint32_t AnimationController::GetFPS()
     return FastLED.getFPS();
 }
 
+uint32_t AnimationController::GetCurrent()
+{
+    return this->current;
+}
+
 Animation* AnimationController::GetAnimation(AnimationType animationType)
 {
     return this->animations[animationType];
-}
-
-void AnimationController::HandleBrightness()
-{
-    uint8_t configBrightness = this->config->GetBrightness();
-
-    if (FastLED.getBrightness() != configBrightness)
-    {
-        FastLED.setBrightness(configBrightness);
-    }
 }
 
 void AnimationController::HandleAnimationRequest()
@@ -273,7 +271,40 @@ void AnimationController::Render()
         }
     }
 
-    FastLED.show();
+    uint8_t brightness = this->GetFadedBrightness();
+    uint32_t maxPower = this->config->GetMaxCurrent() * LEDVoltage;
+    uint32_t power = calculate_unscaled_power_mW(this->leds, NumberOfLEDs) * brightness / 256U;
+
+    if (power > maxPower)
+    {
+        brightness = (uint32_t)brightness * maxPower / power;
+        power = maxPower;
+    }
+
+    this->current = power / LEDVoltage;
+
+    FastLED.show(brightness);
+}
+
+uint8_t AnimationController::GetFadedBrightness()
+{
+    uint8_t target = (uint32_t)this->config->GetBrightness() * this->config->GetMaxBrightness() / 100U;
+
+    if (target != this->brightnessTarget)
+    {
+        this->brightnessFrom = this->brightness;
+        this->brightnessTarget = target;
+        this->brightnessChangedAt = millis();
+    }
+
+    unsigned long elapsed = millis() - this->brightnessChangedAt;
+    unsigned long duration = this->config->GetTransitionDuration();
+
+    this->brightness = elapsed >= duration ?
+        target :
+        lerp8by8(this->brightnessFrom, target, UINT8_MAX * elapsed / duration);
+
+    return this->brightness;
 }
 
 AnimationType AnimationController::NextAnimation()
