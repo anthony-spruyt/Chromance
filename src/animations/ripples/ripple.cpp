@@ -49,8 +49,6 @@ void Ripple::Advance(CRGB* leds)
     // Ripple slows down as it ages
     this->pressure += Fmap(float(age), 0.0f, float(this->lifespan), this->speed, 0.0f);
 
-    // TODO: Motion of ripple is severely affected by loop speed. Make it time invariant
-
     if (this->pressure < 1.0f && (this->state == RIPPLE_STATE_TRAVEL_UP || this->state == RIPPLE_STATE_TRAVEL_DOWN))
     {
         // Ripple is visible but hasn't moved - render it to avoid flickering
@@ -337,10 +335,9 @@ RippleState Ripple::GetState()
     // Safety net so a ripple can't hold a pool slot forever, e.g. one with no lifespan
     if (this->state != RIPPLE_STATE_DEAD)
     {
-        if (now - this->startedAt > RandomAnimationDuration)
+        if (now - this->startedAt > max(this->lifespan, RippleMaxLifespan))
         {
-            this->state = RIPPLE_STATE_DEAD;
-            this->node = this->direction = this->pressure = 0;
+            this->Kill();
         }
     }
 

@@ -144,6 +144,7 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
 
                     if
                     (
+                        this->animationController->GetAnimation(animationType) != nullptr &&
                         strcmp(effect, this->animationController->GetAnimation(animationType)->GetName()) == 0 &&
                         currentAnimationType != animationType
                     )
@@ -421,13 +422,18 @@ void MQTTClient::PublishDeviceDiscovery()
     {
         animationType = (AnimationType)i;
 
+        if (this->animationController->GetAnimation(animationType) == nullptr)
+        {
+            continue;
+        }
+
         this->PublishNumberDiscovery(animationType, "chrspd", " Speed", this->config->GetAnimationSpeedKey(animationType), 0.01f, 10.0f, 0.01f);
 
         if (this->animationController->GetAnimation(animationType)->IsRippleAnimation())
         {
             this->PublishNumberDiscovery(animationType, "chrplsprd", " Pulse Period", this->config->GetRipplePulsePeriodKey(animationType), 1.0f, 30000.0f, 1.0f);
             this->PublishNumberDiscovery(animationType, "chrdcy", " Decay", this->config->GetRippleDecayKey(animationType), 0.0f, UINT8_MAX, 1.0f);
-            this->PublishNumberDiscovery(animationType, "chrlfsp", " Lifespan", this->config->GetRippleLifespanKey(animationType), 1.0f, 30000.0f, 1.0f);
+            this->PublishNumberDiscovery(animationType, "chrlfsp", " Lifespan", this->config->GetRippleLifespanKey(animationType), 1.0f, RippleMaxLifespan, 1.0f);
         }
     }
 }
@@ -505,7 +511,10 @@ void MQTTClient::PublishLightDiscovery()
 
     for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
     {
-        effects.add(this->animationController->GetAnimation((AnimationType)i)->GetName());
+        if (this->animationController->GetAnimation((AnimationType)i) != nullptr)
+        {
+            effects.add(this->animationController->GetAnimation((AnimationType)i)->GetName());
+        }
     }
 
     this->PublishDocument(doc, this->GetDiscoveryTopic("light", uniqueID).c_str());

@@ -166,7 +166,7 @@ namespace Chromance
     constexpr bool CenterPulseAnimationEnabled = true;
 
     //////////////////////////////////////////
-    // ANIMATIONS - CENTER PULSE
+    // ANIMATIONS - RANDOM PULSE
     //////////////////////////////////////////
 
     constexpr bool RandomPulseAnimationEnabled = true;
@@ -176,6 +176,15 @@ namespace Chromance
     //////////////////////////////////////////
 
     constexpr bool AroundTheWorldAnimationEnabled = true;
+
+    //////////////////////////////////////////
+    // ANIMATIONS - RIPPLES
+    //////////////////////////////////////////
+
+    // Ripple speeds and trail decay were tuned at this rate, so changing it changes how every ripple animation looks
+    constexpr uint32_t RippleStepsPerSecond = 60U;
+    // The largest lifespan Home Assistant offers, in milliseconds
+    constexpr unsigned long RippleMaxLifespan = 30000UL;
 
     //////////////////////////////////////////
     // TASKS

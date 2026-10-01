@@ -86,7 +86,7 @@ void AnimationController::Loop()
 
     this->Render();
 
-    FastLED.delay(TaskDelay);
+    vTaskDelay(TaskDelay);
 }
 
 void AnimationController::Sleep()
@@ -113,7 +113,8 @@ void AnimationController::Play(AnimationType animationType)
 {
     if
     (
-        animationType == ANIMATION_TYPE_NUMBER_OF_ANIMATIONS
+        animationType >= ANIMATION_TYPE_NUMBER_OF_ANIMATIONS ||
+        (animationType != ANIMATION_TYPE_RANDOM_ANIMATION && this->animations[animationType] == nullptr)
     )
     {
         return;
@@ -273,7 +274,6 @@ void AnimationController::Render()
     }
 
     FastLED.show();
-    FastLED.countFPS();
 }
 
 AnimationType AnimationController::NextAnimation()
@@ -310,5 +310,13 @@ AnimationType AnimationController::NextAnimation()
         }
     }
 
-    return ANIMATION_TYPE_CUBE_PULSE;
+    for (int32_t i = offset; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
+    {
+        if (this->animations[i] != nullptr)
+        {
+            return (AnimationType)i;
+        }
+    }
+
+    return ANIMATION_TYPE_STRIP_TEST;
 }

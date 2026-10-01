@@ -2,8 +2,6 @@
 
 using namespace Chromance;
 
-
-
 RippleAnimation::RippleAnimation
 (
     int32_t id,
@@ -13,12 +11,42 @@ RippleAnimation::RippleAnimation
     Logger* logger
 ) :
     Animation(id, name, config, logger),
-    lastPulse(0UL)
+    lastPulse(0UL),
+    lastStep(0UL)
 {
     this->ripplePool = ripplePool;
 }
 
 void RippleAnimation::Loop()
+{
+    unsigned long nowMicros = micros();
+    uint32_t steps = 0U;
+
+    // Fixed rate steps keep ripple speed and trail length the same at any frame rate
+    while (nowMicros - this->lastStep >= RippleStepMicros)
+    {
+        if (steps == RippleMaxStepsPerFrame)
+        {
+            this->lastStep = nowMicros;
+
+            break;
+        }
+
+        this->Step();
+        this->lastStep += RippleStepMicros;
+        steps++;
+    }
+
+    unsigned long now = millis();
+
+    if (now - this->lastPulse >= this->config->GetRipplePulsePeriod(this->GetAnimationType()))
+    {
+        this->Start();
+        this->lastPulse = now;
+    }
+}
+
+void RippleAnimation::Step()
 {
     // Fade all dots to create trails
     nscale8(this->leds, NumberOfLEDs, this->config->GetRippleDecay(this->GetAnimationType()));
@@ -34,14 +62,6 @@ void RippleAnimation::Loop()
             ripple->Advance(this->leds);
         }
     }
-
-    unsigned long now = millis();
-
-    if (now - this->lastPulse >= this->config->GetRipplePulsePeriod(this->GetAnimationType()))
-    {
-        this->Start();
-        this->lastPulse = now;
-    }
 }
 
 bool RippleAnimation::IsRippleAnimation()
@@ -54,6 +74,7 @@ void RippleAnimation::Reset()
     Animation::Reset();
     this->ripplePool->Release(this->id);
     this->lastPulse = 0UL;
+    this->lastStep = micros();
 }
 
 unsigned long RippleAnimation::GetLifespan()
