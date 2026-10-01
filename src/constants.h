@@ -2,6 +2,7 @@
 #define CONSTANTS_H_
 
 #include <Arduino.h>
+#include "models.h"
 
 namespace Chromance
 {
@@ -71,6 +72,8 @@ namespace Chromance
     constexpr const char* MaxBrightnessConfigKey = "mb";
     constexpr const char* MaxCurrentConfigKey = "mc";
     constexpr const char* RandomAnimationDurationConfigKey = "ra";
+    // Followed by the animation number, an underscore and the parameter number, e.g. ap14_0
+    constexpr const char* AnimationParameterConfigKeyPrefix = "ap";
 
     //////////////////////////////////////////
     // LEDs
@@ -116,6 +119,15 @@ namespace Chromance
     // The duration in milliseconds of a fade between animations, or into and out of sleep
     constexpr unsigned long DefaultTransitionDuration = 1500UL;
     constexpr unsigned long MaxTransitionDuration = 10000UL;
+    constexpr uint8_t MaxAnimationParameters = 4U;
+
+    template <size_t N>
+    constexpr uint8_t NumberOfParameters(const AnimationParameter (&)[N])
+    {
+        static_assert(N <= MaxAnimationParameters, "Raise MaxAnimationParameters");
+
+        return N;
+    }
 
     //////////////////////////////////////////
     // ANIMATIONS - RAINBOW
@@ -192,6 +204,95 @@ namespace Chromance
     //////////////////////////////////////////
 
     constexpr bool AroundTheWorldAnimationEnabled = true;
+
+    //////////////////////////////////////////
+    // ANIMATIONS - PARAMETERS
+    // Each animation's sliders in Home Assistant: {name, min, max, step, default, unit}
+    // A parameter's position is its config key and Home Assistant ID, so only ever append, and keep each enum in the same order
+    //////////////////////////////////////////
+
+    constexpr bool PlasmaAnimationEnabled = true;
+    enum PlasmaParameter { PLASMA_DETAIL, PLASMA_MORPH_SPEED, PLASMA_COLOR_SPEED };
+    constexpr AnimationParameter PlasmaAnimationParameters[] =
+    {
+        {"Detail", 1.0f, 20.0f, 1.0f, 6.0f, nullptr},
+        {"Morph Speed", 0.0f, 1000.0f, 5.0f, 125.0f, nullptr},
+        {"Color Speed", 0.0f, 255.0f, 1.0f, 10.0f, nullptr}
+    };
+
+    constexpr bool RadarAnimationEnabled = true;
+    enum RadarParameter { RADAR_TURNS_PER_MINUTE, RADAR_TRAIL, RADAR_COLOR_SPEED };
+    constexpr AnimationParameter RadarAnimationParameters[] =
+    {
+        {"Turns Per Minute", 1.0f, 120.0f, 1.0f, 20.0f, nullptr},
+        {"Trail", 1.0f, 255.0f, 1.0f, 96.0f, nullptr},
+        {"Color Speed", 0.0f, 255.0f, 1.0f, 10.0f, nullptr}
+    };
+
+    constexpr bool RainbowSwirlAnimationEnabled = true;
+    enum RainbowSwirlParameter { RAINBOW_SWIRL_SPIN_SPEED, RAINBOW_SWIRL_TWIST };
+    constexpr AnimationParameter RainbowSwirlAnimationParameters[] =
+    {
+        {"Spin Speed", 0.0f, 500.0f, 2.0f, 100.0f, nullptr},
+        {"Twist", -254.0f, 254.0f, 2.0f, 128.0f, nullptr}
+    };
+
+    constexpr bool RingsAnimationEnabled = true;
+    enum RingsParameter { RINGS_COUNT, RINGS_RING_SPEED, RINGS_COLOR_SPEED };
+    constexpr AnimationParameter RingsAnimationParameters[] =
+    {
+        {"Count", 1.0f, 10.0f, 1.0f, 3.0f, nullptr},
+        {"Ring Speed", 0.0f, 1000.0f, 5.0f, 250.0f, nullptr},
+        {"Color Speed", 0.0f, 255.0f, 1.0f, 20.0f, nullptr}
+    };
+
+    constexpr bool FireAnimationEnabled = true;
+    enum FireParameter { FIRE_RISE_SPEED, FIRE_FLICKER_SPEED, FIRE_COOLING, FIRE_DETAIL };
+    constexpr AnimationParameter FireAnimationParameters[] =
+    {
+        {"Rise Speed", 0.0f, 1000.0f, 5.0f, 400.0f, nullptr},
+        {"Flicker Speed", 0.0f, 1000.0f, 5.0f, 120.0f, nullptr},
+        {"Cooling", 0.0f, 255.0f, 1.0f, 160.0f, nullptr},
+        {"Detail", 1.0f, 20.0f, 1.0f, 6.0f, nullptr}
+    };
+    // HeatColors_p blends back to black past this index
+    constexpr uint8_t FireAnimationMaxPaletteIndex = 240U;
+
+    constexpr bool TwinkleAnimationEnabled = true;
+    enum TwinkleParameter { TWINKLE_PER_SECOND, TWINKLE_FADE_TIME };
+    constexpr AnimationParameter TwinkleAnimationParameters[] =
+    {
+        {"Twinkles Per Second", 0.5f, 50.0f, 0.5f, 10.0f, nullptr},
+        {"Fade Time", 100.0f, 10000.0f, 50.0f, 1500.0f, "ms"}
+    };
+
+    inline const AnimationParameter* GetAnimationParameters(AnimationType animationType, uint8_t& count)
+    {
+        switch (animationType)
+        {
+            case ANIMATION_TYPE_PLASMA:
+                count = NumberOfParameters(PlasmaAnimationParameters);
+                return PlasmaAnimationParameters;
+            case ANIMATION_TYPE_RADAR:
+                count = NumberOfParameters(RadarAnimationParameters);
+                return RadarAnimationParameters;
+            case ANIMATION_TYPE_RAINBOW_SWIRL:
+                count = NumberOfParameters(RainbowSwirlAnimationParameters);
+                return RainbowSwirlAnimationParameters;
+            case ANIMATION_TYPE_RINGS:
+                count = NumberOfParameters(RingsAnimationParameters);
+                return RingsAnimationParameters;
+            case ANIMATION_TYPE_FIRE:
+                count = NumberOfParameters(FireAnimationParameters);
+                return FireAnimationParameters;
+            case ANIMATION_TYPE_TWINKLE:
+                count = NumberOfParameters(TwinkleAnimationParameters);
+                return TwinkleAnimationParameters;
+            default:
+                count = 0U;
+                return nullptr;
+        }
+    }
 
     //////////////////////////////////////////
     // ANIMATIONS - RIPPLES

@@ -234,6 +234,9 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
         unsigned long ripplePulsePeriod;
         unsigned long currentRipplePulsePeriod;
 
+        String parameterKey;
+        uint8_t parameterCount;
+
         for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
         {
             animationType = (AnimationType)i;
@@ -290,6 +293,19 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
                 if (currentRipplePulsePeriod != ripplePulsePeriod)
                 {
                     this->config->SetRipplePulsePeriod(animationType, ripplePulsePeriod);
+                    publishState = true;
+                }
+            }
+
+            GetAnimationParameters(animationType, parameterCount);
+
+            for (uint8_t j = 0; j < parameterCount; j++)
+            {
+                parameterKey = this->config->GetAnimationParameterKey(animationType, j);
+
+                if (!doc[parameterKey].isNull() && this->config->GetAnimationParameter(animationType, j) != doc[parameterKey].as<float>())
+                {
+                    this->config->SetAnimationParameter(animationType, j, doc[parameterKey].as<float>());
                     publishState = true;
                 }
             }
@@ -457,6 +473,7 @@ void MQTTClient::PublishState(ChromanceState state)
     doc[MaxCurrentConfigKey] = this->config->GetMaxCurrent() / 1000.0f;
 
     AnimationType animationType;
+    uint8_t parameterCount;
 
     for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
     {
@@ -466,6 +483,13 @@ void MQTTClient::PublishState(ChromanceState state)
         doc[this->config->GetRippleDecayKey(animationType)] = this->config->GetRippleDecay(animationType);
         doc[this->config->GetRippleLifespanKey(animationType)] = this->config->GetRippleLifespan(animationType);
         doc[this->config->GetRipplePulsePeriodKey(animationType)] = this->config->GetRipplePulsePeriod(animationType);
+
+        GetAnimationParameters(animationType, parameterCount);
+
+        for (uint8_t j = 0; j < parameterCount; j++)
+        {
+            doc[this->config->GetAnimationParameterKey(animationType, j)] = this->config->GetAnimationParameter(animationType, j);
+        }
     }
 
     doc.shrinkToFit();
@@ -487,6 +511,7 @@ void MQTTClient::PublishDeviceDiscovery()
     this->PublishNumberDiscovery(String("chrrs1"), String("Ripple Steps Per Second"), String(RippleStepsPerSecondConfigKey), 1.0f, MaxRippleStepsPerSecond, 1.0f);
 
     AnimationType animationType;
+    uint8_t parameterCount;
 
     for (uint32_t i = 2; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
     {
@@ -504,6 +529,24 @@ void MQTTClient::PublishDeviceDiscovery()
             this->PublishNumberDiscovery(animationType, "chrplsprd", " Pulse Period", this->config->GetRipplePulsePeriodKey(animationType), 1.0f, 30000.0f, 1.0f);
             this->PublishNumberDiscovery(animationType, "chrdcy", " Decay", this->config->GetRippleDecayKey(animationType), 0.0f, UINT8_MAX, 1.0f);
             this->PublishNumberDiscovery(animationType, "chrlfsp", " Lifespan", this->config->GetRippleLifespanKey(animationType), 1.0f, RippleMaxLifespan, 1.0f);
+        }
+
+        const AnimationParameter* parameters = GetAnimationParameters(animationType, parameterCount);
+
+        for (uint8_t j = 0; j < parameterCount; j++)
+        {
+            String uniqueID;
+            uniqueID += String("chrap");
+            uniqueID += String(animationType);
+            uniqueID += String("_");
+            uniqueID += String(j);
+
+            String name;
+            name += this->animationController->GetAnimation(animationType)->GetName();
+            name += String(" ");
+            name += String(parameters[j].name);
+
+            this->PublishNumberDiscovery(uniqueID, name, this->config->GetAnimationParameterKey(animationType, j), parameters[j].min, parameters[j].max, parameters[j].step, parameters[j].unit);
         }
     }
 }

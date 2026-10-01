@@ -45,14 +45,27 @@ pio run -e esp32rc -t upload             # OTA upload via ArduinoOTA/espota (fal
 **Animations (`src/animations/`)**:
 
 - `Animation` is the base class. Each instance owns its own `CRGB leds[NumberOfLEDs]` buffer and a status (`PLAYING`, `SLEEPING`, `WAKING_UP`, `GOING_TO_SLEEP`).
+
 - Each animation owns one `transitionScale` that `Transition()` moves over the configured transition duration by `millis()`. A reversed fade carries on from the current scale. `Wake(false)`/`Sleep(false)` switch instantly. Waking from `SLEEPING` calls `Reset()`, which clears the buffer. `RippleAnimation` overrides it to release its ripples and `PulseAnimation` to pick a new colour.
+
 - `AnimationController::Render()` runs every non-sleeping animation and adds each buffer into `leds`, scaled by `ease8InOutCubic(GetTransitionScale())`. Fades never modify animation buffers. `Show()` wakes one animation and sleeps the rest. The strip test always switches without a fade because its `Loop()` blocks for seconds.
+
 - In "Random" mode a new animation is picked every random duration seconds (config `ra`).
+
 - Brightness is applied per frame with `FastLED.show(brightness)`, not `FastLED.setBrightness()`. `Render()` scales the HA brightness by the max brightness percent, fades it over the transition duration, then lowers it if FastLED's power estimate for the frame exceeds the max current. Dithering is re-enabled before every `show()` because FastLED switches it off whenever its FPS reading is under
   100, which is always true at boot. Without it, dim colours step visibly.
+
 - `RippleAnimation` subclasses (Cube/StarBurst/Center/Random Pulse, AroundTheWorld) implement `Start()`. They claim `Ripple`s from one `RipplePool` of 30 that all ripple animations share (`Claim(animationId)`). Ripples and trail decay advance in fixed steps at the configured ripple steps per second, not once per frame, so ripple speed and trail length don't depend on FPS.
+
 - Ripples walk the hex graph defined in `animations/ripples/map.h`: `NodeConnections` (node → 6 segment slots, clockwise from 12:00, -1 = none), `SegmentConnections`, `LEDAssignments` (segment → LED indices) and node groups such as `BorderNodes`, `CubeNodes` and `StarBurstNode`. `mapping.jpg` shows the node and segment numbering.
+
 - LEDs are four physical NEOPIXEL strips (blue/green/red/black) that map into one contiguous array through the offsets in `constants.h`.
+
+- `LEDMap` (`animations/ledMap.*`, one instance owned by `AnimationController`) precomputes every LED's x, y, distance and angle from the center node (0–255) from `NodeCoordinates` in `map.h`. Position-based animations (Plasma, Radar, Rainbow Swirl, Rings, Fire) take an `LEDMap*` and never touch strip wiring. `SegmentLED(segment, step)` in `map.h` maps a segment step (0 = top) to an LED index.
+
+- Move animations by accumulating `rate * GetElapsedSeconds()` (speed-scaled seconds since the last call, once per `Loop()`) into a float member, wrapped with `fmodf`. `millis() * rate` jumps whenever a slider changes the rate.
+
+- Per-animation Home Assistant sliders: an `AnimationParameter` table plus an index enum in `constants.h`, returned from `GetAnimationParameters()`, read with `GetParameter(index)`. Config keys are `ap<N>_<P>` and unique IDs `chrap<N>_<P>`, so only append parameters, never reorder.
 
 **Adding an animation**:
 

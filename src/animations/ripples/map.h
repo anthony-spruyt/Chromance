@@ -27,6 +27,23 @@ namespace Chromance
     constexpr int32_t CenterNode = 15;
     constexpr int32_t BottomNode = 24;
 
+    // In segment lengths, so a segment between neighbouring nodes is 1 long whichever way it runs
+    constexpr float HexColumnWidth = 0.8660254f;
+    constexpr float HexRowHeight = 0.5f;
+    // {column, row} on the wall: a column is half a hexagon wide and a row is half a segment tall
+    constexpr int32_t NodeCoordinates[NumberOfNodes][2] =
+    {
+        {1, 0}, {3, 0}, {5, 0},
+        {0, 1}, {2, 1}, {4, 1}, {6, 1},
+        {1, 2}, {3, 2}, {5, 2},
+        {0, 3}, {2, 3}, {4, 3}, {6, 3},
+        {1, 4}, {3, 4}, {5, 4},
+        {2, 5}, {4, 5},
+        {1, 6}, {3, 6}, {5, 6},
+        {2, 7}, {4, 7},
+        {3, 8}
+    };
+
     /**
      * LED segment numbers
      * Beam 0 is at 12:00 and advance clockwise
@@ -68,7 +85,6 @@ namespace Chromance
     /**
      * First member: Node closer to ceiling
      * Second: Node closer to floor
-     * Node connection list ()
      */
     constexpr int32_t SegmentConnections[NumberOfSegments][2] =
     {
@@ -116,6 +132,8 @@ namespace Chromance
     // These are mapped as base 1 and NOT base 0, hence the S - 1
     #define headof(S) ((S - 1) * 14)
     #define tailof(S) (headof(S) + 13)
+    // Indexed by the strip number in LEDAssignments
+    constexpr uint32_t StripOffsets[4] = {BlueStripOffset, GreenStripOffset, RedStripOffset, BlackStripOffset};
     /**
      * First member: Strip number
      * Second: LED index closer to ceiling
@@ -171,6 +189,15 @@ namespace Chromance
         {BlackStripIndex, tailof(1), headof(1)},
         {BlueStripIndex, tailof(1), headof(1)}
     };
+
+    // The LED index of a segment's step, where step 0 is closest to the ceiling and LEDsPerSegment - 1 closest to the floor
+    inline uint32_t SegmentLED(int32_t segment, uint32_t step)
+    {
+        int32_t top = LEDAssignments[segment][1];
+        int32_t led = top < LEDAssignments[segment][2] ? top + step : top - step;
+
+        return StripOffsets[LEDAssignments[segment][0]] + led;
+    }
 }
 
 #endif

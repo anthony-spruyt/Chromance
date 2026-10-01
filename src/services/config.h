@@ -46,11 +46,15 @@ namespace Chromance
             void SetRippleLifespan(AnimationType animationType, unsigned long value);
             void SetRipplePulsePeriod(AnimationType animationType, unsigned long value);
             void SetRippleDecay(AnimationType animationType, uint8_t value);
+            float GetAnimationParameter(AnimationType animationType, uint8_t index);
+            // Clamped to the parameter's min and max
+            void SetAnimationParameter(AnimationType animationType, uint8_t index, float value);
 
             String GetAnimationSpeedKey(AnimationType animationType);
             String GetRippleLifespanKey(AnimationType animationType);
             String GetRipplePulsePeriodKey(AnimationType animationType);
             String GetRippleDecayKey(AnimationType animationType);
+            String GetAnimationParameterKey(AnimationType animationType, uint8_t index);
 
         private:
 
@@ -75,6 +79,7 @@ namespace Chromance
             unsigned long rippleLifespan[ANIMATION_TYPE_NUMBER_OF_ANIMATIONS];
             unsigned long ripplePulsePeriod[ANIMATION_TYPE_NUMBER_OF_ANIMATIONS];
             uint8_t rippleDecay[ANIMATION_TYPE_NUMBER_OF_ANIMATIONS];
+            float animationParameters[ANIMATION_TYPE_NUMBER_OF_ANIMATIONS][MaxAnimationParameters];
     };
 }
 

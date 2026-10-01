@@ -138,6 +138,7 @@ The device has these entities:
 - **FPS** (sensor): current frame rate.
 - **\<Animation> Speed** (number, 0.01–10): per-animation speed multiplier.
 - **\<Animation> Pulse Period**, **Decay** and **Lifespan** (numbers): ripple animations only. Pulse Period (ms) is how often new ripples start, Lifespan (ms) is how long a ripple lives, and Decay (0–255) is how much of the trail is kept each frame: higher values leave longer trails.
+- **\<Animation> \<Setting>** (numbers): extra settings for Plasma, Radar, Rainbow Swirl, Rings, Fire and Twinkle, such as Fire Rise Speed or Rings Count. Their names, ranges and defaults are in `AnimationParameters` in [constants.h](src/constants.h).
 
 Settings changed from Home Assistant are saved in the ESP32's flash (NVS), so they survive reboots and firmware updates.
 
@@ -167,6 +168,7 @@ Send any combination of these keys in one JSON object to `chromance/v1/command`:
 | `rp<N>`      | ripple pulse period in ms for animation `N` (default 2000)                       |
 | `rl<N>`      | ripple lifespan in ms for animation `N` (default 2000)                           |
 | `rd<N>`      | ripple trail decay 0–255 for animation `N`, higher = longer trails (default 247) |
+| `ap<N>_<P>`  | setting `P` of animation `N`, e.g. `ap14_0` is Fire Rise Speed                   |
 
 | `N` | Animation                                                            | Ripple |
 | --- | -------------------------------------------------------------------- | ------ |
@@ -179,13 +181,28 @@ Send any combination of these keys in one JSON object to `chromance/v1/command`:
 | 7   | Rainbow March                                                        |        |
 | 8   | Pulse                                                                |        |
 | 9   | Around the World                                                     | yes    |
+| 10  | Plasma                                                               |        |
+| 11  | Radar                                                                |        |
+| 12  | Rainbow Swirl                                                        |        |
+| 13  | Rings                                                                |        |
+| 14  | Fire                                                                 |        |
+| 15  | Twinkle                                                              |        |
 
 For example, `{ "as3": 2.5, "rl3": 4000 }` makes Cube Pulse faster with longer-lived ripples. `N` is the animation's position in `AnimationType` in [models.h](src/models.h). Don't reorder that enum: saved settings and Home Assistant entity IDs are keyed by these numbers.
 
 ### How to make an animation
 
-To create your own animations you will want to look at the [map.h](src/animations/ripples/map.h) file and the [ripple.cpp](src/animations/ripples/ripple.cpp) file to a lesser extent. This repository contains a [mapping.jpg](mapping.jpg) that shows each nodes number and the segment numbers. You can use this image to make sense of the `NodeConnections`, `SegmentConnections`, `BorderNodes`,
-`CubeNodes`, `FunNodes`, and `StarBurstNode` variables in [`map.h`](src/animations/ripples/map.h)
+Most animations don't need to know how the strips are wired. `LEDMap` ([ledMap.h](src/animations/ledMap.h)) works out where every LED sits on the wall, so an animation can loop over `NumberOfLEDs` and colour each LED by its position:
+
+- `GetX(i)` / `GetY(i)`: 0–255 across and down the wall.
+- `GetDistance(i)`: 0–255 out from the center node.
+- `GetAngle(i)`: 0–255 around the center node, 0 at 12:00, clockwise.
+
+Plasma, Radar, Rainbow Swirl, Rings and Fire all work this way. To move things, add `speed * GetElapsedSeconds()` to a float you keep between frames rather than using `millis()`. Then the speed sliders change the pace without the animation jumping.
+
+To give an animation its own Home Assistant sliders, add an `AnimationParameter` table and a matching enum in [constants.h](src/constants.h), return it from `GetAnimationParameters()`, and read values with `GetParameter(index)`. Saving, MQTT commands, state and discovery are handled for you.
+
+To light whole segments, use `SegmentLED(segment, step)` from [map.h](src/animations/ripples/map.h) (step 0 is the top end), like Twinkle. To move along the hex lines, subclass `RippleAnimation`. [mapping.jpg](mapping.jpg) shows the node and segment numbers used by `NodeConnections`, `SegmentConnections`, `BorderNodes` and `StarBurstNode` in [map.h](src/animations/ripples/map.h).
 
 ### USB Updates (WSL)
 

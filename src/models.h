@@ -25,6 +25,12 @@ namespace Chromance
         ANIMATION_TYPE_RAINBOW_MARCH,
         ANIMATION_TYPE_PULSE,
         ANIMATION_TYPE_AROUND_THE_WORLD,
+        ANIMATION_TYPE_PLASMA,
+        ANIMATION_TYPE_RADAR,
+        ANIMATION_TYPE_RAINBOW_SWIRL,
+        ANIMATION_TYPE_RINGS,
+        ANIMATION_TYPE_FIRE,
+        ANIMATION_TYPE_TWINKLE,
         /**
          * This is not an animation type. It is a hack to get the count of animation types
          * DO NOT MOVE- We have to use auto assignment and this needs to be the last
@@ -59,6 +65,17 @@ namespace Chromance
         uint32_t fps;
         uint32_t current;
         const char* effect;
+    };
+
+    // A per-animation setting with its own Home Assistant number entity
+    struct AnimationParameter
+    {
+        const char* name;
+        float min;
+        float max;
+        float step;
+        float defaultValue;
+        const char* unit;
     };
 
     struct PublishRequest

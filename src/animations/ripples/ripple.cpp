@@ -376,13 +376,7 @@ void Ripple::Render(CRGB* leds, unsigned long age)
             (float)LEDAssignments[segment][1]
         )
     );
-    uint32_t offset = strip == BlueStripIndex ?
-        BlueStripOffset :
-            strip == GreenStripIndex ?
-                GreenStripOffset :
-                    strip == RedStripIndex ?
-                        RedStripOffset :
-                        BlackStripOffset;
+    uint32_t offset = StripOffsets[strip];
     float p = (float)age / (float)lifespan;
     uint8_t minHue = 168U;
     uint8_t scale = p * (UINT8_MAX - minHue) + minHue;

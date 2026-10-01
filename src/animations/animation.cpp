@@ -8,7 +8,8 @@ Animation::Animation(int32_t id, const char* name, Config* config, Logger* logge
     transitionScale(0),
     transitionStartScale(0),
     transitionStartedAt(0),
-    status(ANIMATION_STATUS_SLEEPING)
+    status(ANIMATION_STATUS_SLEEPING),
+    lastElapsedAt(0UL)
 {
     this->config = config;
     this->logger = logger;
@@ -142,9 +143,25 @@ bool Animation::IsRippleAnimation()
 void Animation::Reset()
 {
     fill_solid(this->leds, NumberOfLEDs, CRGB::Black);
+    this->lastElapsedAt = micros();
 }
 
 float Animation::GetSpeed()
 {
     return this->config->GetAnimationSpeed(this->GetAnimationType());
+}
+
+float Animation::GetParameter(uint8_t index)
+{
+    return this->config->GetAnimationParameter(this->GetAnimationType(), index);
+}
+
+float Animation::GetElapsedSeconds()
+{
+    unsigned long now = micros();
+    float seconds = (now - this->lastElapsedAt) / 1000000.0f;
+
+    this->lastElapsedAt = now;
+
+    return seconds * this->GetSpeed();
 }

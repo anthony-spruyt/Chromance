@@ -30,6 +30,9 @@ namespace Chromance
 
             virtual void Reset();
             float GetSpeed();
+            float GetParameter(uint8_t index);
+            // Seconds since the last call, scaled by the speed setting. Call it once per Loop()
+            float GetElapsedSeconds();
 
             int32_t id;
             const char* name;
@@ -40,6 +43,10 @@ namespace Chromance
             uint8_t transitionStartScale;
             unsigned long transitionStartedAt;
             AnimationStatus status;
+
+        private:
+
+            unsigned long lastElapsedAt;
     };
 }
 

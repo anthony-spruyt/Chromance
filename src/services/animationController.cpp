@@ -8,6 +8,12 @@
 #include "../animations/centerPulseAnimation.h"
 #include "../animations/randomPulseAnimation.h"
 #include "../animations/aroundTheWorldAnimation.h"
+#include "../animations/plasmaAnimation.h"
+#include "../animations/radarAnimation.h"
+#include "../animations/rainbowSwirlAnimation.h"
+#include "../animations/ringsAnimation.h"
+#include "../animations/fireAnimation.h"
+#include "../animations/twinkleAnimation.h"
 
 using namespace Chromance;
 
@@ -16,6 +22,7 @@ AnimationController::AnimationController(Logger* logger, Config* config) :
     lastRandomAnimationStarted(0),
     next(ANIMATION_REQUEST_NONE),
     ripplePool(),
+    ledMap(),
     brightness(0U),
     brightnessFrom(0U),
     brightnessTarget(0U),
@@ -69,6 +76,12 @@ void AnimationController::Setup()
     this->animations[ANIMATION_TYPE_RAINBOW_MARCH] = RainbowMarchAnimationEnabled ? new RainbowMarchAnimation(ANIMATION_TYPE_RAINBOW_MARCH, this->config, this->logger) : nullptr;
     this->animations[ANIMATION_TYPE_PULSE] = PulseAnimationEnabled ? new PulseAnimation(ANIMATION_TYPE_PULSE, this->config, this->logger) : nullptr;
     this->animations[ANIMATION_TYPE_AROUND_THE_WORLD] = AroundTheWorldAnimationEnabled ? new AroundTheWorldAnimation(ANIMATION_TYPE_AROUND_THE_WORLD, &ripplePool, this->config, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_PLASMA] = PlasmaAnimationEnabled ? new PlasmaAnimation(ANIMATION_TYPE_PLASMA, &ledMap, this->config, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_RADAR] = RadarAnimationEnabled ? new RadarAnimation(ANIMATION_TYPE_RADAR, &ledMap, this->config, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_RAINBOW_SWIRL] = RainbowSwirlAnimationEnabled ? new RainbowSwirlAnimation(ANIMATION_TYPE_RAINBOW_SWIRL, &ledMap, this->config, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_RINGS] = RingsAnimationEnabled ? new RingsAnimation(ANIMATION_TYPE_RINGS, &ledMap, this->config, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_FIRE] = FireAnimationEnabled ? new FireAnimation(ANIMATION_TYPE_FIRE, &ledMap, this->config, this->logger) : nullptr;
+    this->animations[ANIMATION_TYPE_TWINKLE] = TwinkleAnimationEnabled ? new TwinkleAnimation(ANIMATION_TYPE_TWINKLE, this->config, this->logger) : nullptr;
 
     // Deferred to the first Loop() so the fade in doesn't start during the task's startup delay
     if (!config->GetSleeping())

@@ -7,6 +7,7 @@
 #include <FastLED.h>
 #include "../animations/animation.h"
 #include "../animations/ripples/ripplePool.h"
+#include "../animations/ledMap.h"
 
 namespace Chromance
 {
@@ -56,6 +57,7 @@ namespace Chromance
             unsigned long lastRandomAnimationStarted;
             AnimationRequest next;
             RipplePool ripplePool;
+            LEDMap ledMap;
             uint8_t brightness;
             uint8_t brightnessFrom;
             uint8_t brightnessTarget;

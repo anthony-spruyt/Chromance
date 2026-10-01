@@ -23,6 +23,14 @@ Config::Config() :
         this->rippleLifespan[i] = 2000UL;
         this->ripplePulsePeriod[i] = 2000UL;
         this->rippleDecay[i] = 247U;
+
+        uint8_t count;
+        const AnimationParameter* parameters = GetAnimationParameters((AnimationType)i, count);
+
+        for (uint8_t j = 0; j < MaxAnimationParameters; j++)
+        {
+            this->animationParameters[i][j] = j < count ? parameters[j].defaultValue : 0.0f;
+        }
     }
 }
 
@@ -47,6 +55,7 @@ void Config::Setup()
     String lifespanKey;
     String pulsePeriodKey;
     String decayKey;
+    uint8_t count;
 
     for (int32_t i = 0; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
     {
@@ -59,6 +68,13 @@ void Config::Setup()
         this->rippleLifespan[i] = this->preferences.getULong(lifespanKey.c_str(), this->rippleLifespan[i]);
         this->ripplePulsePeriod[i] = this->preferences.getULong(pulsePeriodKey.c_str(), this->ripplePulsePeriod[i]);
         this->rippleDecay[i] = (uint8_t)this->preferences.getUShort(decayKey.c_str(), this->rippleDecay[i]);
+
+        GetAnimationParameters((AnimationType)i, count);
+
+        for (uint8_t j = 0; j < count; j++)
+        {
+            this->animationParameters[i][j] = this->preferences.getFloat(this->GetAnimationParameterKey((AnimationType)i, j).c_str(), this->animationParameters[i][j]);
+        }
     }
 
     preferences.end();
@@ -78,6 +94,8 @@ void Config::Save(bool now)
 
     this->dirty = false;
 
+    uint8_t count;
+
     preferences.begin(ConfigNamespace, false);
     this->SaveUShort(LogLevelConfigKey, this->logLevel);
     this->SaveUShort(BrightnessConfigKey, this->brightness);
@@ -94,6 +112,13 @@ void Config::Save(bool now)
         this->SaveULong(this->GetRippleLifespanKey((AnimationType)i).c_str(), this->rippleLifespan[i]);
         this->SaveULong(this->GetRipplePulsePeriodKey((AnimationType)i).c_str(), this->ripplePulsePeriod[i]);
         this->SaveUShort(this->GetRippleDecayKey((AnimationType)i).c_str(), this->rippleDecay[i]);
+
+        GetAnimationParameters((AnimationType)i, count);
+
+        for (uint8_t j = 0; j < count; j++)
+        {
+            this->SaveFloat(this->GetAnimationParameterKey((AnimationType)i, j).c_str(), this->animationParameters[i][j]);
+        }
     }
 
     preferences.end();
@@ -409,6 +434,35 @@ void Config::SetRippleDecay(AnimationType animationType, uint8_t value)
     xSemaphoreGive(this->semaphore);
 }
 
+float Config::GetAnimationParameter(AnimationType animationType, uint8_t index)
+{
+    return index < MaxAnimationParameters ? this->animationParameters[animationType][index] : 0.0f;
+}
+
+void Config::SetAnimationParameter(AnimationType animationType, uint8_t index, float value)
+{
+    uint8_t count;
+    const AnimationParameter* parameters = GetAnimationParameters(animationType, count);
+
+    if (index >= count)
+    {
+        return;
+    }
+
+    value = constrain(value, parameters[index].min, parameters[index].max);
+
+    if (xSemaphoreTake(this->semaphore, portMAX_DELAY) != pdTRUE)
+    {
+        return;
+    }
+
+    this->animationParameters[animationType][index] = value;
+    this->dirty = true;
+    this->changedAt = millis();
+
+    xSemaphoreGive(this->semaphore);
+}
+
 String Config::GetAnimationSpeedKey(AnimationType animationType)
 {
     String key;
@@ -445,6 +499,18 @@ String Config::GetRippleDecayKey(AnimationType animationType)
     key.reserve(3);
     key += String(RippleDecayConfigKeyPrefix);
     key += String(animationType);
+
+    return key;
+}
+
+String Config::GetAnimationParameterKey(AnimationType animationType, uint8_t index)
+{
+    String key;
+    key.reserve(7);
+    key += String(AnimationParameterConfigKeyPrefix);
+    key += String(animationType);
+    key += String("_");
+    key += String(index);
 
     return key;
 }
