@@ -184,6 +184,17 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
             }
         }
 
+        if (!doc[RandomAnimationDurationConfigKey].isNull())
+        {
+            uint32_t randomAnimationDuration = doc[RandomAnimationDurationConfigKey];
+
+            if (this->config->GetRandomAnimationDuration() != randomAnimationDuration)
+            {
+                this->config->SetRandomAnimationDuration(randomAnimationDuration);
+                publishState = true;
+            }
+        }
+
         if (!doc[MaxBrightnessConfigKey].isNull())
         {
             uint8_t maxBrightness = doc[MaxBrightnessConfigKey];
@@ -442,6 +453,7 @@ void MQTTClient::PublishState(ChromanceState state)
     doc[TransitionDurationConfigKey] = this->config->GetTransitionDuration();
     doc[RippleStepsPerSecondConfigKey] = this->config->GetRippleStepsPerSecond();
     doc[MaxBrightnessConfigKey] = this->config->GetMaxBrightness();
+    doc[RandomAnimationDurationConfigKey] = this->config->GetRandomAnimationDuration();
     doc[MaxCurrentConfigKey] = this->config->GetMaxCurrent() / 1000.0f;
 
     AnimationType animationType;
@@ -468,6 +480,7 @@ void MQTTClient::PublishDeviceDiscovery()
     this->PublishFPSSensorDiscovery();
     this->PublishCurrentSensorDiscovery();
     this->PublishLightDiscovery();
+    this->PublishNumberDiscovery(String("chrrd1"), String("Random Duration"), String(RandomAnimationDurationConfigKey), MinRandomAnimationDuration, MaxRandomAnimationDuration, 1.0f, "s");
     this->PublishNumberDiscovery(String("chrmb1"), String("Max Brightness"), String(MaxBrightnessConfigKey), 1.0f, 100.0f, 1.0f, "%");
     this->PublishNumberDiscovery(String("chrmc1"), String("Max Current"), String(MaxCurrentConfigKey), MinMaxCurrent / 1000.0f, MaxMaxCurrent / 1000.0f, 0.5f, "A");
     this->PublishNumberDiscovery(String("chrtd1"), String("Transition Duration"), String(TransitionDurationConfigKey), 0.0f, MaxTransitionDuration, 1.0f);

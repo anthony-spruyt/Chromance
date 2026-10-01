@@ -34,6 +34,8 @@ namespace Chromance
             uint8_t GetMaxBrightness();
             void SetMaxCurrent(uint32_t value);
             uint32_t GetMaxCurrent();
+            void SetRandomAnimationDuration(uint32_t value);
+            uint32_t GetRandomAnimationDuration();
 
             float GetAnimationSpeed(AnimationType animationType);
             unsigned long GetRippleLifespan(AnimationType animationType);
@@ -66,6 +68,7 @@ namespace Chromance
             uint32_t rippleStepsPerSecond;
             uint8_t maxBrightness;
             uint32_t maxCurrent;
+            uint32_t randomAnimationDuration;
             bool dirty;
             unsigned long changedAt;
             float animationSpeed[ANIMATION_TYPE_NUMBER_OF_ANIMATIONS];

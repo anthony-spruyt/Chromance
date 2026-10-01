@@ -11,6 +11,7 @@ Config::Config() :
     rippleStepsPerSecond(DefaultRippleStepsPerSecond),
     maxBrightness(DefaultMaxBrightness),
     maxCurrent(DefaultMaxCurrent),
+    randomAnimationDuration(DefaultRandomAnimationDuration),
     dirty(false),
     changedAt(0UL)
 {
@@ -40,6 +41,7 @@ void Config::Setup()
     this->rippleStepsPerSecond = this->preferences.getULong(RippleStepsPerSecondConfigKey, this->rippleStepsPerSecond);
     this->maxBrightness = (uint8_t)this->preferences.getUShort(MaxBrightnessConfigKey, this->maxBrightness);
     this->maxCurrent = this->preferences.getULong(MaxCurrentConfigKey, this->maxCurrent);
+    this->randomAnimationDuration = this->preferences.getULong(RandomAnimationDurationConfigKey, this->randomAnimationDuration);
 
     String speedKey;
     String lifespanKey;
@@ -84,6 +86,7 @@ void Config::Save(bool now)
     this->SaveULong(RippleStepsPerSecondConfigKey, this->rippleStepsPerSecond);
     this->SaveUShort(MaxBrightnessConfigKey, this->maxBrightness);
     this->SaveULong(MaxCurrentConfigKey, this->maxCurrent);
+    this->SaveULong(RandomAnimationDurationConfigKey, this->randomAnimationDuration);
 
     for (int32_t i = 0; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
     {
@@ -300,6 +303,34 @@ void Config::SetMaxCurrent(uint32_t value)
 uint32_t Config::GetMaxCurrent()
 {
     return this->maxCurrent;
+}
+
+void Config::SetRandomAnimationDuration(uint32_t value)
+{
+    if (value < MinRandomAnimationDuration)
+    {
+        value = MinRandomAnimationDuration;
+    }
+    else if (value > MaxRandomAnimationDuration)
+    {
+        value = MaxRandomAnimationDuration;
+    }
+
+    if (xSemaphoreTake(this->semaphore, portMAX_DELAY) != pdTRUE)
+    {
+        return;
+    }
+
+    this->randomAnimationDuration = value;
+    this->dirty = true;
+    this->changedAt = millis();
+
+    xSemaphoreGive(this->semaphore);
+}
+
+uint32_t Config::GetRandomAnimationDuration()
+{
+    return this->randomAnimationDuration;
 }
 
 float Config::GetAnimationSpeed(AnimationType animationType)

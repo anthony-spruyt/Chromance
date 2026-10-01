@@ -55,6 +55,8 @@ void AnimationController::Setup()
 
     FastLED.setMaxRefreshRate(MaxRefreshRate);
     FastLED.setCorrection(TypicalLEDStrip);
+    // FastLED turns dithering off for good the first time FPS dips under 100, which a crossfade can cause, shifting dim colours mid-fade
+    FastLED.setDither(DISABLE_DITHER);
 
     FastLED.clear();
     FastLED.show();
@@ -208,7 +210,7 @@ void AnimationController::HandleRandomAnimation()
     (
         !config->GetSleeping() &&
         this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION &&
-        now - this->lastRandomAnimationStarted > RandomAnimationDuration
+        now - this->lastRandomAnimationStarted > this->config->GetRandomAnimationDuration() * 1000UL
     )
     {
         this->lastRandomAnimationStarted = now;

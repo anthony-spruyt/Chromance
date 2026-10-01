@@ -70,6 +70,7 @@ namespace Chromance
     constexpr const char* RippleStepsPerSecondConfigKey = "rs";
     constexpr const char* MaxBrightnessConfigKey = "mb";
     constexpr const char* MaxCurrentConfigKey = "mc";
+    constexpr const char* RandomAnimationDurationConfigKey = "ra";
 
     //////////////////////////////////////////
     // LEDs
@@ -108,8 +109,10 @@ namespace Chromance
     // ANIMATIONS
     //////////////////////////////////////////
 
-    // The duration in milliseconds when in random animation mode that each animation is played before transitioning to the next randomly selected animation
-    constexpr unsigned long RandomAnimationDuration = 30000UL;
+    // The duration in seconds when in random animation mode that each animation is played before transitioning to the next randomly selected animation
+    constexpr uint32_t DefaultRandomAnimationDuration = 30U;
+    constexpr uint32_t MinRandomAnimationDuration = 5U;
+    constexpr uint32_t MaxRandomAnimationDuration = 3600U;
     // The duration in milliseconds of a fade between animations, or into and out of sleep
     constexpr unsigned long DefaultTransitionDuration = 1500UL;
     constexpr unsigned long MaxTransitionDuration = 10000UL;
