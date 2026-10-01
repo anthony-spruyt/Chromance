@@ -23,12 +23,12 @@ namespace Chromance
             CRGB* GetBuffer();
             AnimationStatus GetStatus();
             uint8_t GetTransitionScale();
-            virtual void Transition();
+            void Transition();
             virtual bool IsRippleAnimation();
 
         protected:
 
-            virtual void Fade();
+            virtual void Reset();
             float GetSpeed();
 
             int32_t id;
@@ -37,8 +37,9 @@ namespace Chromance
             Logger* logger;
             CRGB leds[NumberOfLEDs];
             uint8_t transitionScale;
+            uint8_t transitionStartScale;
+            unsigned long transitionStartedAt;
             AnimationStatus status;
-            bool fade;
     };
 }
 

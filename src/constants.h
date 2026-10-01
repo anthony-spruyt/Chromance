@@ -56,11 +56,8 @@ namespace Chromance
     // CONFIG
     //////////////////////////////////////////
 
-    // The preferences namespace
     constexpr const char* ConfigNamespace = "config";
-    // The preferences log level key
     constexpr const char* LogLevelConfigKey = "ll";
-    // They preferences brightness key
     constexpr const char* BrightnessConfigKey = "l";
     constexpr const char* SleepingConfigKey = "s";
     constexpr const char* AnimationSpeedConfigKeyPrefix = "as";
@@ -101,7 +98,8 @@ namespace Chromance
 
     // The duration in milliseconds when in random animation mode that each animation is played before transitioning to the next randomly selected animation
     constexpr unsigned long RandomAnimationDuration = 30000UL;
-    constexpr uint8_t AnimationTransitionSpeed = 5U;
+    // The duration in milliseconds of a fade between animations, or into and out of sleep
+    constexpr unsigned long AnimationTransitionDuration = 1500UL;
 
     //////////////////////////////////////////
     // ANIMATIONS - RAINBOW

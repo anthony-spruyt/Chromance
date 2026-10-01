@@ -26,6 +26,7 @@ namespace Chromance
 
         protected:
 
+            void Reset() override;
             unsigned long GetLifespan();
 
             RipplePool* ripplePool;

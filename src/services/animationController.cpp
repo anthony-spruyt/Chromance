@@ -14,7 +14,6 @@ using namespace Chromance;
 AnimationController::AnimationController(Logger* logger, Config* config) :
     currentAnimationType(ANIMATION_TYPE_RANDOM_ANIMATION),
     lastRandomAnimationStarted(0),
-    transitionScale(0),
     next(ANIMATION_REQUEST_NONE),
     ripplePool()
 {
@@ -67,31 +66,10 @@ void AnimationController::Setup()
     this->animations[ANIMATION_TYPE_PULSE] = PulseAnimationEnabled ? new PulseAnimation(ANIMATION_TYPE_PULSE, this->config, this->logger) : nullptr;
     this->animations[ANIMATION_TYPE_AROUND_THE_WORLD] = AroundTheWorldAnimationEnabled ? new AroundTheWorldAnimation(ANIMATION_TYPE_AROUND_THE_WORLD, &ripplePool, this->config, this->logger) : nullptr;
 
-    this->lastRandomAnimationStarted = millis() + StartupDelay;
-
-    // The constructor sets this to random currently but in future this can be from config
-    if (this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION)
+    // Deferred to the first Loop() so the fade in doesn't start during the task's startup delay
+    if (!config->GetSleeping())
     {
-        Animation* nextAnimation = this->animations[this->NextAnimation()];
-
-        if (!config->GetSleeping())
-        {
-            nextAnimation->Wake(true);
-        }
-    }
-    else if (this->animations[this->currentAnimationType] != nullptr)
-    {
-        if (!config->GetSleeping())
-        {
-            if (this->currentAnimationType == ANIMATION_TYPE_STRIP_TEST)
-            {
-                this->animations[this->currentAnimationType]->Wake(false);
-            }
-            else
-            {
-                this->animations[this->currentAnimationType]->Wake(true);
-            }
-        }
+        this->next = ANIMATION_REQUEST_WAKE;
     }
 }
 
@@ -196,27 +174,8 @@ void AnimationController::HandleAnimationRequest()
     {
         this->next = ANIMATION_REQUEST_NONE;
         this->config->SetSleeping(false);
-        this->transitionScale = 0;
         this->lastRandomAnimationStarted = millis();
-
-        for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
-        {
-            if (this->animations[i] != nullptr)
-            {
-                this->animations[i]->Sleep(false);
-            }
-        }
-
-        if (this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION)
-        {
-            Animation* nextAnimation = this->animations[this->NextAnimation()];
-
-            nextAnimation->Wake(false);
-        }
-        else
-        {
-            this->animations[this->currentAnimationType]->Wake(false);
-        }
+        this->Show(this->currentAnimationType);
     }
     else if (this->next == ANIMATION_REQUEST_SLEEP)
     {
@@ -227,7 +186,7 @@ void AnimationController::HandleAnimationRequest()
         {
             if (this->animations[i] != nullptr)
             {
-                this->animations[i]->Sleep(true);
+                this->animations[i]->Sleep(i != ANIMATION_TYPE_STRIP_TEST);
             }
         }
     }
@@ -236,15 +195,7 @@ void AnimationController::HandleAnimationRequest()
         this->next = ANIMATION_REQUEST_NONE;
         this->config->SetSleeping(false);
         this->lastRandomAnimationStarted = millis();
-
-        if (this->currentAnimationType == ANIMATION_TYPE_RANDOM_ANIMATION)
-        {
-            this->animations[this->NextAnimation()]->Wake(true);
-        }
-        else
-        {
-            this->animations[this->currentAnimationType]->Wake(true);
-        }
+        this->Show(this->currentAnimationType);
     }
 }
 
@@ -260,108 +211,65 @@ void AnimationController::HandleRandomAnimation()
     )
     {
         this->lastRandomAnimationStarted = now;
-
-        Animation* animation = this->animations[this->NextAnimation()];
-
-        for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
-        {
-            if (this->animations[i] != nullptr && i != animation->GetID())
-            {
-                this->animations[i]->Sleep(false);
-            }
-        }
-
-        animation->Wake(false);
-        this->transitionScale = 0;
+        this->Show(ANIMATION_TYPE_RANDOM_ANIMATION);
     }
+}
+
+void AnimationController::Show(AnimationType animationType)
+{
+    if (animationType == ANIMATION_TYPE_RANDOM_ANIMATION)
+    {
+        animationType = this->NextAnimation();
+    }
+
+    // The strip test blocks for seconds at a time so it can't take part in a fade
+    bool fade = animationType != ANIMATION_TYPE_STRIP_TEST;
+
+    for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
+    {
+        if (this->animations[i] != nullptr && i != animationType)
+        {
+            this->animations[i]->Sleep(fade && i != ANIMATION_TYPE_STRIP_TEST);
+        }
+    }
+
+    this->animations[animationType]->Wake(fade);
 }
 
 void AnimationController::Render()
 {
     Animation* animation;
-    // The animation being shown (waking up or playing)
-    Animation* wakingUpAnimation = nullptr;
-    // The most visible of the animations going to sleep. Any others are already mostly faded out and are ignored
-    Animation* goingToSleepAnimation = nullptr;
+    CRGB* buffer;
+    uint8_t scale;
+
+    fill_solid(this->leds, NumberOfLEDs, CRGB::Black);
 
     for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
     {
         animation = this->animations[i];
 
-        if (animation == nullptr)
+        if (animation == nullptr || animation->GetStatus() == ANIMATION_STATUS_SLEEPING)
         {
             continue;
         }
 
-        switch (animation->GetStatus())
+        animation->Loop();
+        animation->Transition();
+
+        // Eased scales of a crossfade still sum to full brightness, as ease(x) + ease(1 - x) == 1
+        scale = ease8InOutCubic(animation->GetTransitionScale());
+
+        if (scale == 0)
         {
-            case ANIMATION_STATUS_PLAYING:
-                animation->Loop();
-
-                if (wakingUpAnimation == nullptr)
-                {
-                    wakingUpAnimation = animation;
-                }
-                break;
-            case ANIMATION_STATUS_WAKING_UP:
-                animation->Loop();
-                animation->Transition();
-                wakingUpAnimation = animation;
-                break;
-            case ANIMATION_STATUS_GOING_TO_SLEEP:
-                animation->Loop();
-                animation->Transition();
-
-                if
-                (
-                    goingToSleepAnimation == nullptr ||
-                    animation->GetTransitionScale() > goingToSleepAnimation->GetTransitionScale()
-                )
-                {
-                    goingToSleepAnimation = animation;
-                }
-                break;
-            default:
-                break;
+            continue;
         }
-    }
 
-    if (wakingUpAnimation != nullptr && goingToSleepAnimation != nullptr)
-    {
-        CRGB* wakingUpAnimationBuffer = wakingUpAnimation->GetBuffer();
-        CRGB* goingToSleepAnimationBuffer = goingToSleepAnimation->GetBuffer();
+        buffer = animation->GetBuffer();
 
-        if (this->transitionScale <= UINT8_MAX - AnimationTransitionSpeed)
+        for (int32_t j = 0; j < NumberOfLEDs; j++)
         {
-            this->transitionScale += AnimationTransitionSpeed;
-
-            for (int32_t i = 0; i < NumberOfLEDs; i++)
-            {
-                this->leds[i] = blend(goingToSleepAnimationBuffer[i], wakingUpAnimationBuffer[i], this->transitionScale);
-            }
+            this->leds[j] += buffer[j].scale8(scale);
         }
-        else
-        {
-            for (int32_t i = 0; i < NumberOfLEDs; i++)
-            {
-                this->leds[i] = wakingUpAnimationBuffer[i];
-            }
-        }
-    }
-    else if (wakingUpAnimation != nullptr || goingToSleepAnimation != nullptr)
-    {
-        CRGB* currentAnimationBuffer = wakingUpAnimation != nullptr ?
-            wakingUpAnimation->GetBuffer() :
-            goingToSleepAnimation->GetBuffer();
-
-        for (int32_t i = 0; i < NumberOfLEDs; i++)
-        {
-            this->leds[i] = currentAnimationBuffer[i];
-        }
-    }
-    else
-    {
-        FastLED.clear();
     }
 
     FastLED.show();
@@ -374,7 +282,14 @@ AnimationType AnimationController::NextAnimation()
 
     for (int32_t i = 1; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
     {
-        if (this->animations[i] != nullptr && this->animations[i]->GetStatus() == ANIMATION_STATUS_PLAYING)
+        if
+        (
+            this->animations[i] != nullptr &&
+            (
+                this->animations[i]->GetStatus() == ANIMATION_STATUS_PLAYING ||
+                this->animations[i]->GetStatus() == ANIMATION_STATUS_WAKING_UP
+            )
+        )
         {
             exclude = i;
 

@@ -12,10 +12,10 @@ namespace Chromance
             PulseAnimation(int32_t id, Config* config, Logger* logger);
 
             void Loop();
-            void Wake(bool fade) override;
 
         private:
 
+            void Reset() override;
             void NextColor();
 
             CRGB color;

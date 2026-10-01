@@ -16,10 +16,10 @@ void PulseAnimation::Loop()
     nscale8_video(this->leds, NumberOfLEDs, scale);
 }
 
-void PulseAnimation::Wake(bool fade)
+void PulseAnimation::Reset()
 {
+    Animation::Reset();
     this->NextColor();
-    Animation::Wake(fade);
 }
 
 void PulseAnimation::NextColor()

@@ -12,7 +12,8 @@ RippleAnimation::RippleAnimation
     Config* config,
     Logger* logger
 ) :
-    Animation(id, name, config, logger)
+    Animation(id, name, config, logger),
+    lastPulse(0UL)
 {
     this->ripplePool = ripplePool;
 }
@@ -22,7 +23,6 @@ void RippleAnimation::Loop()
     // Fade all dots to create trails
     nscale8(this->leds, NumberOfLEDs, this->config->GetRippleDecay(this->GetAnimationType()));
 
-    // Advance this animations claimed ripples
     Ripple* ripple;
 
     for (int32_t i = 0; i < RipplePool::NumberOfRipples; i++)
@@ -35,7 +35,6 @@ void RippleAnimation::Loop()
         }
     }
 
-    // Determine if we need to fire off a new ripple
     unsigned long now = millis();
 
     if (now - this->lastPulse >= this->config->GetRipplePulsePeriod(this->GetAnimationType()))
@@ -48,6 +47,13 @@ void RippleAnimation::Loop()
 bool RippleAnimation::IsRippleAnimation()
 {
     return true;
+}
+
+void RippleAnimation::Reset()
+{
+    Animation::Reset();
+    this->ripplePool->Release(this->id);
+    this->lastPulse = 0UL;
 }
 
 unsigned long RippleAnimation::GetLifespan()

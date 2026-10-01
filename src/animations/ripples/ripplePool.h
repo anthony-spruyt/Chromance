@@ -23,6 +23,11 @@ namespace Chromance
              * @return A ripple
             */
             Ripple* Get(uint32_t index);
+            /**
+             * Kill every ripple claimed by an animation so they return to the pool
+             * @param animationId The ID of the animation releasing its ripples
+            */
+            void Release(int32_t animationId);
 
             static constexpr uint32_t NumberOfRipples = 30U;
 

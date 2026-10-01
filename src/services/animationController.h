@@ -40,6 +40,8 @@ namespace Chromance
             void HandleBrightness();
             void HandleAnimationRequest();
             void HandleRandomAnimation();
+            // Wakes an animation and puts every other animation to sleep
+            void Show(AnimationType animationType);
             void Render();
             AnimationType NextAnimation();
 
@@ -50,7 +52,6 @@ namespace Chromance
             AnimationType currentAnimationType;
             SemaphoreHandle_t semaphore;
             unsigned long lastRandomAnimationStarted;
-            uint8_t transitionScale;
             AnimationRequest next;
             RipplePool ripplePool;
     };

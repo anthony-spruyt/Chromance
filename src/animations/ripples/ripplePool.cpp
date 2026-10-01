@@ -21,6 +21,17 @@ Ripple* RipplePool::Claim(int32_t animationId)
     return nullptr;
 }
 
+void RipplePool::Release(int32_t animationId)
+{
+    for (int32_t i = 0; i < RipplePool::NumberOfRipples; i++)
+    {
+        if (this->ripples[i].GetAnimationId() == animationId)
+        {
+            this->ripples[i].Kill();
+        }
+    }
+}
+
 Ripple* RipplePool::Get(uint32_t index)
 {
     if (index >= NumberOfRipples)

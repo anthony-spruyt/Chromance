@@ -47,6 +47,7 @@ namespace Chromance
             void Start(int32_t node, int32_t direction, CHSV color, float speed, unsigned long lifespan, RippleBehavior behavior);
             void Advance(CRGB* leds);
             void Claim(int32_t animationId);
+            void Kill();
             RippleState GetState();
             int32_t GetAnimationId();
             unsigned long GetStartedAt();

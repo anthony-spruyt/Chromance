@@ -6,8 +6,9 @@ Animation::Animation(int32_t id, const char* name, Config* config, Logger* logge
     id(id),
     name(name),
     transitionScale(0),
-    status(ANIMATION_STATUS_SLEEPING),
-    fade(false)
+    transitionStartScale(0),
+    transitionStartedAt(0),
+    status(ANIMATION_STATUS_SLEEPING)
 {
     this->config = config;
     this->logger = logger;
@@ -17,19 +18,47 @@ Animation::Animation(int32_t id, const char* name, Config* config, Logger* logge
 
 void Animation::Sleep(bool fade)
 {
-    if (this->status == ANIMATION_STATUS_PLAYING || this->status == ANIMATION_STATUS_WAKING_UP)
+    if (this->status != ANIMATION_STATUS_PLAYING && this->status != ANIMATION_STATUS_WAKING_UP)
     {
-        this->fade = fade;
+        return;
+    }
+
+    if (fade)
+    {
+        this->transitionStartScale = this->transitionScale;
+        this->transitionStartedAt = millis();
         this->status = ANIMATION_STATUS_GOING_TO_SLEEP;
+    }
+    else
+    {
+        this->transitionScale = 0;
+        this->status = ANIMATION_STATUS_SLEEPING;
+        this->Reset();
     }
 }
 
 void Animation::Wake(bool fade)
 {
-    if (this->status == ANIMATION_STATUS_SLEEPING || this->status == ANIMATION_STATUS_GOING_TO_SLEEP)
+    if (this->status != ANIMATION_STATUS_SLEEPING && this->status != ANIMATION_STATUS_GOING_TO_SLEEP)
     {
-        this->fade = fade;
+        return;
+    }
+
+    if (this->status == ANIMATION_STATUS_SLEEPING)
+    {
+        this->Reset();
+    }
+
+    if (fade)
+    {
+        this->transitionStartScale = this->transitionScale;
+        this->transitionStartedAt = millis();
         this->status = ANIMATION_STATUS_WAKING_UP;
+    }
+    else
+    {
+        this->transitionScale = UINT8_MAX;
+        this->status = ANIMATION_STATUS_PLAYING;
     }
 }
 
@@ -66,38 +95,40 @@ uint8_t Animation::GetTransitionScale()
 
 void Animation::Transition()
 {
+    if (this->status != ANIMATION_STATUS_WAKING_UP && this->status != ANIMATION_STATUS_GOING_TO_SLEEP)
+    {
+        return;
+    }
+
+    // Steps from the scale the transition started at so a reversed transition carries on from where it was
+    unsigned long elapsed = millis() - this->transitionStartedAt;
+    uint8_t step = elapsed >= AnimationTransitionDuration ?
+        UINT8_MAX :
+        (uint8_t)(UINT8_MAX * elapsed / AnimationTransitionDuration);
+
     if (this->status == ANIMATION_STATUS_WAKING_UP)
     {
-        if (this->transitionScale < UINT8_MAX - AnimationTransitionSpeed)
+        if (this->transitionStartScale < UINT8_MAX - step)
         {
-            this->transitionScale += AnimationTransitionSpeed;
+            this->transitionScale = this->transitionStartScale + step;
         }
         else
         {
             this->transitionScale = UINT8_MAX;
             this->status = ANIMATION_STATUS_PLAYING;
         }
-
-        if (this->fade)
-        {
-            this->Fade();
-        }
     }
-    else if (this->status == ANIMATION_STATUS_GOING_TO_SLEEP)
+    else
     {
-        if (this->transitionScale > AnimationTransitionSpeed)
+        if (this->transitionStartScale > step)
         {
-            this->transitionScale -= AnimationTransitionSpeed;
+            this->transitionScale = this->transitionStartScale - step;
         }
         else
         {
             this->transitionScale = 0;
             this->status = ANIMATION_STATUS_SLEEPING;
-        }
-
-        if (this->fade)
-        {
-            this->Fade();
+            this->Reset();
         }
     }
 }
@@ -107,16 +138,9 @@ bool Animation::IsRippleAnimation()
     return false;
 }
 
-void Animation::Fade()
+void Animation::Reset()
 {
-    if (this->transitionScale == 0)
-    {
-        fill_solid(this->leds, NumberOfLEDs, CRGB::Black);
-    }
-    else if (this->transitionScale != UINT8_MAX)
-    {
-        nscale8(this->leds, NumberOfLEDs, this->transitionScale);
-    }
+    fill_solid(this->leds, NumberOfLEDs, CRGB::Black);
 }
 
 float Animation::GetSpeed()

@@ -314,14 +314,12 @@ void Ripple::Advance(CRGB* leds)
 
         if (this->state == RIPPLE_STATE_TRAVEL_UP || this->state == RIPPLE_STATE_TRAVEL_DOWN)
         {
-            // Ripple is visible - render it
             this->Render(leds, age);
         }
     }
 
     if (this->lifespan && age >= this->lifespan)
     {
-        // We Dead
         this->state = RIPPLE_STATE_DEAD;
         this->node = this->direction = this->pressure = age = 0;
     }
@@ -336,7 +334,7 @@ RippleState Ripple::GetState()
 {
     unsigned long now = millis();
 
-    // I have a suspicion that ripples arent being killed properly over time and then the pool runs out of ripples. Possibly due to transitions?
+    // Safety net so a ripple can't hold a pool slot forever, e.g. one with no lifespan
     if (this->state != RIPPLE_STATE_DEAD)
     {
         if (now - this->startedAt > RandomAnimationDuration)
@@ -347,6 +345,12 @@ RippleState Ripple::GetState()
     }
 
     return this->state;
+}
+
+void Ripple::Kill()
+{
+    this->state = RIPPLE_STATE_DEAD;
+    this->node = this->direction = this->pressure = 0;
 }
 
 int32_t Ripple::GetAnimationId()
