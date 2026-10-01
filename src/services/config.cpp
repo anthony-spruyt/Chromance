@@ -6,7 +6,9 @@ Config::Config() :
     preferences(),
     logLevel(0), // trace
     brightness(1),
-    sleeping(false)
+    sleeping(false),
+    transitionDuration(DefaultTransitionDuration),
+    rippleStepsPerSecond(DefaultRippleStepsPerSecond)
 {
     this->semaphore = xSemaphoreCreateMutex();
 
@@ -30,6 +32,8 @@ void Config::Setup()
     this->logLevel = (uint8_t)this->preferences.getUShort(LogLevelConfigKey, this->logLevel);
     this->brightness = (uint8_t)this->preferences.getUShort(BrightnessConfigKey, this->brightness);
     this->sleeping = this->preferences.getBool(SleepingConfigKey, this->sleeping);
+    this->transitionDuration = this->preferences.getULong(TransitionDurationConfigKey, this->transitionDuration);
+    this->rippleStepsPerSecond = this->preferences.getUInt(RippleStepsPerSecondConfigKey, this->rippleStepsPerSecond);
 
     String speedKey;
     String lifespanKey;
@@ -118,6 +122,63 @@ void Config::SetSleeping(bool value)
 bool Config::GetSleeping()
 {
     return this->sleeping;
+}
+
+void Config::SetTransitionDuration(unsigned long value)
+{
+    if (value > MaxTransitionDuration)
+    {
+        value = MaxTransitionDuration;
+    }
+
+    this->transitionDuration = value;
+
+    if (xSemaphoreTake(this->semaphore, portMAX_DELAY) != pdTRUE)
+    {
+        return;
+    }
+
+    preferences.begin(ConfigNamespace, false);
+    this->preferences.putULong(TransitionDurationConfigKey, value);
+    preferences.end();
+
+    xSemaphoreGive(this->semaphore);
+}
+
+unsigned long Config::GetTransitionDuration()
+{
+    return this->transitionDuration;
+}
+
+void Config::SetRippleStepsPerSecond(uint32_t value)
+{
+    // Zero would divide by zero when working out the step interval
+    if (value < 1U)
+    {
+        value = 1U;
+    }
+    else if (value > MaxRippleStepsPerSecond)
+    {
+        value = MaxRippleStepsPerSecond;
+    }
+
+    this->rippleStepsPerSecond = value;
+
+    if (xSemaphoreTake(this->semaphore, portMAX_DELAY) != pdTRUE)
+    {
+        return;
+    }
+
+    preferences.begin(ConfigNamespace, false);
+    this->preferences.putUInt(RippleStepsPerSecondConfigKey, value);
+    preferences.end();
+
+    xSemaphoreGive(this->semaphore);
+}
+
+uint32_t Config::GetRippleStepsPerSecond()
+{
+    return this->rippleStepsPerSecond;
 }
 
 float Config::GetAnimationSpeed(AnimationType animationType)

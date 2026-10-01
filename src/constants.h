@@ -64,6 +64,8 @@ namespace Chromance
     constexpr const char* RippleLifespanConfigKeyPrefix = "rl";
     constexpr const char* RipplePulsePeriodConfigKeyPrefix = "rp";
     constexpr const char* RippleDecayConfigKeyPrefix = "rd";
+    constexpr const char* TransitionDurationConfigKey = "td";
+    constexpr const char* RippleStepsPerSecondConfigKey = "rs";
 
     //////////////////////////////////////////
     // LEDs
@@ -99,7 +101,8 @@ namespace Chromance
     // The duration in milliseconds when in random animation mode that each animation is played before transitioning to the next randomly selected animation
     constexpr unsigned long RandomAnimationDuration = 30000UL;
     // The duration in milliseconds of a fade between animations, or into and out of sleep
-    constexpr unsigned long AnimationTransitionDuration = 1500UL;
+    constexpr unsigned long DefaultTransitionDuration = 1500UL;
+    constexpr unsigned long MaxTransitionDuration = 10000UL;
 
     //////////////////////////////////////////
     // ANIMATIONS - RAINBOW
@@ -182,7 +185,8 @@ namespace Chromance
     //////////////////////////////////////////
 
     // Ripple speeds and trail decay were tuned at this rate, so changing it changes how every ripple animation looks
-    constexpr uint32_t RippleStepsPerSecond = 60U;
+    constexpr uint32_t DefaultRippleStepsPerSecond = 60U;
+    constexpr uint32_t MaxRippleStepsPerSecond = 240U;
     // The largest lifespan Home Assistant offers, in milliseconds
     constexpr unsigned long RippleMaxLifespan = 30000UL;
 

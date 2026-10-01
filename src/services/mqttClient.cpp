@@ -160,6 +160,28 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
             }
         }
 
+        if (!doc[TransitionDurationConfigKey].isNull())
+        {
+            unsigned long transitionDuration = doc[TransitionDurationConfigKey];
+
+            if (this->config->GetTransitionDuration() != transitionDuration)
+            {
+                this->config->SetTransitionDuration(transitionDuration);
+                publishState = true;
+            }
+        }
+
+        if (!doc[RippleStepsPerSecondConfigKey].isNull())
+        {
+            uint32_t rippleStepsPerSecond = doc[RippleStepsPerSecondConfigKey];
+
+            if (this->config->GetRippleStepsPerSecond() != rippleStepsPerSecond)
+            {
+                this->config->SetRippleStepsPerSecond(rippleStepsPerSecond);
+                publishState = true;
+            }
+        }
+
         String animationSpeedKey;
         float animationSpeed;
         float currentAnimationSpeed;
@@ -391,6 +413,8 @@ void MQTTClient::PublishState(ChromanceState state)
     doc["availability"] = "1";
     doc["state"] = state.animationStatus != ANIMATION_STATUS_PLAYING && state.animationStatus != ANIMATION_STATUS_WAKING_UP ? "OFF" : "ON";
     doc["effect"] = state.effect;
+    doc[TransitionDurationConfigKey] = this->config->GetTransitionDuration();
+    doc[RippleStepsPerSecondConfigKey] = this->config->GetRippleStepsPerSecond();
 
     AnimationType animationType;
 
@@ -415,6 +439,8 @@ void MQTTClient::PublishDeviceDiscovery()
 {
     this->PublishFPSSensorDiscovery();
     this->PublishLightDiscovery();
+    this->PublishNumberDiscovery(String("chrtd1"), String("Transition Duration"), String(TransitionDurationConfigKey), 0.0f, MaxTransitionDuration, 1.0f);
+    this->PublishNumberDiscovery(String("chrrs1"), String("Ripple Steps Per Second"), String(RippleStepsPerSecondConfigKey), 1.0f, MaxRippleStepsPerSecond, 1.0f);
 
     AnimationType animationType;
 
@@ -471,6 +497,19 @@ void MQTTClient::PublishNumberDiscovery
     name += this->animationController->GetAnimation(animationType)->GetName();
     name += String(nameSuffix);
 
+    this->PublishNumberDiscovery(uniqueID, name, configKey, min, max, step);
+}
+
+void MQTTClient::PublishNumberDiscovery
+(
+    const String& uniqueID,
+    const String& name,
+    const String& configKey,
+    float min,
+    float max,
+    float step
+)
+{
     String valueTemplate;
     valueTemplate += String("{{ value_json.");
     valueTemplate += configKey;

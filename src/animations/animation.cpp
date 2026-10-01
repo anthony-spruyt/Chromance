@@ -102,9 +102,10 @@ void Animation::Transition()
 
     // Steps from the scale the transition started at so a reversed transition carries on from where it was
     unsigned long elapsed = millis() - this->transitionStartedAt;
-    uint8_t step = elapsed >= AnimationTransitionDuration ?
+    unsigned long duration = this->config->GetTransitionDuration();
+    uint8_t step = elapsed >= duration ?
         UINT8_MAX :
-        (uint8_t)(UINT8_MAX * elapsed / AnimationTransitionDuration);
+        (uint8_t)(UINT8_MAX * elapsed / duration);
 
     if (this->status == ANIMATION_STATUS_WAKING_UP)
     {

@@ -20,10 +20,11 @@ RippleAnimation::RippleAnimation
 void RippleAnimation::Loop()
 {
     unsigned long nowMicros = micros();
+    unsigned long stepMicros = 1000000UL / this->config->GetRippleStepsPerSecond();
     uint32_t steps = 0U;
 
     // Fixed rate steps keep ripple speed and trail length the same at any frame rate
-    while (nowMicros - this->lastStep >= RippleStepMicros)
+    while (nowMicros - this->lastStep >= stepMicros)
     {
         if (steps == RippleMaxStepsPerFrame)
         {
@@ -33,7 +34,7 @@ void RippleAnimation::Loop()
         }
 
         this->Step();
-        this->lastStep += RippleStepMicros;
+        this->lastStep += stepMicros;
         steps++;
     }
 

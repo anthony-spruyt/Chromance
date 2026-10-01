@@ -43,6 +43,15 @@ namespace Chromance
                 float max,
                 float step
             );
+            void PublishNumberDiscovery
+            (
+                const String& uniqueID,
+                const String& name,
+                const String& configKey,
+                float min,
+                float max,
+                float step
+            );
             void PublishLightDiscovery();
             void PopulateDiscoveryDocument(JsonDocument& doc, const String& name, const String& uniqueID);
             void PublishDocument(JsonDocument& doc, const char* topic);
