@@ -55,8 +55,6 @@ void AnimationController::Setup()
 
     FastLED.setMaxRefreshRate(MaxRefreshRate);
     FastLED.setCorrection(TypicalLEDStrip);
-    // FastLED turns dithering off for good the first time FPS dips under 100, which a crossfade can cause, shifting dim colours mid-fade
-    FastLED.setDither(DISABLE_DITHER);
 
     FastLED.clear();
     FastLED.show();
@@ -287,6 +285,8 @@ void AnimationController::Render()
 
     this->current = power / LEDVoltage;
 
+    // show() turns dithering off whenever FPS is under 100, which includes the first frames after boot, so turn it back on every frame
+    FastLED.setDither(BINARY_DITHER);
     FastLED.show(brightness);
 }
 
