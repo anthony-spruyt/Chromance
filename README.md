@@ -56,7 +56,7 @@ This will cover how to get this codebase up and running on your Chromance by Zac
 The following might need to be changed depending on your setup/hardware.
 
 - Change `board = esp32dev` to match the model of ESP32 you have, a list can be [found here](https://docs.platformio.org/en/latest/boards/index.html)
-- OTA uploads need the Chromance's IP, which goes in `platformioSecrets.ini` (see OTA Updates). Give it a static IP / DHCP reservation in your router after setting up the WiFi. The device advertises `chromance.local` over mDNS, but that only resolves on Windows/macOS, not in WSL or a dev container. Use the IP, or add a DNS A record for it on your DNS server.
+- OTA uploads need the Chromance's IP, which goes in `UPLOAD_PORT` (see Secrets). Give it a static IP / DHCP reservation in your router after setting up the WiFi. The device advertises `chromance.local` over mDNS, but that only resolves on Windows/macOS, not in WSL or a dev container. Use the IP, or add a DNS A record for it on your DNS server.
 
 #### constants.h
 
@@ -69,59 +69,26 @@ The following might need to be changed depending on your setup/hardware.
 - `RedStripDataPin`: With the Data Pin you are using for the red
 - `BlackStripDataPin`: With the Data Pin you are using for the black
 
-### How to connect to wifi
+### Secrets
 
-Create a file with the name `secrets.h` in the src folder
+Builds read the WiFi, OTA and MQTT credentials from environment variables. `scripts/inject_secrets.py` turns them into a generated header in the build folder, so no secret lives in the repo. The build stops and lists any that are missing.
 
-```c++
-#ifndef SECRETS_H_
-#define SECRETS_H_
+| Variable        | Used for                                        |
+| --------------- | ----------------------------------------------- |
+| `WIFI_SSID`     | WiFi network name                               |
+| `WIFI_PASSWORD` | WiFi password                                   |
+| `OTA_PASSWORD`  | Password for OTA updates (both HTTP and espota) |
+| `UPLOAD_PORT`   | The Chromance's IP, only needed for OTA uploads |
+| `MQTT_BROKER`   | MQTT broker host name or IP                     |
+| `MQTT_PORT`     | MQTT broker port, e.g. `1883`                   |
+| `MQTT_USERNAME` | MQTT username                                   |
+| `MQTT_PASSWORD` | MQTT password                                   |
 
-namespace Chromance
-{
-    //////////////////////////////////////////
-    // WiFi
-    //////////////////////////////////////////
-
-    constexpr const char* WifiSsid = "myssid";
-    constexpr const char* WifiPassword = "mywifipassword";
-
-    //////////////////////////////////////////
-    // OTA
-    //////////////////////////////////////////
-
-    constexpr const char* OTAPassword = "myotapassword";
-
-    //////////////////////////////////////////
-    // MQTT
-    //////////////////////////////////////////
-
-    constexpr const char* MQTTBroker = "mqttbroker.local";
-    constexpr int32_t MQTTPort = 1883;
-    constexpr const char* MQTTUsername = "chromance";
-    constexpr const char* MQTTPassword = "mymqttpassword";
-}
-
-#endif
-```
+The dev container loads them from `~/.secrets/.env.chromance` on the host (one `NAME=value` per line, no quotes), so rebuild the container after changing that file. Outside the dev container, export them in your shell before running `pio`.
 
 ### OTA Updates
 
 The first upload must be over USB (`esp32dev-usb`). After that, update over WiFi.
-
-Create a file in the repo root with the name `platformioSecrets.ini`
-
-```ini
-; used by the OTA environments via "extends" (https://docs.platformio.org/en/latest/projectconf/section_env_advanced.html#extends)
-[esp32dev-ota]
-upload_port = 192.168.x.x
-; same as OTAPassword in secrets.h
-custom_ota_password = myotapassword
-; only needed for the espota environment (esp32rc)
-upload_flags =
- --port=3232
- --auth=myotapassword
-```
 
 Then run `pio run -e esp32dev -t upload`. This POSTs the firmware to the device's HTTP update endpoint (`http://<ip>/update`, user `chromance`, password `OTAPassword`) with curl. It works from a dev container, WSL, or any machine that can reach the device, because the device never has to connect back.
 
@@ -129,7 +96,7 @@ Then run `pio run -e esp32dev -t upload`. This POSTs the firmware to the device'
 
 ### Home Assistant / MQTT
 
-The Chromance connects to the MQTT broker set in `secrets.h` and registers itself with Home Assistant through [MQTT discovery](https://www.home-assistant.io/integrations/mqtt/#mqtt-discovery). Add the [MQTT integration](https://www.home-assistant.io/integrations/mqtt/) to Home Assistant, pointed at the same broker and using the default `homeassistant` discovery prefix, and a **Chromance** device
+The Chromance connects to the MQTT broker set in `MQTT_BROKER` and registers itself with Home Assistant through [MQTT discovery](https://www.home-assistant.io/integrations/mqtt/#mqtt-discovery). Add the [MQTT integration](https://www.home-assistant.io/integrations/mqtt/) to Home Assistant, pointed at the same broker and using the default `homeassistant` discovery prefix, and a **Chromance** device
 appears automatically. Discovery is sent again whenever Home Assistant restarts (it listens on `homeassistant/status`).
 
 The device has these entities:

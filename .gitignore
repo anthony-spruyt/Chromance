@@ -1,9 +1,31 @@
+# Node
+node_modules/
+
+# Prevent accidental secret commits
+.env
+.env.*
+*.env
+.secrets/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Claude
+.claude/settings.local.json
+.claude/worktrees/
+
+# Worktrees
+.worktrees/
+
+# SSH agent
+agent.sock
+
+# MegaLinter
+.output
+
 *.log
 *.code-workspace
-
-# Secrets
-platformioSecrets.ini
-src/secrets.h
 
 # PlatformIO
 .pio
