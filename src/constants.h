@@ -259,11 +259,12 @@ namespace Chromance
     constexpr uint8_t FireAnimationMaxPaletteIndex = 240U;
 
     constexpr bool TwinkleAnimationEnabled = true;
-    enum TwinkleParameter { TWINKLE_PER_SECOND, TWINKLE_FADE_TIME };
+    enum TwinkleParameter { TWINKLE_PER_SECOND, TWINKLE_FADE_OUT_TIME, TWINKLE_FADE_IN_TIME };
     constexpr AnimationParameter TwinkleAnimationParameters[] =
     {
         {"Twinkles Per Second", 0.5f, 50.0f, 0.5f, 10.0f, nullptr},
-        {"Fade Time", 100.0f, 10000.0f, 50.0f, 1500.0f, "ms"}
+        {"Fade Out Time", 100.0f, 10000.0f, 50.0f, 1500.0f, "ms"},
+        {"Fade In Time", 0.0f, 10000.0f, 50.0f, 750.0f, "ms"}
     };
 
     inline const AnimationParameter* GetAnimationParameters(AnimationType animationType, uint8_t& count)
