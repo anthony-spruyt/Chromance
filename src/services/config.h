@@ -14,6 +14,12 @@ namespace Chromance
             ~Config();
 
             void Setup();
+            /**
+             * Write changed values to NVS once they have been unchanged for ConfigSaveDelay.
+             * Flash writes stall the LED driver, so call this only between frames
+             * @param now Write immediately, e.g. before a reboot
+            */
+            void Save(bool now = false);
             void SetLogLevel(uint8_t value);
             uint8_t GetLogLevel();
             void SetBrightness(uint8_t value);
@@ -46,6 +52,11 @@ namespace Chromance
 
         private:
 
+            void SaveUShort(const char* key, uint16_t value);
+            void SaveULong(const char* key, uint32_t value);
+            void SaveFloat(const char* key, float value);
+            void SaveBool(const char* key, bool value);
+
             Preferences preferences;
             SemaphoreHandle_t semaphore;
             uint8_t logLevel;
@@ -55,6 +66,8 @@ namespace Chromance
             uint32_t rippleStepsPerSecond;
             uint8_t maxBrightness;
             uint32_t maxCurrent;
+            bool dirty;
+            unsigned long changedAt;
             float animationSpeed[ANIMATION_TYPE_NUMBER_OF_ANIMATIONS];
             unsigned long rippleLifespan[ANIMATION_TYPE_NUMBER_OF_ANIMATIONS];
             unsigned long ripplePulsePeriod[ANIMATION_TYPE_NUMBER_OF_ANIMATIONS];

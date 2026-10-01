@@ -10,7 +10,9 @@ Config::Config() :
     transitionDuration(DefaultTransitionDuration),
     rippleStepsPerSecond(DefaultRippleStepsPerSecond),
     maxBrightness(DefaultMaxBrightness),
-    maxCurrent(DefaultMaxCurrent)
+    maxCurrent(DefaultMaxCurrent),
+    dirty(false),
+    changedAt(0UL)
 {
     this->semaphore = xSemaphoreCreateMutex();
 
@@ -35,9 +37,9 @@ void Config::Setup()
     this->brightness = (uint8_t)this->preferences.getUShort(BrightnessConfigKey, this->brightness);
     this->sleeping = this->preferences.getBool(SleepingConfigKey, this->sleeping);
     this->transitionDuration = this->preferences.getULong(TransitionDurationConfigKey, this->transitionDuration);
-    this->rippleStepsPerSecond = this->preferences.getUInt(RippleStepsPerSecondConfigKey, this->rippleStepsPerSecond);
+    this->rippleStepsPerSecond = this->preferences.getULong(RippleStepsPerSecondConfigKey, this->rippleStepsPerSecond);
     this->maxBrightness = (uint8_t)this->preferences.getUShort(MaxBrightnessConfigKey, this->maxBrightness);
-    this->maxCurrent = this->preferences.getUInt(MaxCurrentConfigKey, this->maxCurrent);
+    this->maxCurrent = this->preferences.getULong(MaxCurrentConfigKey, this->maxCurrent);
 
     String speedKey;
     String lifespanKey;
@@ -60,6 +62,75 @@ void Config::Setup()
     preferences.end();
 }
 
+void Config::Save(bool now)
+{
+    if (!this->dirty || (!now && millis() - this->changedAt < ConfigSaveDelay))
+    {
+        return;
+    }
+
+    if (xSemaphoreTake(this->semaphore, now ? portMAX_DELAY : 0U) != pdTRUE)
+    {
+        return;
+    }
+
+    this->dirty = false;
+
+    preferences.begin(ConfigNamespace, false);
+    this->SaveUShort(LogLevelConfigKey, this->logLevel);
+    this->SaveUShort(BrightnessConfigKey, this->brightness);
+    this->SaveBool(SleepingConfigKey, this->sleeping);
+    this->SaveULong(TransitionDurationConfigKey, this->transitionDuration);
+    this->SaveULong(RippleStepsPerSecondConfigKey, this->rippleStepsPerSecond);
+    this->SaveUShort(MaxBrightnessConfigKey, this->maxBrightness);
+    this->SaveULong(MaxCurrentConfigKey, this->maxCurrent);
+
+    for (int32_t i = 0; i < ANIMATION_TYPE_NUMBER_OF_ANIMATIONS; i++)
+    {
+        this->SaveFloat(this->GetAnimationSpeedKey((AnimationType)i).c_str(), this->animationSpeed[i]);
+        this->SaveULong(this->GetRippleLifespanKey((AnimationType)i).c_str(), this->rippleLifespan[i]);
+        this->SaveULong(this->GetRipplePulsePeriodKey((AnimationType)i).c_str(), this->ripplePulsePeriod[i]);
+        this->SaveUShort(this->GetRippleDecayKey((AnimationType)i).c_str(), this->rippleDecay[i]);
+    }
+
+    preferences.end();
+
+    xSemaphoreGive(this->semaphore);
+}
+
+// Each put commits and wears flash, so only write values that differ from what is stored. Passing value as the default skips unset keys still at their default
+void Config::SaveUShort(const char* key, uint16_t value)
+{
+    if (this->preferences.getUShort(key, value) != value)
+    {
+        this->preferences.putUShort(key, value);
+    }
+}
+
+void Config::SaveULong(const char* key, uint32_t value)
+{
+    if (this->preferences.getULong(key, value) != value)
+    {
+        this->preferences.putULong(key, value);
+    }
+}
+
+void Config::SaveFloat(const char* key, float value)
+{
+    if (this->preferences.getFloat(key, value) != value)
+    {
+        this->preferences.putFloat(key, value);
+    }
+}
+
+void Config::SaveBool(const char* key, bool value)
+{
+    if (this->preferences.getBool(key, value) != value)
+    {
+        this->preferences.putBool(key, value);
+    }
+}
+
 void Config::SetLogLevel(uint8_t value)
 {
     if (value > LOG_LEVEL_NONE)
@@ -67,16 +138,14 @@ void Config::SetLogLevel(uint8_t value)
         return;
     }
 
-    this->logLevel = value;
-
     if (xSemaphoreTake(this->semaphore, portMAX_DELAY) != pdTRUE)
     {
         return;
     }
 
-    preferences.begin(ConfigNamespace, false);
-    this->preferences.putUShort(LogLevelConfigKey, value);
-    preferences.end();
+    this->logLevel = value;
+    this->dirty = true;
+    this->changedAt = millis();
 
     xSemaphoreGive(this->semaphore);
 }
@@ -88,16 +157,14 @@ uint8_t Config::GetLogLevel()
 
 void Config::SetBrightness(uint8_t value)
 {
-    this->brightness = value;
-
     if (xSemaphoreTake(this->semaphore, portMAX_DELAY) != pdTRUE)
     {
         return;
     }
 
-    preferences.begin(ConfigNamespace, false);
-    this->preferences.putUShort(BrightnessConfigKey, value);
-    preferences.end();
+    this->brightness = value;
+    this->dirty = true;
+    this->changedAt = millis();
 
     xSemaphoreGive(this->semaphore);
 }
@@ -109,16 +176,14 @@ uint8_t Config::GetBrightness()
 
 void Config::SetSleeping(bool value)
 {
-    this->sleeping = value;
-
     if (xSemaphoreTake(this->semaphore, portMAX_DELAY) != pdTRUE)
     {
         return;
     }
 
-    preferences.begin(ConfigNamespace, false);
-    this->preferences.putBool(SleepingConfigKey, value);
-    preferences.end();
+    this->sleeping = value;
+    this->dirty = true;
+    this->changedAt = millis();
 
     xSemaphoreGive(this->semaphore);
 }
@@ -135,16 +200,14 @@ void Config::SetTransitionDuration(unsigned long value)
         value = MaxTransitionDuration;
     }
 
-    this->transitionDuration = value;
-
     if (xSemaphoreTake(this->semaphore, portMAX_DELAY) != pdTRUE)
     {
         return;
     }
 
-    preferences.begin(ConfigNamespace, false);
-    this->preferences.putULong(TransitionDurationConfigKey, value);
-    preferences.end();
+    this->transitionDuration = value;
+    this->dirty = true;
+    this->changedAt = millis();
 
     xSemaphoreGive(this->semaphore);
 }
@@ -166,16 +229,14 @@ void Config::SetRippleStepsPerSecond(uint32_t value)
         value = MaxRippleStepsPerSecond;
     }
 
-    this->rippleStepsPerSecond = value;
-
     if (xSemaphoreTake(this->semaphore, portMAX_DELAY) != pdTRUE)
     {
         return;
     }
 
-    preferences.begin(ConfigNamespace, false);
-    this->preferences.putUInt(RippleStepsPerSecondConfigKey, value);
-    preferences.end();
+    this->rippleStepsPerSecond = value;
+    this->dirty = true;
+    this->changedAt = millis();
 
     xSemaphoreGive(this->semaphore);
 }
@@ -196,16 +257,14 @@ void Config::SetMaxBrightness(uint8_t value)
         value = 100U;
     }
 
-    this->maxBrightness = value;
-
     if (xSemaphoreTake(this->semaphore, portMAX_DELAY) != pdTRUE)
     {
         return;
     }
 
-    preferences.begin(ConfigNamespace, false);
-    this->preferences.putUShort(MaxBrightnessConfigKey, value);
-    preferences.end();
+    this->maxBrightness = value;
+    this->dirty = true;
+    this->changedAt = millis();
 
     xSemaphoreGive(this->semaphore);
 }
@@ -226,16 +285,14 @@ void Config::SetMaxCurrent(uint32_t value)
         value = MaxMaxCurrent;
     }
 
-    this->maxCurrent = value;
-
     if (xSemaphoreTake(this->semaphore, portMAX_DELAY) != pdTRUE)
     {
         return;
     }
 
-    preferences.begin(ConfigNamespace, false);
-    this->preferences.putUInt(MaxCurrentConfigKey, value);
-    preferences.end();
+    this->maxCurrent = value;
+    this->dirty = true;
+    this->changedAt = millis();
 
     xSemaphoreGive(this->semaphore);
 }
@@ -267,72 +324,56 @@ uint8_t Config::GetRippleDecay(AnimationType animationType)
 
 void Config::SetAnimationSpeed(AnimationType animationType, float value)
 {
-    String key = this->GetAnimationSpeedKey(animationType);
-
-    this->animationSpeed[animationType] = value;
-
     if (xSemaphoreTake(this->semaphore, portMAX_DELAY) != pdTRUE)
     {
         return;
     }
 
-    preferences.begin(ConfigNamespace, false);
-    this->preferences.putFloat(key.c_str(), value);
-    preferences.end();
+    this->animationSpeed[animationType] = value;
+    this->dirty = true;
+    this->changedAt = millis();
 
     xSemaphoreGive(this->semaphore);
 }
 
 void Config::SetRippleLifespan(AnimationType animationType, unsigned long value)
 {
-    String key = this->GetRippleLifespanKey(animationType);
-
-    this->rippleLifespan[animationType] = value;
-
     if (xSemaphoreTake(this->semaphore, portMAX_DELAY) != pdTRUE)
     {
         return;
     }
 
-    preferences.begin(ConfigNamespace, false);
-    this->preferences.putULong(key.c_str(), value);
-    preferences.end();
+    this->rippleLifespan[animationType] = value;
+    this->dirty = true;
+    this->changedAt = millis();
 
     xSemaphoreGive(this->semaphore);
 }
 
 void Config::SetRipplePulsePeriod(AnimationType animationType, unsigned long value)
 {
-    String key = this->GetRipplePulsePeriodKey(animationType);
-
-    this->ripplePulsePeriod[animationType] = value;
-
     if (xSemaphoreTake(this->semaphore, portMAX_DELAY) != pdTRUE)
     {
         return;
     }
 
-    preferences.begin(ConfigNamespace, false);
-    this->preferences.putULong(key.c_str(), value);
-    preferences.end();
+    this->ripplePulsePeriod[animationType] = value;
+    this->dirty = true;
+    this->changedAt = millis();
 
     xSemaphoreGive(this->semaphore);
 }
 
 void Config::SetRippleDecay(AnimationType animationType, uint8_t value)
 {
-    String key = this->GetRippleDecayKey(animationType);
-
-    this->rippleDecay[animationType] = value;
-
     if (xSemaphoreTake(this->semaphore, portMAX_DELAY) != pdTRUE)
     {
         return;
     }
 
-    preferences.begin(ConfigNamespace, false);
-    this->preferences.putUShort(key.c_str(), value);
-    preferences.end();
+    this->rippleDecay[animationType] = value;
+    this->dirty = true;
+    this->changedAt = millis();
 
     xSemaphoreGive(this->semaphore);
 }

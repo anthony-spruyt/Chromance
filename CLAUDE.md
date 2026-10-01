@@ -64,7 +64,8 @@ The name string passed to the base constructor becomes the Home Assistant effect
 
 **Enum ordering matters**: `RANDOM_ANIMATION` must stay 0, `STRIP_TEST` must stay 1, and `NUMBER_OF_ANIMATIONS` must stay last. `NextAnimation()` skips indices below 2. Config keys are built as prefix + enum integer (e.g. `as3`, `rl3`), and so are HA discovery unique IDs. Reordering the enum therefore scrambles persisted NVS settings and HA entities.
 
-**Config (`services/config.*`)**: Values persist to ESP32 NVS through `Preferences` (namespace `config`): brightness, sleeping, log level, transition duration (`td`), ripple steps per second (`rs`), max brightness percent (`mb`), max current in mA (`mc`, sent and published as amps), and per-animation speed / ripple lifespan / pulse period / decay.
+**Config (`services/config.*`)**: Values persist to ESP32 NVS through `Preferences` (namespace `config`): brightness, sleeping, log level, transition duration (`td`), ripple steps per second (`rs`), max brightness percent (`mb`), max current in mA (`mc`, sent and published as amps), and per-animation speed / ripple lifespan / pulse period / decay. Setters only update memory. `Config::Save()`
+writes changed keys after `ConfigSaveDelay` without changes, and only the animation task calls it, right after `FastLED.show()`. Flash writes stall the I2S LED driver's refill code and garble the 3-wire strips, so never write NVS from other tasks or mid-frame. The reboot command calls `Save(true)` first.
 
 **MQTT / Home Assistant (`services/mqttClient.*`)**:
 

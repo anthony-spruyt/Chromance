@@ -57,6 +57,8 @@ namespace Chromance
     //////////////////////////////////////////
 
     constexpr const char* ConfigNamespace = "config";
+    // Changes are written to flash after this many milliseconds without another change, so dragging a slider writes once
+    constexpr unsigned long ConfigSaveDelay = 10000UL;
     constexpr const char* LogLevelConfigKey = "ll";
     constexpr const char* BrightnessConfigKey = "l";
     constexpr const char* SleepingConfigKey = "s";

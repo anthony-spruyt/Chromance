@@ -66,6 +66,7 @@ void MQTTClient::Callback(char* topic, byte* payload, uint32_t length)
 
         if (!doc["reboot"].isNull())
         {
+            this->config->Save(true);
             ESP.restart();
 
             return;

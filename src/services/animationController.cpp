@@ -88,6 +88,8 @@ void AnimationController::Loop()
     }
 
     this->Render();
+    // Right after show() nothing is being sent, so the flash write stall can't garble the LEDs
+    this->config->Save();
 
     vTaskDelay(TaskDelay);
 }
