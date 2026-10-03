@@ -4,6 +4,7 @@
   "build": {
     "dockerfile": "Dockerfile",
     "args": {
+      "BASE_REGISTRY": "${localEnv:BASE_REGISTRY:ghcr.io}",
       "NEXUS_URL": "${localEnv:NEXUS_URL}"
     }
   },
@@ -47,7 +48,10 @@
         "redhat.vscode-yaml",
         "ms-vscode.cpptools",
         "platformio.platformio-ide"
-      ]
+      ],
+      "settings": {
+        "workbench.startupEditor": "none"
+      }
     }
   }
 }
