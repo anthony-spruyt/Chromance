@@ -47,6 +47,7 @@
         "mhutchie.git-graph",
         "nk2552003.forest-ash-theme-vscode",
         "redhat.vscode-yaml",
+        "github.vscode-github-actions",
         "ms-vscode.cpptools",
         "platformio.platformio-ide"
       ],

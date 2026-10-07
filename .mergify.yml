@@ -1,0 +1,106 @@
+merge_queue:
+  skip_intermediate_results: true
+queue_rules:
+  - name: "default"
+    merge_method: "squash"
+    batch_size:
+      min: 1
+      max: 10
+    batch_max_wait_time: "5 min"
+    max_checks_retries: 3
+    merge_conditions:
+      - "-draft"
+      - "check-success = summary / Check Results"
+priority_rules:
+  - name: "revert PRs"
+    conditions:
+      - "label = agent/revert"
+    priority: "high"
+    allow_checks_interruption: true
+  - name: "emergency merge"
+    conditions:
+      - "label = emergency/merge"
+    priority: "high"
+    allow_checks_interruption: true
+pull_request_rules:
+  - name: "cleanup labels on close"
+    conditions:
+      - "closed"
+      - "-merged"
+    actions:
+      label:
+        remove:
+          - "agent/triage"
+          - "agent/fixing"
+          - "agent/fixable"
+          - "agent/needs-review"
+  - name: "request owner review"
+    conditions:
+      - "base = main"
+      - "-closed"
+      - "-draft"
+      - "-author = renovate[bot]"
+      - "-author = repo-operator-release-bot[bot]"
+      - "-label = agent/revert"
+    actions:
+      request_reviews:
+        users:
+          - "anthony-spruyt"
+merge_protections:
+  - name: "default"
+    if:
+      - "base = main"
+      - "-label = agent/revert"
+      - "-label = emergency/merge"
+      - "-label=autorelease: pending"
+      - "-head~=^chore/megalinter-refresh-"
+    success_conditions:
+      - or:
+          - "approved-reviews-by = anthony-spruyt"
+          - and:
+              - "author = renovate[bot]"
+              - "#approved-reviews-by >= 1"
+          - and:
+              - "author = anthony-spruyt"
+              - "#approved-reviews-by >= 1"
+  - name: "ci-config-owner-approval"
+    if:
+      - "base = main"
+      - "-author = anthony-spruyt"
+      - "files~=^(\\.github/|\\.mergify\\.yml$)"
+    success_conditions:
+      - "approved-reviews-by = anthony-spruyt"
+  - name: "megalinter-refresh"
+    if:
+      - "base = main"
+      - "head~=^chore/megalinter-refresh-"
+    success_conditions:
+      - "author = repo-operator-release-bot[bot]"
+      - "-files~=^(?!megalinter-[^/]+/\\.rebuild-stamp$)"
+  - name: "release-please"
+    if:
+      - "base = main"
+      - "label=autorelease: pending"
+    success_conditions:
+      - "author = repo-operator-release-bot[bot]"
+      - "head~=^release-please--branches--"
+      - "files~=^\\.release-please-manifest\\.json$"
+  - name: "revert-approved"
+    if:
+      - "base = main"
+      - "label = agent/revert"
+    success_conditions:
+      - "author = skynet-rw[bot]"
+  - name: "emergency-merge"
+    if:
+      - "base = main"
+      - "label = emergency/merge"
+    success_conditions:
+      - "author = anthony-spruyt"
+merge_protections_settings:
+  reporting_method: "check-runs"
+  auto_merge_conditions:
+    - or:
+        - "-label=autorelease: pending"
+        - "schedule = Mon-Mon 09:00-12:00[Australia/Melbourne]"
+    - "-label = blocked"

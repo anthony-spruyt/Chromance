@@ -22,7 +22,10 @@
         ".devcontainer/README.md",
         ".devcontainer/setup-devcontainer.sh",
         ".editorconfig",
+        ".github/actionlint.yaml",
+        ".github/CODEOWNERS",
         ".github/renovate.json5",
+        ".github/workflows/ci.yaml",
         ".gitignore",
         ".gitleaks.toml",
         ".jsonlintrc",
@@ -33,6 +36,7 @@
         ".mdformat.toml",
         ".mega-linter-base.yml",
         ".mega-linter.yml",
+        ".mergify.yml",
         ".pre-commit-config.yaml",
         ".prettierignore",
         ".prettierrc.yaml",
@@ -43,6 +47,7 @@
         ".yamllint.yml",
         "LICENSE",
         "lint.sh",
+        "ruff-base.toml",
         "trivy-mega-linter.yaml"
       ]
     }
