@@ -12,8 +12,12 @@ ENABLE_LINTERS:
   - "CPP_CLANG_FORMAT"
   - "CPP_CPPCHECK"
   - "CPP_CPPLINT"
+  - "PYTHON_RUFF"
+  - "PYTHON_RUFF_FORMAT"
 # Headers would otherwise be parsed as C
 CPP_CPPCHECK_ARGUMENTS:
   - "--language=c++"
 ADDITIONAL_EXCLUDED_DIRECTORIES:
   - ".pio"
+PYTHON_RUFF_CONFIG_FILE: "pyproject.toml"
+PYTHON_RUFF_FORMAT_CONFIG_FILE: "pyproject.toml"

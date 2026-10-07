@@ -1,0 +1,85 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/github-workflow.json
+# See https://github.com/anthony-spruyt/repo-operator/blob/main/src/templates/.github/workflows/ci.yaml for template comments
+name: "CI"
+
+on:
+  pull_request:
+    branches:
+      - "main"
+  push:
+    branches:
+      - "main"
+
+concurrency:
+  group: "ci-${{ github.event_name == 'push' && github.sha || github.ref }}"
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions: {}
+
+jobs:
+  lint:
+    permissions:
+      actions: "read"
+      contents: "read"
+      security-events: "write"
+    uses: "anthony-spruyt/repo-operator/.github/workflows/_lint.yaml@main"
+
+  build:
+    name: "PlatformIO Build"
+    runs-on: "ubuntu-latest"
+    timeout-minutes: 30
+    permissions:
+      contents: "read"
+    env:
+      # renovate: datasource=pypi depName=platformio
+      PLATFORMIO_VERSION: "6.2.0"
+      # Placeholders: scripts/inject_secrets.py fails the build unless every credential is set
+      WIFI_SSID: "ci"
+      WIFI_PASSWORD: "ci"
+      OTA_PASSWORD: "ci"
+      MQTT_BROKER: "ci"
+      MQTT_USERNAME: "ci"
+      MQTT_PASSWORD: "ci"
+      MQTT_PORT: "1883"
+    steps:
+      - name: "Harden Runner"
+        uses: "step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1" # v2.21.1
+        with:
+          egress-policy: "audit"
+
+      - name: "Checkout"
+        uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: "Setup Python"
+        uses: "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97" # v7.0.0
+        with:
+          python-version: "3.13"
+
+      - name: "Cache PlatformIO"
+        uses: "actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9" # v6.1.0
+        with:
+          path: |
+            ~/.platformio
+            .pio/libdeps
+          key: "pio-${{ runner.os }}-${{ env.PLATFORMIO_VERSION }}-${{ hashFiles('platformio.ini') }}"
+          restore-keys: |
+            pio-${{ runner.os }}-${{ env.PLATFORMIO_VERSION }}-
+
+      - name: "Install PlatformIO"
+        run: "pip install \"platformio==${PLATFORMIO_VERSION}\""
+
+      - name: "Build firmware"
+        run: "pio run -e esp32dev -e esp32dev-usb"
+
+  summary:
+    needs:
+      - "lint"
+      - "build"
+    if: "always()"
+    permissions:
+      actions: "read"
+      contents: "read"
+    uses: "anthony-spruyt/repo-operator/.github/workflows/_summary.yaml@main"

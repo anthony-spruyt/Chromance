@@ -24,7 +24,8 @@ pio run -e esp32rc -t upload             # OTA upload via ArduinoOTA/espota (fal
 ```
 
 - There are no tests. `build_src_flags = -Wall -Wextra` applies to `src/` only, and `src/` builds with zero warnings, so keep it that way.
-- `./lint.sh` runs MegaLinter, including clang-format (`.clang-format`), cppcheck and cpplint (`CPPLINT.cfg`) on `src/`. The C++ linters are turned on in `.mega-linter.yml`, which this repo owns. Keep hand-aligned tables in `// clang-format off` blocks.
+- `./lint.sh` runs MegaLinter, including clang-format (`.clang-format`), cppcheck and cpplint (`CPPLINT.cfg`) on `src/`, and ruff on `scripts/` (`pyproject.toml` extends the synced `ruff-base.toml`). These linters are turned on in `.mega-linter.yml`, which this repo owns. Keep hand-aligned tables in `// clang-format off` blocks.
+- CI (`.github/workflows/ci.yaml`, owned by this repo) runs MegaLinter and builds `esp32dev` and `esp32dev-usb` with placeholder secrets. `summary / Check Results` gates both.
 - Secrets come from environment variables (`WIFI_SSID`, `WIFI_PASSWORD`, `OTA_PASSWORD`, `UPLOAD_PORT`, `MQTT_BROKER`, `MQTT_PORT`, `MQTT_USERNAME`, `MQTT_PASSWORD`). The dev container loads them from the host's `~/.secrets/.env.chromance`, so they only change on a container rebuild. Never print their values.
 - The `pre:scripts/inject_secrets.py` extra script fails the build if any is missing (except IDE indexing and `clean`) and writes them into a generated `secretsEnv.h` in the build dir. Committed `src/secrets.h` wraps those macros as the `constexpr` `WifiSsid`, `OTAPassword`, `MQTTBroker` and so on. It uses a header, not `-D` flags, so values never pass through the shell or show up in compile
   commands.
