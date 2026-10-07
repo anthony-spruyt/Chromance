@@ -58,7 +58,7 @@ jobs:
         with:
           python-version: "3.13"
 
-      # The platform and FastLED come from unpinned git refs, so the month in the key forces a periodic fresh fetch
+      # The platform comes from an unpinned git ref, so the month in the key forces a periodic fresh fetch
       - name: "Get cache month"
         id: "month"
         run: "echo \"month=$(date -u +%Y-%m)\" >> \"$GITHUB_OUTPUT\""
