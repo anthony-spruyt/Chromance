@@ -58,15 +58,20 @@ jobs:
         with:
           python-version: "3.13"
 
+      # The platform and FastLED come from unpinned git refs, so the month in the key forces a periodic fresh fetch
+      - name: "Get cache month"
+        id: "month"
+        run: "echo \"month=$(date -u +%Y-%m)\" >> \"$GITHUB_OUTPUT\""
+
       - name: "Cache PlatformIO"
         uses: "actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9" # v6.1.0
         with:
           path: |
             ~/.platformio
             .pio/libdeps
-          key: "pio-${{ runner.os }}-${{ env.PLATFORMIO_VERSION }}-${{ hashFiles('platformio.ini') }}"
+          key: "pio-${{ runner.os }}-${{ env.PLATFORMIO_VERSION }}-${{ steps.month.outputs.month }}-${{ hashFiles('platformio.ini') }}"
           restore-keys: |
-            pio-${{ runner.os }}-${{ env.PLATFORMIO_VERSION }}-
+            pio-${{ runner.os }}-${{ env.PLATFORMIO_VERSION }}-${{ steps.month.outputs.month }}-
 
       - name: "Install PlatformIO"
         run: "pip install \"platformio==${PLATFORMIO_VERSION}\""
