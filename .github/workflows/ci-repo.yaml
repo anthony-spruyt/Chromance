@@ -10,9 +10,6 @@ jobs:
     name: "PlatformIO Build"
     runs-on: "ubuntu-latest"
     timeout-minutes: 30
-    concurrency:
-      group: "ci-build-${{ github.event_name == 'push' && github.sha || github.ref }}"
-      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     permissions:
       contents: "read"
     env:
