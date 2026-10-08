@@ -6,9 +6,59 @@ on:
   workflow_call: {}
 permissions: {}
 jobs:
-  no-repo-jobs:
-    name: "No repo jobs yet"
-    if: "github.event_name == 'never'"
+  build:
+    name: "PlatformIO Build"
     runs-on: "ubuntu-latest"
+    timeout-minutes: 30
+    concurrency:
+      group: "ci-build-${{ github.event_name == 'push' && github.sha || github.ref }}"
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+    permissions:
+      contents: "read"
+    env:
+      # renovate: datasource=pypi depName=platformio
+      PLATFORMIO_VERSION: "6.2.0"
+      # Placeholders: scripts/inject_secrets.py fails the build unless every credential is set
+      WIFI_SSID: "ci"
+      WIFI_PASSWORD: "ci"
+      OTA_PASSWORD: "ci"
+      MQTT_BROKER: "ci"
+      MQTT_USERNAME: "ci"
+      MQTT_PASSWORD: "ci"
+      MQTT_PORT: "1883"
     steps:
-      - run: "true"
+      - name: "Harden Runner"
+        uses: "step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25" # v2.22.1
+        with:
+          egress-policy: "audit"
+
+      - name: "Checkout"
+        uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: "Setup Python"
+        uses: "actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97" # v7.0.0
+        with:
+          python-version: "3.14"
+
+      # The platform comes from an unpinned git ref, so the month in the key forces a periodic fresh fetch
+      - name: "Get cache month"
+        id: "month"
+        run: "echo \"month=$(date -u +%Y-%m)\" >> \"$GITHUB_OUTPUT\""
+
+      - name: "Cache PlatformIO"
+        uses: "actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9" # v6.1.0
+        with:
+          path: |
+            ~/.platformio
+            .pio/libdeps
+          key: "pio-${{ runner.os }}-${{ env.PLATFORMIO_VERSION }}-${{ steps.month.outputs.month }}-${{ hashFiles('platformio.ini') }}"
+          restore-keys: |
+            pio-${{ runner.os }}-${{ env.PLATFORMIO_VERSION }}-${{ steps.month.outputs.month }}-
+
+      - name: "Install PlatformIO"
+        run: "pip install \"platformio==${PLATFORMIO_VERSION}\""
+
+      - name: "Build firmware"
+        run: "pio run -e esp32dev -e esp32dev-usb"
