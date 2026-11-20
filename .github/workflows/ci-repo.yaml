@@ -25,7 +25,7 @@ jobs:
       MQTT_PORT: "1883"
     steps:
       - name: "Harden Runner"
-        uses: "anthony-spruyt/repo-operator/.github/actions/harden-runner@bfbab2b0ea7b66d0d3e9eac9136222bd1fa9d35c" # main
+        uses: "anthony-spruyt/repo-operator/.github/actions/harden-runner@d77f42e24138f83d71f69391ecdfd484ae424a72" # main
         with:
           allowed-endpoints: >-
             api.github.com:443
